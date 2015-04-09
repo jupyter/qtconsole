@@ -14,12 +14,12 @@ import sys
 import time
 from textwrap import dedent
 
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 from IPython.core.inputsplitter import IPythonInputSplitter
-from IPython.core.release import version
+from jupyter_qtconsole import __version__
 from IPython.core.inputtransformer import ipy_prompt
-from IPython.utils.traitlets import Bool, Unicode
+from traitlets import Bool, Unicode
 from .frontend_widget import FrontendWidget
 from . import styles
 
@@ -36,7 +36,7 @@ default_output_sep = ''
 default_output_sep2 = ''
 
 # Base path for most payload sources.
-zmq_shell_source = 'IPython.kernel.zmq.zmqshell.ZMQInteractiveShell'
+zmq_shell_source = 'ipython_kernel.zmqshell.ZMQInteractiveShell'
 
 if sys.platform.startswith('win'):
     default_editor = 'notepad'
@@ -591,4 +591,4 @@ class IPythonWidget(FrontendWidget):
     #------ Trait default initializers -----------------------------------------
 
     def _banner_default(self):
-        return "IPython QtConsole {version}\n".format(version=version)
+        return "Jupyter QtConsole {version}\n".format(version=__version__)

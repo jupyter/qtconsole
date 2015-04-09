@@ -1,12 +1,12 @@
 # System library imports.
-from IPython.external.qt import QtGui
+from jupyter_qtconsole.qt import QtGui
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer, _TokenType, Text, Error
 from pygments.lexers import PythonLexer
 from pygments.styles import get_style_by_name
 
 # Local imports
-from IPython.utils.py3compat import string_types
+from ipython_genutils.py3compat import string_types
 
 def get_tokens_unprocessed(self, text, stack=('root',)):
     """ Split ``text`` into (tokentype, text) pairs.

@@ -9,10 +9,10 @@ from collections import namedtuple
 import re
 
 # System library imports
-from IPython.external.qt import QtGui
+from jupyter_qtconsole.qt import QtGui
 
 # Local imports
-from IPython.utils.py3compat import string_types
+from ipython_genutils.py3compat import string_types
 
 #-----------------------------------------------------------------------------
 # Constants and datatypes

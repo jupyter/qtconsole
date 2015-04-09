@@ -5,12 +5,12 @@ from base64 import decodestring
 import os
 import re
 
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 from IPython.lib.latextools import latex_to_png
-from IPython.utils.path import ensure_dir_exists
-from IPython.utils.traitlets import Bool
-from IPython.qt.svg import save_svg, svg_to_clipboard, svg_to_image
+from ipython_genutils.path import ensure_dir_exists
+from traitlets import Bool
+from jupyter_qtconsole.svg import save_svg, svg_to_clipboard, svg_to_image
 from .ipython_widget import IPythonWidget
 
 
@@ -21,7 +21,7 @@ class RichIPythonWidget(IPythonWidget):
     """
 
     # RichIPythonWidget protected class variables.
-    _payload_source_plot = 'IPython.kernel.zmq.pylab.backend_payload.add_plot_payload'
+    _payload_source_plot = 'ipython_kernel.pylab.backend_payload.add_plot_payload'
     _jpg_supported = Bool(False)
 
     # Used to determine whether a given html export attempt has already

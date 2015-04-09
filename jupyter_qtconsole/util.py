@@ -5,11 +5,11 @@
 import inspect
 
 # System library imports.
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 # IPython imports.
-from IPython.utils.py3compat import iteritems
-from IPython.utils.traitlets import HasTraits, TraitType
+from ipython_genutils.py3compat import iteritems
+from traitlets import HasTraits, TraitType
 
 #-----------------------------------------------------------------------------
 # Metaclasses

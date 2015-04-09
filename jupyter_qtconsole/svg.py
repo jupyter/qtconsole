@@ -2,10 +2,10 @@
 """
 
 # System library imports.
-from IPython.external.qt import QtCore, QtGui, QtSvg
+from jupyter_qtconsole.qt import QtCore, QtGui, QtSvg
 
 # Our own imports
-from IPython.utils.py3compat import unicode_type
+from ipython_genutils.py3compat import unicode_type
 
 def save_svg(string, parent=None):
     """ Prompts the user to save an SVG document to disk.

@@ -9,16 +9,16 @@ from collections import namedtuple
 import sys
 import uuid
 
-from IPython.external import qt
-from IPython.external.qt import QtCore, QtGui
-from IPython.utils import py3compat
-from IPython.utils.importstring import import_item
+from jupyter_qtconsole import qt
+from jupyter_qtconsole.qt import QtCore, QtGui
+from ipython_genutils import py3compat
+from ipython_genutils.importstring import import_item
 
 from IPython.core.inputsplitter import InputSplitter, IPythonInputSplitter
 from IPython.core.inputtransformer import classic_prompt
 from IPython.core.oinspect import call_tip
-from IPython.qt.base_frontend_mixin import BaseFrontendMixin
-from IPython.utils.traitlets import Any, Bool, Instance, Unicode, DottedObjectName
+from jupyter_qtconsole.base_frontend_mixin import BaseFrontendMixin
+from traitlets import Any, Bool, Instance, Unicode, DottedObjectName
 from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget

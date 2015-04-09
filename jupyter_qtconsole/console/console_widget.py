@@ -14,15 +14,15 @@ from unicodedata import category
 import webbrowser
 
 # System library imports
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 # Local imports
-from IPython.config.configurable import LoggingConfigurable
+from traitlets.config.configurable import LoggingConfigurable
 from IPython.core.inputsplitter import ESC_SEQUENCES
-from IPython.qt.rich_text import HtmlExporter
-from IPython.qt.util import MetaQObjectHasTraits, get_font
-from IPython.utils.text import columnize
-from IPython.utils.traitlets import Bool, Enum, Integer, Unicode
+from jupyter_qtconsole.rich_text import HtmlExporter
+from jupyter_qtconsole.util import MetaQObjectHasTraits, get_font
+from ipython_genutils.text import columnize
+from traitlets import Bool, Enum, Integer, Unicode
 from .ansi_code_processor import QtAnsiCodeProcessor
 from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml

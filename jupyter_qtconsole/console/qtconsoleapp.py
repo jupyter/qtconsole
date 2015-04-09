@@ -31,7 +31,7 @@ if os.name == 'nt':
         try:
             import ctypes, traceback
             MB_ICONERROR = 0x00000010
-            title = u'Error starting IPython QtConsole'
+            title = u'Error starting QtConsole'
             msg = u''.join(traceback.format_exception(exctype, value, tb))
             ctypes.windll.user32.MessageBoxW(0, msg, title, MB_ICONERROR)
         finally:
@@ -41,38 +41,31 @@ if os.name == 'nt':
 
     sys.excepthook = gui_excepthook
 
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
-from IPython.config.application import boolean_flag
-from IPython.config.application import catch_config_error
-from IPython.core.application import BaseIPythonApplication
-from IPython.qt.console.ipython_widget import IPythonWidget
-from IPython.qt.console.rich_ipython_widget import RichIPythonWidget
-from IPython.qt.console import styles
-from IPython.qt.console.mainwindow import MainWindow
-from IPython.qt.client import QtKernelClient
-from IPython.qt.manager import QtKernelManager
-from IPython.utils.traitlets import (
+from traitlets.config.application import boolean_flag
+from traitlets.config.application import catch_config_error
+from jupyter_qtconsole.console.ipython_widget import IPythonWidget
+from jupyter_qtconsole.console.rich_ipython_widget import RichIPythonWidget
+from jupyter_qtconsole.console import styles
+from jupyter_qtconsole.console.mainwindow import MainWindow
+from jupyter_qtconsole.client import QtKernelClient
+from jupyter_qtconsole.manager import QtKernelManager
+from traitlets import (
     Dict, Unicode, CBool, Any
 )
 
-from IPython.consoleapp import (
-        IPythonConsoleApp, app_aliases, app_flags, flags, aliases
+from jupyter_core.application import JupyterApp
+from jupyter_client.consoleapp import (
+        JupyterConsoleApp, app_aliases, app_flags, flags, aliases
     )
 
-#-----------------------------------------------------------------------------
-# Network Constants
-#-----------------------------------------------------------------------------
 
-from IPython.utils.localinterfaces import is_local_ip
+from jupyter_client.localinterfaces import is_local_ip
 
-#-----------------------------------------------------------------------------
-# Globals
-#-----------------------------------------------------------------------------
 
 _examples = """
-ipython qtconsole                      # start the qtconsole
-ipython qtconsole --matplotlib=inline  # start with matplotlib inline plotting mode
+jupyter qtconsole                      # start the qtconsole
 """
 
 #-----------------------------------------------------------------------------
@@ -82,11 +75,11 @@ ipython qtconsole --matplotlib=inline  # start with matplotlib inline plotting m
 # start with copy of flags
 flags = dict(flags)
 qt_flags = {
-    'plain' : ({'IPythonQtConsoleApp' : {'plain' : True}},
+    'plain' : ({'JupyterQtConsoleApp' : {'plain' : True}},
             "Disable rich text support."),
 }
 qt_flags.update(boolean_flag(
-    'banner', 'IPythonQtConsoleApp.display_banner',
+    'banner', 'JupyterQtConsoleApp.display_banner',
     "Display a banner upon starting the QtConsole.",
     "Don't display a banner upon starting the QtConsole."
 ))
@@ -100,7 +93,7 @@ flags.update(qt_flags)
 aliases = dict(aliases)
 qt_aliases = dict(
     style = 'IPythonWidget.syntax_style',
-    stylesheet = 'IPythonQtConsoleApp.stylesheet',
+    stylesheet = 'JupyterQtConsoleApp.stylesheet',
 
     editor = 'IPythonWidget.editor',
     paging = 'ConsoleWidget.paging',
@@ -116,36 +109,24 @@ aliases.update(qt_aliases)
 qt_aliases = set(qt_aliases.keys())
 qt_flags = set(qt_flags.keys())
 
-#-----------------------------------------------------------------------------
-# Classes
-#-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# IPythonQtConsole
-#-----------------------------------------------------------------------------
+class JupyterQtConsoleApp(object):
+    pass
 
-
-class IPythonQtConsoleApp(BaseIPythonApplication, IPythonConsoleApp):
-    name = 'ipython-qtconsole'
+class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp, JupyterQtConsoleApp):
+    name = 'jupyter-qtconsole'
 
     description = """
-        The IPython QtConsole.
+        The Jupyter QtConsole.
         
         This launches a Console-style application using Qt.  It is not a full
         console, in that launched terminal subprocesses will not be able to accept
         input.
         
-        The QtConsole supports various extra features beyond the Terminal IPython
-        shell, such as inline plotting with matplotlib, via:
-        
-            ipython qtconsole --matplotlib=inline
-        
-        as well as saving your session as HTML, and printing the output.
-        
     """
     examples = _examples
 
-    classes = [IPythonWidget] + IPythonConsoleApp.classes
+    classes = [IPythonWidget] + JupyterConsoleApp.classes
     flags = Dict(flags)
     aliases = Dict(aliases)
     frontend_flags = Any(qt_flags)
@@ -181,7 +162,7 @@ class IPythonQtConsoleApp(BaseIPythonApplication, IPythonConsoleApp):
     widget_factory = Any(RichIPythonWidget)
 
     def parse_command_line(self, argv=None):
-        super(IPythonQtConsoleApp, self).parse_command_line(argv)
+        super(JupyterQtConsoleApp, self).parse_command_line(argv)
         self.build_kernel_argv(self.extra_args)
 
 
@@ -346,8 +327,8 @@ class IPythonQtConsoleApp(BaseIPythonApplication, IPythonConsoleApp):
     @catch_config_error
     def initialize(self, argv=None):
         self.init_qt_app()
-        super(IPythonQtConsoleApp, self).initialize(argv)
-        IPythonConsoleApp.initialize(self,argv)
+        super(JupyterQtConsoleApp, self).initialize(argv)
+        JupyterConsoleApp.initialize(self,argv)
         self.init_qt_elements()
         self.init_signal()
 
@@ -368,7 +349,7 @@ class IPythonQtConsoleApp(BaseIPythonApplication, IPythonConsoleApp):
 #-----------------------------------------------------------------------------
 
 def main():
-    app = IPythonQtConsoleApp()
+    app = JupyterQtConsoleApp()
     app.initialize()
     app.start()
 

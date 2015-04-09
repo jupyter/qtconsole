@@ -1,9 +1,9 @@
 # System library imports
-from IPython.external.qt import QtGui
+from jupyter_qtconsole.qt import QtGui
 
 # Local imports
-from IPython.utils.py3compat import unicode_type
-from IPython.utils.traitlets import Bool
+from ipython_genutils.py3compat import unicode_type
+from traitlets import Bool
 from .console_widget import ConsoleWidget
 
 

@@ -2,10 +2,10 @@
 import unittest
 
 # System library imports
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 # Local imports
-from IPython.qt.console.console_widget import ConsoleWidget
+from jupyter_qtconsole.console.console_widget import ConsoleWidget
 import IPython.testing.decorators as dec
 
 setup = dec.skip_file_no_x11(__name__)
