@@ -1,13 +1,13 @@
 """ Defines a KernelClient that provides signals and slots.
 """
 
-from IPython.external.qt import QtCore
+from jupyter_qtconsole.qt import QtCore
 
 # Local imports
-from IPython.utils.traitlets import Bool, DottedObjectName
+from traitlets import Bool, DottedObjectName
 
-from IPython.kernel import KernelManager
-from IPython.kernel.restarter import KernelRestarter
+from jupyter_client import KernelManager
+from jupyter_client.restarter import KernelRestarter
 
 from .kernel_mixins import QtKernelManagerMixin, QtKernelRestarterMixin
 
@@ -30,7 +30,7 @@ class QtKernelRestarter(KernelRestarter, QtKernelRestarterMixin):
 class QtKernelManager(KernelManager, QtKernelManagerMixin):
     """A KernelManager with Qt signals for restart"""
 
-    client_class = DottedObjectName('IPython.qt.client.QtKernelClient')
+    client_class = DottedObjectName('jupyter_qtconsole.client.QtKernelClient')
     autorestart = Bool(True, config=True)
 
     def start_restarter(self):

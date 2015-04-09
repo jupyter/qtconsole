@@ -3,9 +3,9 @@
 # Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-from IPython.external.qt import QtCore
+from jupyter_qtconsole.qt import QtCore
 
-from IPython.utils.traitlets import HasTraits, Type
+from traitlets import HasTraits, Type
 from .util import MetaQObjectHasTraits, SuperQObject
 
 

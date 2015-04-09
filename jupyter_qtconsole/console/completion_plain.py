@@ -8,8 +8,8 @@
 #-------------------------------------------------------------------
 
 # System library imports
-from IPython.external.qt import QtCore, QtGui
-import IPython.utils.text as text
+from jupyter_qtconsole.qt import QtCore, QtGui
+import ipython_genutils.text as text
 
 
 class CompletionPlain(QtGui.QWidget):

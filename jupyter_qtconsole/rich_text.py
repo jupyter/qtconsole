@@ -10,10 +10,10 @@ import os
 import re
 
 # System library imports
-from IPython.external.qt import QtGui
+from jupyter_qtconsole.qt import QtGui
 
 # IPython imports
-from IPython.utils import py3compat
+from ipython_genutils import py3compat
 
 #-----------------------------------------------------------------------------
 # Constants

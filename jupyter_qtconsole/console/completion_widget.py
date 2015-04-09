@@ -1,6 +1,6 @@
 """A dropdown completer widget for the qtconsole."""
 # System library imports
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 
 class CompletionWidget(QtGui.QListWidget):

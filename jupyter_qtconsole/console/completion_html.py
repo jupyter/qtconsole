@@ -9,9 +9,9 @@
 #-----------------------------------------------------------------------------
 
 # System library imports
-import IPython.utils.text as text
+import ipython_genutils.text as text
 
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 #--------------------------------------------------------------------------
 # Return an HTML table with selected item in a special class

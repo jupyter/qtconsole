@@ -14,13 +14,13 @@ import re
 import sys
 
 # System library imports
-from IPython.external.qt import QtGui,QtCore
+from jupyter_qtconsole.qt import QtGui,QtCore
 
 from IPython.core.magic import magic_escapes
 
 class MagicHelper(QtGui.QDockWidget):
     """MagicHelper - dockable widget for convenient search and running of
-                     magic command for IPython QtConsole.
+                     magic command for Jupyter QtConsole.
     """
 
     #---------------------------------------------------------------------------

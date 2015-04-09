@@ -8,7 +8,7 @@ Do not use this if you need PyQt4 with the old QString/QVariant API.
 
 import os
 
-from IPython.external.qt_loaders import (load_qt, QT_API_PYSIDE,
+from jupyter_qtconsole.qt_loaders import (load_qt, QT_API_PYSIDE,
                                          QT_API_PYQT, QT_API_PYQT5)
 
 QT_API = os.environ.get('QT_API', None)

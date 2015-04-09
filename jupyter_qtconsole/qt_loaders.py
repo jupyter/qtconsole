@@ -12,7 +12,15 @@ import sys
 import types
 from functools import partial
 
-from IPython.utils.version import check_version
+from distutils.version import LooseVersion
+
+def check_version(a, b):
+    """compare versions"""
+    try:
+        return LooseVersion(a) >= LooseVersion(b)
+    except TypeError:
+        # assume unparseable versions are latest dev
+        return True
 
 # Available APIs.
 QT_API_PYQT = 'pyqt'
@@ -184,7 +192,7 @@ def import_pyqt4(version=2):
     from PyQt4 import QtGui, QtCore, QtSvg
 
     if not check_version(QtCore.PYQT_VERSION_STR, '4.7'):
-        raise ImportError("IPython requires PyQt4 >= 4.7, found %s" %
+        raise ImportError("QtConsole requires PyQt4 >= 4.7, found %s" %
                           QtCore.PYQT_VERSION_STR)
 
     # Alias PyQt-specific functions for PySide compatibility.

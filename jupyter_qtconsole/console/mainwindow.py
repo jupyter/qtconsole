@@ -20,7 +20,7 @@ import webbrowser
 from threading import Thread
 
 # System library imports
-from IPython.external.qt import QtGui,QtCore
+from jupyter_qtconsole.qt import QtGui,QtCore
 
 from IPython.core.magic import magic_escapes
 

@@ -3,7 +3,7 @@ import re
 from unicodedata import category
 
 # System library imports
-from IPython.external.qt import QtCore, QtGui
+from jupyter_qtconsole.qt import QtCore, QtGui
 
 
 class CallTipWidget(QtGui.QLabel):

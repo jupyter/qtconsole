@@ -11,14 +11,14 @@ import zmq
 from zmq import ZMQError
 from zmq.eventloop import ioloop, zmqstream
 
-from IPython.external.qt import QtCore
+from jupyter_qtconsole.qt import QtCore
 
 # Local imports
-from IPython.utils.traitlets import Type, Instance
-from IPython.kernel.channels import HBChannel
-from IPython.kernel import KernelClient
-from IPython.kernel.channels import InvalidPortNumber
-from IPython.kernel.threaded import ThreadedKernelClient, ThreadedZMQSocketChannel
+from traitlets import Type, Instance
+from jupyter_client.channels import HBChannel
+from jupyter_client import KernelClient
+from jupyter_client.channels import InvalidPortNumber
+from jupyter_client.threaded import ThreadedKernelClient, ThreadedZMQSocketChannel
 
 from .kernel_mixins import QtKernelClientMixin
 from .util import SuperQObject
@@ -36,9 +36,9 @@ class QtHBChannel(SuperQObject, HBChannel):
         # Emit the generic signal.
         self.kernel_died.emit(since_last_heartbeat)
 
-from IPython.core.release import kernel_protocol_version_info
+from jupyter_client import protocol_version_info
 
-major_protocol_version = kernel_protocol_version_info[0]
+major_protocol_version = protocol_version_info[0]
 
 class QtZMQSocketChannel(ThreadedZMQSocketChannel,SuperQObject):
     """A ZMQ socket emitting a Qt signal when a message is received."""

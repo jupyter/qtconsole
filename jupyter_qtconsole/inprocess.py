@@ -1,14 +1,13 @@
 """ Defines an in-process KernelManager with signals and slots.
 """
 
-# Local imports.
-from IPython.external.qt import QtCore
-from IPython.kernel.inprocess import (
+from jupyter_qtconsole.qt import QtCore
+from ipython_kernel.inprocess import (
     InProcessHBChannel, InProcessKernelClient, InProcessKernelManager,
 )
-from IPython.kernel.inprocess.channels import InProcessChannel
+from ipython_kernel.inprocess.channels import InProcessChannel
 
-from IPython.utils.traitlets import Type
+from traitlets import Type
 from .util import SuperQObject
 from .kernel_mixins import (
     QtKernelClientMixin, QtKernelManagerMixin,

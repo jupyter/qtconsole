@@ -1,3 +1,3 @@
 if __name__ == '__main__':
-    from IPython.qt.console.qtconsoleapp import main
+    from jupyter_qtconsole.console.qtconsoleapp import main
     main()
