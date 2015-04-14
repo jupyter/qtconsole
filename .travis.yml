@@ -1,0 +1,24 @@
+language: python
+python:
+    - 3.4
+    - 3.3
+    - 2.7
+sudo: false
+before_install:
+    - git clone --quiet --depth 1 https://github.com/minrk/travis-wheels travis-wheels
+    -  if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh; else wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh; fi
+    - chmod +x miniconda.sh
+    - ./miniconda.sh -b
+    - if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then export PATH=/home/travis/miniconda/bin:$PATH; else export PATH=/home/travis/miniconda3/bin:$PATH; fi
+    - conda create -n qtconsole --yes pyqt
+    - source activate qtconsole
+install:
+    - source activate qtconsole
+    - conda install --yes pyzmq sphinx pygments
+    - pip install  . coveralls -r requirements.txt
+    - python -c 'import ipython_kernel.kernelspec; ipython_kernel.kernelspec.install(user=True)'
+    - pip install nose
+script:
+    - nosetests --with-coverage --cover-package jupyter_qtconsole jupyter_qtconsole
+after_success:
+    - coveralls
