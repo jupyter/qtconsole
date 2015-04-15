@@ -8,17 +8,16 @@ To start the Qt Console::
 
     $> ipython qtconsole
 
-We now have a version of IPython, using the new two-process :ref:`ZeroMQ Kernel
-<ipythonzmq>`, running in a PyQt_ GUI.  This is a very lightweight widget that
+We now have a version of IPython, using the two-process ZeroMQ Kernel, running in a PyQt_ GUI.  This is a very lightweight widget that
 largely feels like a terminal, but provides a number of enhancements only
 possible in a GUI, such as inline figures, proper multiline editing with syntax
 highlighting, graphical calltips, and much more.
 
-.. figure:: ../_images/qtconsole.png
+.. figure:: _images/qtconsole.png
     :width: 400px
     :alt: IPython Qt console with embedded plots
     :align: center
-    :target: ../_images/qtconsole.png
+    :target: _images/qtconsole.png
 
     The Qt console for IPython, using inline matplotlib plots.
 
