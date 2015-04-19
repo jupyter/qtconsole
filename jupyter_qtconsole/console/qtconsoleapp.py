@@ -43,6 +43,7 @@ if os.name == 'nt':
 
 from jupyter_qtconsole.qt import QtCore, QtGui
 
+from traitlets.config import Configurable
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
 from jupyter_qtconsole.console.ipython_widget import IPythonWidget
@@ -109,11 +110,7 @@ aliases.update(qt_aliases)
 qt_aliases = set(qt_aliases.keys())
 qt_flags = set(qt_flags.keys())
 
-
-class JupyterQtConsoleApp(object):
-    pass
-
-class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp, JupyterQtConsoleApp):
+class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     name = 'jupyter-qtconsole'
 
     description = """
@@ -328,6 +325,15 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp, JupyterQtConsoleApp):
     def initialize(self, argv=None):
         self.init_qt_app()
         super(JupyterQtConsoleApp, self).initialize(argv)
+        if 'IPythonQtConsoleApp' in self.config:
+            self.log.warn("Use JupyterQtConsoleApp in config, not IPythonQtConsoleApp. Outdated config:\n%s",
+                '\n'.join('IPythonQtConsoleApp.{key} = {value!r}'.format(key=key, value=value)
+                    for key, value in self.config.IPythonQtConsoleApp.items()
+                )
+            )
+            cfg = self.config.copy()
+            cfg.JupyterQtConsoleApp.merge(cfg.IPythonQtConsoleApp)
+            self.update_config(cfg)
         JupyterConsoleApp.initialize(self,argv)
         self.init_qt_elements()
         self.init_signal()
@@ -343,6 +349,13 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp, JupyterQtConsoleApp):
 
         # Start the application main loop.
         self.app.exec_()
+
+
+class IPythonQtConsoleApp(JupyterQtConsoleApp):
+    def __init__(self, *a, **kw):
+        warn("IPythonQtConsoleApp is deprecated, use JupyterQtConsoleApp")
+        super(IPythonQtConsoleApp, self).__init__(*a, **kw)
+
 
 #-----------------------------------------------------------------------------
 # Main entry point
