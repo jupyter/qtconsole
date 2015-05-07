@@ -19,6 +19,6 @@ install:
     - python -c 'import ipython_kernel.kernelspec; ipython_kernel.kernelspec.install(user=True)'
     - pip install nose
 script:
-    - nosetests --with-coverage --cover-package jupyter_qtconsole jupyter_qtconsole
+    - nosetests --with-coverage --cover-package qtconsole qtconsole
 after_success:
     - coveralls

@@ -18,7 +18,7 @@ import shlex
 
 # Check the version information
 release_info = {}
-exec(compile(open('../../jupyter_qtconsole/_version.py').read(), '../../jupyter_qtconsole/_version.py', 'exec'), release_info)
+exec(compile(open('../../qtconsole/_version.py').read(), '../../qtconsole/_version.py', 'exec'), release_info)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
