@@ -16,7 +16,7 @@ install:
     - source activate qtconsole
     - conda install --yes pyzmq sphinx pygments
     - pip install  . coveralls -r requirements.txt
-    - python -c 'import ipython_kernel.kernelspec; ipython_kernel.kernelspec.install(user=True)'
+    - python -c 'import ipykernel.kernelspec; ipykernel.kernelspec.install(user=True)'
     - pip install nose
 script:
     - nosetests --with-coverage --cover-package qtconsole qtconsole

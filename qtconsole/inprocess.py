@@ -2,10 +2,10 @@
 """
 
 from qtconsole.qt import QtCore
-from ipython_kernel.inprocess import (
+from ipykernel.inprocess import (
     InProcessHBChannel, InProcessKernelClient, InProcessKernelManager,
 )
-from ipython_kernel.inprocess.channels import InProcessChannel
+from ipykernel.inprocess.channels import InProcessChannel
 
 from traitlets import Type
 from .util import SuperQObject

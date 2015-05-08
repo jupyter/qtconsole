@@ -36,7 +36,7 @@ default_output_sep = ''
 default_output_sep2 = ''
 
 # Base path for most payload sources.
-zmq_shell_source = 'ipython_kernel.zmqshell.ZMQInteractiveShell'
+zmq_shell_source = 'ipykernel.zmqshell.ZMQInteractiveShell'
 
 if sys.platform.startswith('win'):
     default_editor = 'notepad'
