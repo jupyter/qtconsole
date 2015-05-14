@@ -4,25 +4,14 @@ This is a tabbed pseudo-terminal of IPython sessions, with a menu bar for
 common actions.
 """
 
-# Copyright (c) IPython Development Team.
-# Distributed under the terms of the Modified BSD License. 
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
 
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# stdlib imports
-import json
-import re
 import sys
 import webbrowser
 from threading import Thread
 
-# System library imports
 from qtconsole.qt import QtGui,QtCore
-
-from IPython.core.magic import magic_escapes
 
 def background(f):
     """call a function in a simple thread, to prevent blocking"""
@@ -30,9 +19,6 @@ def background(f):
     t.start()
     return t
 
-#-----------------------------------------------------------------------------
-# Classes
-#-----------------------------------------------------------------------------
 
 class MainWindow(QtGui.QMainWindow):
 
