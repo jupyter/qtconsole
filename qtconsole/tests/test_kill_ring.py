@@ -5,7 +5,7 @@ import unittest
 from qtconsole.qt import QtGui
 
 # Local imports
-from qtconsole.console.kill_ring import KillRing, QtKillRing
+from qtconsole.kill_ring import KillRing, QtKillRing
 import IPython.testing.decorators as dec
 
 setup = dec.skip_file_no_x11(__name__)

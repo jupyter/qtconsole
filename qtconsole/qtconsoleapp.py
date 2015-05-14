@@ -46,10 +46,10 @@ from qtconsole.qt import QtCore, QtGui
 from traitlets.config import Configurable
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
-from qtconsole.console.ipython_widget import IPythonWidget
-from qtconsole.console.rich_ipython_widget import RichIPythonWidget
-from qtconsole.console import styles
-from qtconsole.console.mainwindow import MainWindow
+from qtconsole.ipython_widget import IPythonWidget
+from qtconsole.rich_ipython_widget import RichIPythonWidget
+from qtconsole import styles
+from qtconsole.mainwindow import MainWindow
 from qtconsole.client import QtKernelClient
 from qtconsole.manager import QtKernelManager
 from traitlets import (
