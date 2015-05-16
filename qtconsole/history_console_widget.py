@@ -1,7 +1,8 @@
-# System library imports
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
+
 from qtconsole.qt import QtGui
 
-# Local imports
 from ipython_genutils.py3compat import unicode_type
 from traitlets import Bool
 from .console_widget import ConsoleWidget
