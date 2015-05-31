@@ -4,7 +4,7 @@ dist
 _build
 docs/man/*.gz
 docs/source/api/generated
-docs/source/config/options
+docs/source/config_options.rst
 docs/source/interactive/magics-generated.txt
 docs/gh-pages
 jupyter_notebook/notebook/static/mathjax
