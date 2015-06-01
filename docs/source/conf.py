@@ -34,7 +34,7 @@ if os.environ.get('READTHEDOCS', ''):
         def __getattr__(cls, name):
                 return Mock()
 
-    MOCK_MODULES = ['PyQt4']
+    MOCK_MODULES = ['qtconsole.qt']
     sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
     # Readthedocs doesn't run our Makefile, so we do this to force it to generate
