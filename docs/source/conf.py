@@ -25,6 +25,23 @@ exec(compile(open('../../qtconsole/_version.py').read(), '../../qtconsole/_versi
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+if os.environ.get('READTHEDOCS', ''):
+    # Mock out PyQt4 so we can import the Qt console code
+    from unittest.mock import MagicMock
+
+    class Mock(MagicMock):
+        @classmethod
+        def __getattr__(cls, name):
+                return Mock()
+
+    MOCK_MODULES = ['PyQt4']
+    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+    # Readthedocs doesn't run our Makefile, so we do this to force it to generate
+    # the config docs.
+    with open('../autogen_config.py') as f:
+        exec(compile(f.read(), '../autogen_config.py', 'exec'), {})
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
