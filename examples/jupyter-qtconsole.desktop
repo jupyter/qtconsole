@@ -3,22 +3,21 @@
 
 [Desktop Entry]
 Comment=Enhanced interactive Python qtconsole
-Exec=ipython qtconsole
+Exec=jupyter qtconsole
 GenericName[en_US]=Python shell
 GenericName=Python shell
 Icon=gnome-netstatus-idle
-Name[en_US]=IPython Qt console
-Name=IPython Qt console
+Name[en_US]=Jupyter Qt console
+Name=Jupyter Qt console
 Categories=Development;Utility;
-StartupNotify=false
 Terminal=false
 Type=Application
 Actions=Matplotlib;Matplotlibinline;
 
 [Desktop Action Matplotlib]
 Name=Matplotlib
-Exec=ipython qtconsole --matplotlib
+Exec=jupyter qtconsole --matplotlib
 
 [Desktop Action Matplotlibinline]
 Name=Matplotlib (inline plots)
-Exec=ipython qtconsole --matplotlib=inline
+Exec=jupyter qtconsole --matplotlib=inline
