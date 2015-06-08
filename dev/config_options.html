@@ -1,0 +1,446 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configuration options &mdash; Jupyter Qt Console 4.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '4.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Jupyter Qt Console 4.0.0 documentation" href="index.html" />
+    <link rel="prev" title="A Qt Console for IPython" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="index.html" title="A Qt Console for IPython"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Jupyter Qt Console 4.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="configuration-options">
+<h1>Configuration options<a class="headerlink" href="#configuration-options" title="Permalink to this headline">¶</a></h1>
+<p>These options can be set in <code class="docutils literal"><span class="pre">~/.jupyer/jupyter_qtconsole_config.py</span></code>, or
+at the command line when you start it.</p>
+<dl class="docutils">
+<dt>ConnectionFileMixin.connection_file <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p>JSON file in which to store connection info [default: kernel-&lt;pid&gt;.json]</p>
+<p class="last">This file will contain the IP, ports, and authentication key needed to connect
+clients to this kernel. By default, this file will be created in the security dir
+of the current profile, but can be specified by absolute path.</p>
+</dd>
+<dt>ConnectionFileMixin.control_port <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">0</span></code></p>
+<p class="last">set the control (ROUTER) port [default: random]</p>
+</dd>
+<dt>ConnectionFileMixin.hb_port <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">0</span></code></p>
+<p class="last">set the heartbeat port [default: random]</p>
+</dd>
+<dt>ConnectionFileMixin.iopub_port <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">0</span></code></p>
+<p class="last">set the iopub (PUB) port [default: random]</p>
+</dd>
+<dt>ConnectionFileMixin.ip <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">Set the kernel&#8217;s IP address [default localhost].
+If the IP address is something other than localhost, then
+Consoles on other machines will be able to connect
+to the Kernel, so be careful!</p>
+</dd>
+<dt>ConnectionFileMixin.shell_port <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">0</span></code></p>
+<p class="last">set the shell (ROUTER) port [default: random]</p>
+</dd>
+<dt>ConnectionFileMixin.stdin_port <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">0</span></code></p>
+<p class="last">set the stdin (ROUTER) port [default: random]</p>
+</dd>
+<dt>ConnectionFileMixin.transport <span class="classifier-delimiter">:</span> <span class="classifier">&#8216;tcp&#8217;|&#8217;ipc&#8217;</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'tcp'</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>JupyterConsoleApp.confirm_exit <span class="classifier-delimiter">:</span> <span class="classifier">CBool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
+<p class="last">Set to display confirmation dialog on exit. You can always use &#8216;exit&#8217; or &#8216;quit&#8217;,
+to force a direct exit without any confirmation.</p>
+</dd>
+<dt>JupyterConsoleApp.existing <span class="classifier-delimiter">:</span> <span class="classifier">CUnicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">Connect to an already running kernel</p>
+</dd>
+<dt>JupyterConsoleApp.kernel_name <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'python'</span></code></p>
+<p class="last">The name of the default kernel to start.</p>
+</dd>
+<dt>JupyterConsoleApp.sshkey <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">Path to the ssh key to use for logging in to the ssh server.</p>
+</dd>
+<dt>JupyterConsoleApp.sshserver <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">The SSH server to use to connect to the kernel.</p>
+</dd>
+<dt>Application.log_datefmt <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'%Y-%m-%d</span> <span class="pre">%H:%M:%S'</span></code></p>
+<p class="last">The date format used by logging formatters for %(asctime)s</p>
+</dd>
+<dt>Application.log_format <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'[%(name)s]%(highlevel)s</span> <span class="pre">%(message)s'</span></code></p>
+<p class="last">The Logging format template</p>
+</dd>
+<dt>Application.log_level <span class="classifier-delimiter">:</span> <span class="classifier">0|10|20|30|40|50|&#8217;DEBUG&#8217;|&#8217;INFO&#8217;|&#8217;WARN&#8217;|&#8217;ERROR&#8217;|&#8217;CRITICAL&#8217;</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">30</span></code></p>
+<p class="last">Set the log level by value or name.</p>
+</dd>
+<dt>JupyterApp.answer_yes <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">Answer yes to any prompts.</p>
+</dd>
+<dt>JupyterApp.config_file <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">Full path of a config file.</p>
+</dd>
+<dt>JupyterApp.config_file_name <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">Specify a config file to load.</p>
+</dd>
+<dt>JupyterApp.generate_config <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">Generate default config file.</p>
+</dd>
+<dt>JupyterQtConsoleApp.display_banner <span class="classifier-delimiter">:</span> <span class="classifier">CBool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
+<p class="last">Whether to display a banner upon starting the QtConsole.</p>
+</dd>
+<dt>JupyterQtConsoleApp.hide_menubar <span class="classifier-delimiter">:</span> <span class="classifier">CBool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">Start the console window with the menu bar hidden.</p>
+</dd>
+<dt>JupyterQtConsoleApp.maximize <span class="classifier-delimiter">:</span> <span class="classifier">CBool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">Start the console window maximized.</p>
+</dd>
+<dt>JupyterQtConsoleApp.plain <span class="classifier-delimiter">:</span> <span class="classifier">CBool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">Use a plaintext widget instead of rich text (plain can&#8217;t print/save).</p>
+</dd>
+<dt>JupyterQtConsoleApp.stylesheet <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">path to a custom CSS stylesheet</p>
+</dd>
+<dt>ConsoleWidget.ansi_codes <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
+<p class="last">Whether to process ANSI escape codes.</p>
+</dd>
+<dt>ConsoleWidget.buffer_size <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">500</span></code></p>
+<p class="last">The maximum number of lines of text before truncation. Specifying a
+non-positive number disables text truncation (not recommended).</p>
+</dd>
+<dt>ConsoleWidget.execute_on_complete_input <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
+<p>Whether to automatically execute on syntactically complete input.</p>
+<p class="last">If False, Shift-Enter is required to submit each execution.
+Disabling this is mainly useful for non-Python kernels,
+where the completion check would be wrong.</p>
+</dd>
+<dt>ConsoleWidget.font_family <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">The font family to use for the console.
+On OSX this defaults to Monaco, on Windows the default is
+Consolas with fallback of Courier, and on other platforms
+the default is Monospace.</p>
+</dd>
+<dt>ConsoleWidget.font_size <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">0</span></code></p>
+<p class="last">The font size. If unconfigured, Qt will be entrusted
+with the size of the font.</p>
+</dd>
+<dt>ConsoleWidget.gui_completion <span class="classifier-delimiter">:</span> <span class="classifier">&#8216;plain&#8217;|&#8217;droplist&#8217;|&#8217;ncurses&#8217;</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'ncurses'</span></code></p>
+<p>The type of completer to use. Valid values are:</p>
+<dl class="last docutils">
+<dt>&#8216;plain&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">Show the available completion as a text list</span></dt>
+<dd>Below the editing area.</dd>
+<dt>&#8216;droplist&#8217;: Show the completion in a drop down list navigable</dt>
+<dd>by the arrow keys, and from which you can select
+completion by pressing Return.</dd>
+<dt>&#8216;ncurses&#8217; <span class="classifier-delimiter">:</span> <span class="classifier">Show the completion as a text list which is navigable by</span></dt>
+<dd><code class="docutils literal"><span class="pre">tab</span></code> and arrow keys.</dd>
+</dl>
+</dd>
+<dt>ConsoleWidget.height <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">25</span></code></p>
+<p class="last">The height of the console at start time in number
+of characters (will double with <code class="docutils literal"><span class="pre">vsplit</span></code> paging)</p>
+</dd>
+<dt>ConsoleWidget.include_other_output <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p>Whether to include output from clients
+other than this one sharing the same kernel.</p>
+<p class="last">Outputs are not displayed until enter is pressed.</p>
+</dd>
+<dt>ConsoleWidget.kind <span class="classifier-delimiter">:</span> <span class="classifier">&#8216;plain&#8217;|&#8217;rich&#8217;</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'plain'</span></code></p>
+<p class="last">The type of underlying text widget to use. Valid values are &#8216;plain&#8217;,
+which specifies a QPlainTextEdit, and &#8216;rich&#8217;, which specifies a
+QTextEdit.</p>
+</dd>
+<dt>ConsoleWidget.paging <span class="classifier-delimiter">:</span> <span class="classifier">&#8216;inside&#8217;|&#8217;hsplit&#8217;|&#8217;vsplit&#8217;|&#8217;custom&#8217;|&#8217;none&#8217;</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'inside'</span></code></p>
+<p>The type of paging to use. Valid values are:</p>
+<dl class="last docutils">
+<dt>&#8216;inside&#8217;</dt>
+<dd>The widget pages like a traditional terminal.</dd>
+<dt>&#8216;hsplit&#8217;</dt>
+<dd>When paging is requested, the widget is split horizontally. The top
+pane contains the console, and the bottom pane contains the paged text.</dd>
+<dt>&#8216;vsplit&#8217;</dt>
+<dd>Similar to &#8216;hsplit&#8217;, except that a vertical splitter is used.</dd>
+<dt>&#8216;custom&#8217;</dt>
+<dd>No action is taken by the widget beyond emitting a
+&#8216;custom_page_requested(str)&#8217; signal.</dd>
+<dt>&#8216;none&#8217;</dt>
+<dd>The text is written directly to the console.</dd>
+</dl>
+</dd>
+<dt>ConsoleWidget.width <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">81</span></code></p>
+<p class="last">The width of the console at start time in number
+of characters (will double with <code class="docutils literal"><span class="pre">hsplit</span></code> paging)</p>
+</dd>
+<dt>HistoryConsoleWidget.history_lock <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>FrontendWidget.banner <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>FrontendWidget.clear_on_kernel_restart <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
+<p class="last">Whether to clear the console when the kernel is restarted</p>
+</dd>
+<dt>FrontendWidget.confirm_restart <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
+<p class="last">Whether to ask for user confirmation when restarting kernel</p>
+</dd>
+<dt>FrontendWidget.enable_calltips <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
+<p class="last">Whether to draw information calltips on open-parentheses.</p>
+</dd>
+<dt>FrontendWidget.lexer_class <span class="classifier-delimiter">:</span> <span class="classifier">DottedObjectName</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">&lt;traitlets.traitlets.Undefined</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f29fedb8630&gt;</span></code></p>
+<p class="last">The pygments lexer class to use.</p>
+</dd>
+<dt>IPythonWidget.editor <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">A command for invoking a system text editor. If the string contains a
+{filename} format specifier, it will be used. Otherwise, the filename
+will be appended to the end the command.</p>
+</dd>
+<dt>IPythonWidget.editor_line <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">The editor command to use when a specific line number is requested. The
+string should contain two format specifiers: {line} and {filename}. If
+this parameter is not specified, the line number option to the %edit
+magic will be ignored.</p>
+</dd>
+<dt>IPythonWidget.in_prompt <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'In</span> <span class="pre">[&lt;span</span> <span class="pre">class=&quot;in-prompt-number&quot;&gt;%i&lt;/span&gt;]:</span> <span class="pre">'</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>IPythonWidget.input_sep <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'\\n'</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>IPythonWidget.out_prompt <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'Out[&lt;span</span> <span class="pre">class=&quot;out-prompt-number&quot;&gt;%i&lt;/span&gt;]:</span> <span class="pre">'</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>IPythonWidget.output_sep <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>IPythonWidget.output_sep2 <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">No description</p>
+</dd>
+<dt>IPythonWidget.style_sheet <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<dl class="last docutils">
+<dt>A CSS stylesheet. The stylesheet can contain classes for:</dt>
+<dd><ol class="first last arabic simple">
+<li>Qt: QPlainTextEdit, QFrame, QWidget, etc</li>
+<li>Pygments: .c, .k, .o, etc. (see PygmentsHighlighter)</li>
+<li>IPython: .error, .in-prompt, .out-prompt, etc</li>
+</ol>
+</dd>
+</dl>
+</dd>
+<dt>IPythonWidget.syntax_style <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">If not empty, use this Pygments style for syntax highlighting.
+Otherwise, the style sheet is queried for Pygments style
+information.</p>
+</dd>
+<dt>KernelManager.autorestart <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">Should we autorestart the kernel if it dies.</p>
+</dd>
+<dt>KernelManager.kernel_cmd <span class="classifier-delimiter">:</span> <span class="classifier">List</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">[]</span></code></p>
+<p>DEPRECATED: Use kernel_name instead.</p>
+<p class="last">The Popen Command to launch the kernel.
+Override this if you have a custom kernel.
+If kernel_cmd is specified in a configuration file,
+Jupyter does not pass any arguments to the kernel,
+because it cannot make any assumptions about the
+arguments that the kernel understands. In particular,
+this means that the kernel does not receive the
+option &#8211;debug if it given on the Jupyter command line.</p>
+</dd>
+<dt>Session.buffer_threshold <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">1024</span></code></p>
+<p class="last">Threshold (in bytes) beyond which an object&#8217;s buffer should be extracted to avoid pickling.</p>
+</dd>
+<dt>Session.copy_threshold <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">65536</span></code></p>
+<p class="last">Threshold (in bytes) beyond which a buffer should be sent without copying.</p>
+</dd>
+<dt>Session.debug <span class="classifier-delimiter">:</span> <span class="classifier">Bool</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">False</span></code></p>
+<p class="last">Debug output in the Session</p>
+</dd>
+<dt>Session.digest_history_size <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">65536</span></code></p>
+<p>The maximum number of digests to remember.</p>
+<p class="last">The digest history will be culled when it exceeds this value.</p>
+</dd>
+<dt>Session.item_threshold <span class="classifier-delimiter">:</span> <span class="classifier">Int</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">64</span></code></p>
+<p class="last">The maximum number of items for a container to be introspected for custom serialization.
+Containers larger than this are pickled outright.</p>
+</dd>
+<dt>Session.key <span class="classifier-delimiter">:</span> <span class="classifier">CBytes</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">b''</span></code></p>
+<p class="last">execution key, for signing messages.</p>
+</dd>
+<dt>Session.keyfile <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">path to file containing execution key.</p>
+</dd>
+<dt>Session.metadata <span class="classifier-delimiter">:</span> <span class="classifier">Dict</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">{}</span></code></p>
+<p class="last">Metadata dictionary, which serves as the default top-level metadata dict for each message.</p>
+</dd>
+<dt>Session.packer <span class="classifier-delimiter">:</span> <span class="classifier">DottedObjectName</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'json'</span></code></p>
+<p class="last">The name of the packer for serializing messages.
+Should be one of &#8216;json&#8217;, &#8216;pickle&#8217;, or an import name
+for a custom callable serializer.</p>
+</dd>
+<dt>Session.session <span class="classifier-delimiter">:</span> <span class="classifier">CUnicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
+<p class="last">The UUID identifying this session.</p>
+</dd>
+<dt>Session.signature_scheme <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'hmac-sha256'</span></code></p>
+<p class="last">The digest scheme used to construct the message signatures.
+Must have the form &#8216;hmac-HASH&#8217;.</p>
+</dd>
+<dt>Session.unpacker <span class="classifier-delimiter">:</span> <span class="classifier">DottedObjectName</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'json'</span></code></p>
+<p class="last">The name of the unpacker for unserializing messages.
+Only used with custom functions for <code class="docutils literal"><span class="pre">packer</span></code>.</p>
+</dd>
+<dt>Session.username <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'takluyver'</span></code></p>
+<p class="last">Username for the Session. Default is your system username.</p>
+</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">A Qt Console for IPython</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/config_options.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;The Jupyter Development Team.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.4</a>
+      
+      |
+      <a href="_sources/config_options.txt"
+          rel="nofollow">Page source</a></li>
+    </div>
+
+    
+
+    
+  </body>
+</html>
