@@ -24,6 +24,7 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html       to make standalone HTML files"
+	@echo "  gh-pages   clone qtconsole docs in ./gh-pages/ , build doc, autocommit"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"
 	@echo "  pickle     to make pickle files"
@@ -60,6 +61,12 @@ html: source/config_options.rst
 source/config_options.rst:
 	python3 autogen_config.py
 	@echo "Created docs for config options"
+
+gh-pages: clean html
+	# if VERSION is unspecified, it will be dev
+	# For releases, VERSION should be just the major version,
+	# e.g. VERSION=2 make gh-pages
+	python3 gh-pages.py $(VERSION)
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
