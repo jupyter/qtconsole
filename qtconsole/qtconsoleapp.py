@@ -10,6 +10,7 @@ input, there is no real readline support, among other limitations.
 import os
 import signal
 import sys
+from warnings import warn
 
 # If run on Windows, install an exception hook which pops up a
 # message box. Pythonw.exe hides the console, so without this
@@ -43,7 +44,6 @@ if os.name == 'nt':
 
 from qtconsole.qt import QtCore, QtGui
 
-from traitlets.config import Configurable
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
 from qtconsole.ipython_widget import IPythonWidget
