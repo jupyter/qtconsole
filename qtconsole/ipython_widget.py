@@ -266,10 +266,6 @@ class IPythonWidget(FrontendWidget):
     def _handle_kernel_info_reply(self, rep):
         """Handle kernel info replies."""
         content = rep['content']
-        if not self._guiref_loaded:
-            if content.get('implementation') == 'ipython':
-                self._load_guiref_magic()
-            self._guiref_loaded = True
         
         self.kernel_banner = content.get('banner', '')
         if self._starting:
@@ -285,50 +281,6 @@ class IPythonWidget(FrontendWidget):
 
         self.kernel_client.history(hist_access_type='tail', n=1000)
     
-    def _load_guiref_magic(self):
-        """Load %guiref magic."""
-        self.kernel_client.execute('\n'.join([
-            "try:",
-            "    _usage",
-            "except:",
-            "    from IPython.core import usage as _usage",
-            "    get_ipython().register_magic_function(_usage.page_guiref, 'line', 'guiref')",
-            "    del _usage",
-        ]), silent=True)
-        
-    #---------------------------------------------------------------------------
-    # 'ConsoleWidget' public interface
-    #---------------------------------------------------------------------------
-
-    #---------------------------------------------------------------------------
-    # 'FrontendWidget' public interface
-    #---------------------------------------------------------------------------
-
-    def execute_file(self, path, hidden=False):
-        """ Reimplemented to use the 'run' magic.
-        """
-        # Use forward slashes on Windows to avoid escaping each separator.
-        if sys.platform == 'win32':
-            path = os.path.normpath(path).replace('\\', '/')
-
-        # Perhaps we should not be using %run directly, but while we
-        # are, it is necessary to quote or escape filenames containing spaces 
-        # or quotes. 
-        
-        # In earlier code here, to minimize escaping, we sometimes quoted the 
-        # filename with single quotes. But to do this, this code must be
-        # platform-aware, because run uses shlex rather than python string
-        # parsing, so that:
-        # * In Win: single quotes can be used in the filename without quoting,
-        #   and we cannot use single quotes to quote the filename.
-        # * In *nix: we can escape double quotes in a double quoted filename,
-        #   but can't escape single quotes in a single quoted filename.
-        
-        # So to keep this code non-platform-specific and simple, we now only
-        # use double quotes to quote filenames, and escape when needed:
-        if ' ' in path or "'" in path or '"' in path:
-            path = '"%s"' % path.replace('"', '\\"')
-        self.execute('%%run %s' % path, hidden=hidden)
 
     #---------------------------------------------------------------------------
     # 'FrontendWidget' protected interface

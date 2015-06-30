@@ -333,7 +333,6 @@ class MainWindow(QtGui.QMainWindow):
         self.init_edit_menu()
         self.init_view_menu()
         self.init_kernel_menu()
-        self.init_magic_menu()
         self.init_window_menu()
         self.init_help_menu()
     
@@ -507,7 +506,7 @@ class MainWindow(QtGui.QMainWindow):
             self,
             shortcut='Ctrl+L',
             statusTip="Clear the console",
-            triggered=self.clear_magic_active_frontend)
+            triggered=self.clear_active_frontend)
         self.add_menu_action(self.view_menu, self.clear_action)
 
         self.pager_menu = self.view_menu.addMenu("&Pager")
@@ -561,50 +560,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self.add_menu_action(self.kernel_menu, self.confirm_restart_kernel_action)
         self.tab_widget.currentChanged.connect(self.update_restart_checkbox)
-        
-    def init_magic_menu(self):
-        self.magic_menu = self.menuBar().addMenu("&Magic")
-
-        self.add_menu_action(self.magic_menu, 
-                             self.magic_helper.toggleViewAction())
-
-        self.magic_menu_separator = self.magic_menu.addSeparator()
-        
-        self.reset_action = QtGui.QAction("&Reset",
-            self,
-            statusTip="Clear all variables from workspace",
-            triggered=self.reset_magic_active_frontend)
-        self.add_menu_action(self.magic_menu, self.reset_action)
-
-        self.history_action = QtGui.QAction("&History",
-            self,
-            statusTip="show command history",
-            triggered=self.history_magic_active_frontend)
-        self.add_menu_action(self.magic_menu, self.history_action)
-
-        self.save_action = QtGui.QAction("E&xport History ",
-            self,
-            statusTip="Export History as Python File",
-            triggered=self.save_magic_active_frontend)
-        self.add_menu_action(self.magic_menu, self.save_action)
-
-        self.who_action = QtGui.QAction("&Who",
-            self,
-            statusTip="List interactive variables",
-            triggered=self.who_magic_active_frontend)
-        self.add_menu_action(self.magic_menu, self.who_action)
-
-        self.who_ls_action = QtGui.QAction("Wh&o ls",
-            self,
-            statusTip="Return a list of interactive variables",
-            triggered=self.who_ls_magic_active_frontend)
-        self.add_menu_action(self.magic_menu, self.who_ls_action)
-
-        self.whos_action = QtGui.QAction("Who&s",
-            self,
-            statusTip="List interactive variables with details",
-            triggered=self.whos_magic_active_frontend)
-        self.add_menu_action(self.magic_menu, self.whos_action)
 
     def init_window_menu(self):
         self.window_menu = self.menuBar().addMenu("&Window")
@@ -654,82 +609,16 @@ class MainWindow(QtGui.QMainWindow):
 
         # Help Menu
 
-        self.intro_active_frontend_action = QtGui.QAction("&Intro to IPython",
-            self,
-            triggered=self.intro_active_frontend
-            )
-        self.add_menu_action(self.help_menu, self.intro_active_frontend_action)
-
-        self.quickref_active_frontend_action = QtGui.QAction("IPython &Cheat Sheet",
-            self,
-            triggered=self.quickref_active_frontend
-            )
-        self.add_menu_action(self.help_menu, self.quickref_active_frontend_action)
-
-        self.guiref_active_frontend_action = QtGui.QAction("&Qt Console",
-            self,
-            triggered=self.guiref_active_frontend
-            )
-        self.add_menu_action(self.help_menu, self.guiref_active_frontend_action)
-
         self.onlineHelpAct = QtGui.QAction("Open Online &Help",
             self,
             triggered=self._open_online_help)
         self.add_menu_action(self.help_menu, self.onlineHelpAct)
-
-    def init_magic_helper(self):
-        from .magic_helper import MagicHelper
-
-        self.magic_helper = MagicHelper("Show Magics", self)
-
-        self.magic_helper.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | 
-                                          QtCore.Qt.RightDockWidgetArea)        
-        self.magic_helper.setVisible(False)
-
-        self.magic_helper.pasteRequested[str].connect(
-            self.magic_helper_paste_requested
-        )
-        self.magic_helper.runRequested[str].connect(
-            self.magic_helper_run_requested
-        )
-        self.magic_helper.readyForUpdate.connect(
-            self.magic_helper_update_requested
-        )
-
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.magic_helper)
 
     def _set_active_frontend_focus(self):
         # this is a hack, self.active_frontend._control seems to be 
         # a private member. Unfortunately this is the only method 
         # to set focus reliably
         QtCore.QTimer.singleShot(200, self.active_frontend._control.setFocus)
-
-    def magic_helper_paste_requested(self, text = None):
-        if text is not None:
-            self.active_frontend.input_buffer = text            
-            self._set_active_frontend_focus()
-
-    def magic_helper_run_requested(self, text = None):
-        if text is not None:
-            self.active_frontend.execute(text)  
-            self._set_active_frontend_focus()
-
-    def magic_helper_update_requested(self):
-        def _handle_data(data):
-            if not data:
-                return
-
-            if data['status'] != 'ok':
-                self.log.warn( 
-                    "%%lsmagic user-expression failed: {}".format(data)
-                )
-                return
-            self.magic_helper.populate_magic_helper(data)
-
-        self.active_frontend._silent_exec_callback(
-            'get_ipython().magic("lsmagic")',
-            _handle_data
-        )
 
     # minimize/maximize/fullscreen actions:
 
@@ -793,6 +682,9 @@ class MainWindow(QtGui.QMainWindow):
         widget = self.active_frontend
         self.confirm_restart_kernel_action.setChecked(widget.confirm_restart)
 
+    def clear_active_frontend(self):
+        self.active_frontend.clear()
+
     def cut_active_frontend(self):
         widget = self.active_frontend
         if widget.can_cut():
@@ -816,27 +708,6 @@ class MainWindow(QtGui.QMainWindow):
     def redo_active_frontend(self):
         self.active_frontend.redo()
 
-    def reset_magic_active_frontend(self):
-        self.active_frontend.execute("%reset")
-
-    def history_magic_active_frontend(self):
-        self.active_frontend.execute("%history")
-
-    def save_magic_active_frontend(self):
-        self.active_frontend.save_magic()
-
-    def clear_magic_active_frontend(self):
-        self.active_frontend.execute("%clear")
-
-    def who_magic_active_frontend(self):
-        self.active_frontend.execute("%who")
-
-    def who_ls_magic_active_frontend(self):
-        self.active_frontend.execute("%who_ls")
-
-    def whos_magic_active_frontend(self):
-        self.active_frontend.execute("%whos")
-
     def print_action_active_frontend(self):
         self.active_frontend.print_action.trigger()
 
@@ -855,14 +726,6 @@ class MainWindow(QtGui.QMainWindow):
     def reset_font_size_active_frontend(self):
         self.active_frontend.reset_font_size.trigger()
 
-    def guiref_active_frontend(self):
-        self.active_frontend.execute("%guiref")
-
-    def intro_active_frontend(self):
-        self.active_frontend.execute("?")
-
-    def quickref_active_frontend(self):
-        self.active_frontend.execute("%quickref")
     #---------------------------------------------------------------------------
     # QWidget interface
     #---------------------------------------------------------------------------
