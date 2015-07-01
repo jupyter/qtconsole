@@ -1,22 +1,13 @@
 """MagicHelper - dockable widget showing magic commands for the MainWindow
 """
 
-# Copyright (c) IPython Development Team.
-# Distributed under the terms of the Modified BSD License. 
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# stdlib imports
-import json
 import re
-import sys
 
-# System library imports
 from qtconsole.qt import QtGui,QtCore
 
-from IPython.core.magic import magic_escapes
 
 class MagicHelper(QtGui.QDockWidget):
     """MagicHelper - dockable widget for convenient search and running of
@@ -132,6 +123,8 @@ class MagicHelper(QtGui.QDockWidget):
         self.search_list.clear()
                 
         self.data = data['data'].get('application/json', {})
+        if not self.data:
+            return
         
         self.search_class.addItem('All Magics', 'any')
         classes = set()
@@ -191,6 +184,8 @@ class MagicHelper(QtGui.QDockWidget):
            regex and class match cls.
            If cls equals 'any' - any class matches.
         """
+        from IPython.core.magic import magic_escapes
+        
         if regex == "" or regex is None:
             regex = '.'
         if cls is None:

@@ -7,11 +7,16 @@ import re
 
 from qtconsole.qt import QtCore, QtGui
 
-from IPython.lib.latextools import latex_to_png
 from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool
 from qtconsole.svg import save_svg, svg_to_clipboard, svg_to_image
 from .ipython_widget import IPythonWidget
+
+
+try:
+    from IPython.lib.latextools import latex_to_png
+except ImportError:
+    latex_to_png = None
 
 
 class RichIPythonWidget(IPythonWidget):
@@ -155,7 +160,7 @@ class RichIPythonWidget(IPythonWidget):
             elif 'image/jpeg' in data and self._jpg_supported:
                 jpg = decodestring(data['image/jpeg'].encode('ascii'))
                 self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
-            elif 'text/latex' in data:
+            elif 'text/latex' in data and latex_to_png:
                 self._append_latex(data['text/latex'], True)
             else:
                 # Default back to the plain text representation.

@@ -3,7 +3,7 @@ import unittest
 from qtconsole.qt import QtCore, QtGui
 
 from qtconsole.console_widget import ConsoleWidget
-import IPython.testing.decorators as dec
+import ipython_genutils.testing.decorators as dec
 
 setup = dec.skip_file_no_x11(__name__)
 
