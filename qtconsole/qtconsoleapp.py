@@ -321,19 +321,32 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         # hold onto ref, so the timer doesn't get cleaned up
         self._sigint_timer = timer
 
+    def _deprecate_config(self, cfg, old_name, new_name):
+        """Warn about deprecated config"""
+        if old_name in cfg:
+            self.log.warn("Use %s in config, not %s. Outdated config:\n    %s",
+                new_name, old_name,
+                '\n    '.join('{name}.{key} = {value!r}'.format(key=key, value=value, name=old_name)
+                    for key, value in self.config[old_name].items()
+                )
+            )
+            cfg = cfg.copy()
+            cfg[new_name].merge(cfg[old_name])
+            return cfg
+
     @catch_config_error
     def initialize(self, argv=None):
         self.init_qt_app()
         super(JupyterQtConsoleApp, self).initialize(argv)
-        if 'IPythonQtConsoleApp' in self.config:
-            self.log.warn("Use JupyterQtConsoleApp in config, not IPythonQtConsoleApp. Outdated config:\n%s",
-                '\n'.join('IPythonQtConsoleApp.{key} = {value!r}'.format(key=key, value=value)
-                    for key, value in self.config.IPythonQtConsoleApp.items()
-                )
-            )
-            cfg = self.config.copy()
-            cfg.JupyterQtConsoleApp.merge(cfg.IPythonQtConsoleApp)
-            self.update_config(cfg)
+        # handle deprecated renames
+        for old_name, new_name in [
+            ('IPythonQtConsoleApp', 'JupyterQtConsole'),
+            ('IPythonWidget', 'JupyterWidget'),
+            ('RichIPythonWidget', 'RichJupyterWidget'),
+        ]:
+            cfg = self._deprecate_config(self.config, old_name, new_name)
+            if cfg:
+                self.update_config(cfg)
         JupyterConsoleApp.initialize(self,argv)
         self.init_qt_elements()
         self.init_signal()

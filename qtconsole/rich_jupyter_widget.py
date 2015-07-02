@@ -4,6 +4,7 @@
 from base64 import decodestring
 import os
 import re
+from warnings import warn
 
 from qtconsole.qt import QtCore, QtGui
 
@@ -19,7 +20,11 @@ except ImportError:
     latex_to_png = None
 
 
-class RichJupyterWidget(JupyterWidget):
+class RichIPythonWidget(JupyterWidget):
+    """Dummy class for config inheritance. Destroyed below."""
+
+
+class RichJupyterWidget(RichIPythonWidget):
     """ An JupyterWidget that supports rich text, including lists, images, and
         tables. Note that raw performance will be reduced compared to the plain
         text version.
@@ -351,3 +356,13 @@ class RichJupyterWidget(JupyterWidget):
             filename = dialog.selectedFiles()[0]
             image = self._get_image(name)
             image.save(filename, format)
+
+
+# clobber RichIPythonWidget above:
+
+class RichIPythonWidget(RichJupyterWidget):
+    """Deprecated class. Use RichJupyterWidget"""
+    def __init__(self, *a, **kw):
+        warn("RichIPythonWidget is deprecated, use RichJupyterWidget")
+        super(RichIPythonWidget, self).__init__(*a, **kw)
+

@@ -45,7 +45,11 @@ else:
 # JupyterWidget class
 #-----------------------------------------------------------------------------
 
-class JupyterWidget(FrontendWidget):
+class IPythonWidget(FrontendWidget):
+    """Dummy class for config inheritance. Destroyed below."""
+
+
+class JupyterWidget(IPythonWidget):
     """A FrontendWidget for a Jupyter kernel."""
 
     # If set, the 'custom_edit_requested(str, int)' signal will be emitted when
@@ -533,3 +537,13 @@ class JupyterWidget(FrontendWidget):
 
     def _banner_default(self):
         return "Jupyter QtConsole {version}\n".format(version=__version__)
+
+
+# clobber IPythonWidget above:
+
+class IPythonWidget(JupyterWidget):
+    """Deprecated class. Use JupyterWidget"""
+    def __init__(self, *a, **kw):
+        warn("IPythonWidget is deprecated, use JupyterWidget")
+        super(IPythonWidget, self).__init__(*a, **kw)
+
