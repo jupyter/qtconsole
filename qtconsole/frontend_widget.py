@@ -8,17 +8,18 @@ from __future__ import print_function
 from collections import namedtuple
 import sys
 import uuid
+try:
+    from queue import Empty
+except ImportError:
+    from Queue import Empty
 
 from qtconsole import qt
 from qtconsole.qt import QtCore, QtGui
 from ipython_genutils import py3compat
 from ipython_genutils.importstring import import_item
 
-from IPython.core.inputsplitter import InputSplitter, IPythonInputSplitter
-from IPython.core.inputtransformer import classic_prompt
-from IPython.core.oinspect import call_tip
 from qtconsole.base_frontend_mixin import BaseFrontendMixin
-from traitlets import Any, Bool, Instance, Unicode, DottedObjectName
+from traitlets import Any, Bool, Float, Instance, Unicode, DottedObjectName
 from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
@@ -109,6 +110,9 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     lexer_class = DottedObjectName(config=True,
         help="The pygments lexer class to use."
     )
+    is_complete_timeout = Float(0.25, config=True,
+        help="Seconds to wait for is_complete replies from the kernel."
+    )
     def _lexer_class_changed(self, name, old, new):
         lexer_class = import_item(new)
         self.lexer = lexer_class()
@@ -135,15 +139,9 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     # Emitted when an exit request has been received from the kernel.
     exit_requested = QtCore.Signal(object)
 
-    # Protected class variables.
-    _prompt_transformer = IPythonInputSplitter(physical_line_transforms=[classic_prompt()],
-                                               logical_line_transforms=[],
-                                               python_line_transforms=[],
-                                              )
     _CallTipRequest = namedtuple('_CallTipRequest', ['id', 'pos'])
     _CompletionRequest = namedtuple('_CompletionRequest', ['id', 'pos'])
     _ExecutionRequest = namedtuple('_ExecutionRequest', ['id', 'kind'])
-    _input_splitter_class = InputSplitter
     _local_kernel = False
     _highlighter = Instance(FrontendHighlighter, allow_none=True)
 
@@ -167,11 +165,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         self._copy_raw_action = QtGui.QAction('Copy (Raw Text)', None)
         self._hidden = False
         self._highlighter = FrontendHighlighter(self, lexer=self.lexer)
-        self._input_splitter = self._input_splitter_class()
         self._kernel_manager = None
         self._kernel_client = None
         self._request_info = {}
-        self._request_info['execute'] = {};
+        self._request_info['execute'] = {}
         self._callback_dict = {}
         self._display_banner = True
 
@@ -217,7 +214,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             text = self._control.textCursor().selection().toPlainText()
             if text:
                 was_newline = text[-1] == '\n'
-                text = self._prompt_transformer.transform_cell(text)
                 if not was_newline: # user doesn't need newline
                     text = text[:-1]
                 QtGui.QApplication.clipboard().setText(text)
@@ -232,15 +228,30 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """ Returns whether 'source' can be completely processed and a new
             prompt created. When triggered by an Enter/Return key press,
             'interactive' is True; otherwise, it is False.
+            
+            Returns
+            -------
+            
+            (complete, indent): (bool, str)
+            complete is a bool, indicating whether the input is complete or not.
+            indent is the current indentation string for autoindent.
+            If complete is True, indent will be '', and should be ignored.
         """
-        self._input_splitter.reset()
-        try:
-            complete = self._input_splitter.push(source)
-        except SyntaxError:
-            return True
-        if interactive:
-            complete = not self._input_splitter.push_accepts_more()
-        return complete
+        kc = self.blocking_client
+        if kc is None:
+            self.log.warn("No blocking client to make is_complete requests")
+            return False, u''
+        msg_id = kc.is_complete(source)
+        while True:
+            try:
+                reply = kc.shell_channel.get_msg(block=True, timeout=self.is_complete_timeout)
+            except Empty:
+                # assume incomplete output if we get no reply in time
+                return False, u''
+            if reply['parent_header'].get('msg_id', None) == msg_id:
+                status = reply['content'].get('status', u'complete')
+                indent = reply['content'].get('indent', u'')
+                return status == u'complete', indent
 
     def _execute(self, source, hidden):
         """ Execute 'source'. If 'hidden', do not show any output.
@@ -263,10 +274,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """ Called immediately after a prompt is finished, i.e. when some input
             will be processed and a new prompt displayed.
         """
-        # Flush all state from the input splitter so the next round of
-        # reading input starts with a clean buffer.
-        self._input_splitter.reset()
-
         if not self._reading:
             self._highlighter.highlighting_on = False
 
@@ -340,11 +347,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
         return super(FrontendWidget, self)._event_filter_console_keypress(event)
 
-    def _insert_continuation_prompt(self, cursor):
+    def _insert_continuation_prompt(self, cursor, indent=''):
         """ Reimplemented for auto-indentation.
         """
         super(FrontendWidget, self)._insert_continuation_prompt(cursor)
-        cursor.insertText(' ' * self._input_splitter.indent_spaces)
+        if indent:
+            cursor.insertText(indent)
 
     #---------------------------------------------------------------------------
     # 'BaseFrontendMixin' abstract interface

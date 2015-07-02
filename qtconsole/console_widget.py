@@ -600,9 +600,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
 
         # Execute the source or show a continuation prompt if it is incomplete.
         if self.execute_on_complete_input:
-            complete = self._is_complete(source, interactive)
+            complete, indent = self._is_complete(source, interactive)
         else:
             complete = not interactive
+            indent = ''
         if hidden:
             if complete or not self.execute_on_complete_input:
                 self._execute(source, hidden)
@@ -634,7 +635,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
                 cursor = self._get_end_cursor()
                 cursor.beginEditBlock()
                 cursor.insertText('\n')
-                self._insert_continuation_prompt(cursor)
+                self._insert_continuation_prompt(cursor, indent)
                 cursor.endEditBlock()
 
                 # Do not do this inside the edit block. It works as expected

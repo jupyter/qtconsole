@@ -16,9 +16,7 @@ from textwrap import dedent
 
 from qtconsole.qt import QtCore, QtGui
 
-from IPython.core.inputsplitter import IPythonInputSplitter
 from qtconsole import __version__
-from IPython.core.inputtransformer import ipy_prompt
 from traitlets import Bool, Unicode
 from .frontend_widget import FrontendWidget
 from . import styles
@@ -93,13 +91,6 @@ class IPythonWidget(FrontendWidget):
     input_sep = Unicode(default_input_sep, config=True)
     output_sep = Unicode(default_output_sep, config=True)
     output_sep2 = Unicode(default_output_sep2, config=True)
-
-    # FrontendWidget protected class variables.
-    _input_splitter_class = IPythonInputSplitter
-    _prompt_transformer = IPythonInputSplitter(physical_line_transforms=[ipy_prompt()],
-                                               logical_line_transforms=[],
-                                               python_line_transforms=[],
-                                              )
 
     # IPythonWidget protected class variables.
     _PromptBlock = namedtuple('_PromptBlock', ['block', 'length', 'number'])
