@@ -1,6 +1,6 @@
 """The Qt MainWindow for the QtConsole
 
-This is a tabbed pseudo-terminal of IPython sessions, with a menu bar for
+This is a tabbed pseudo-terminal of Jupyter sessions, with a menu bar for
 common actions.
 """
 
@@ -30,7 +30,7 @@ class MainWindow(QtGui.QMainWindow):
                     confirm_exit=True,
                     new_frontend_factory=None, slave_frontend_factory=None,
                 ):
-        """ Create a tabbed MainWindow for managing IPython FrontendWidgets
+        """ Create a tabbed MainWindow for managing FrontendWidgets
         
         Parameters
         ----------
@@ -39,11 +39,11 @@ class MainWindow(QtGui.QMainWindow):
         confirm_exit : bool, optional
             Whether we should prompt on close of tabs
         new_frontend_factory : callable
-            A callable that returns a new IPythonWidget instance, attached to
+            A callable that returns a new JupyterWidget instance, attached to
             its own running kernel.
         slave_frontend_factory : callable
-            A callable that takes an existing IPythonWidget, and  returns a new 
-            IPythonWidget instance, attached to the same kernel.
+            A callable that takes an existing JupyterWidget, and  returns a new 
+            JupyterWidget instance, attached to the same kernel.
         """
 
         super(MainWindow, self).__init__()
@@ -256,7 +256,7 @@ class MainWindow(QtGui.QMainWindow):
 
             This function does the conversion tabNumber/widget if needed.
             Might return None if no master widget (non local kernel)
-            Will crash IPython if more than 1 masterWidget
+            Will crash if more than 1 masterWidget
 
             When asList set to True, always return a list of widget(s) owning
             the kernel. The list might be empty or containing several Widget.

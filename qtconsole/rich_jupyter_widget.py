@@ -10,7 +10,7 @@ from qtconsole.qt import QtCore, QtGui
 from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool
 from qtconsole.svg import save_svg, svg_to_clipboard, svg_to_image
-from .ipython_widget import IPythonWidget
+from .jupyter_widget import JupyterWidget
 
 
 try:
@@ -19,13 +19,13 @@ except ImportError:
     latex_to_png = None
 
 
-class RichIPythonWidget(IPythonWidget):
-    """ An IPythonWidget that supports rich text, including lists, images, and
+class RichJupyterWidget(JupyterWidget):
+    """ An JupyterWidget that supports rich text, including lists, images, and
         tables. Note that raw performance will be reduced compared to the plain
         text version.
     """
 
-    # RichIPythonWidget protected class variables.
+    # RichJupyterWidget protected class variables.
     _payload_source_plot = 'ipykernel.pylab.backend_payload.add_plot_payload'
     _jpg_supported = Bool(False)
 
@@ -38,10 +38,10 @@ class RichIPythonWidget(IPythonWidget):
     #---------------------------------------------------------------------------
 
     def __init__(self, *args, **kw):
-        """ Create a RichIPythonWidget.
+        """ Create a RichJupyterWidget.
         """
         kw['kind'] = 'rich'
-        super(RichIPythonWidget, self).__init__(*args, **kw)
+        super(RichJupyterWidget, self).__init__(*args, **kw)
 
         # Configure the ConsoleWidget HTML exporter for our formats.
         self._html_exporter.image_tag = self._get_image_tag
@@ -67,7 +67,7 @@ class RichIPythonWidget(IPythonWidget):
         to the export running.
         """
         self._svg_warning_displayed = False
-        super(RichIPythonWidget, self).export_html()
+        super(RichJupyterWidget, self).export_html()
 
 
     #---------------------------------------------------------------------------
@@ -93,7 +93,7 @@ class RichIPythonWidget(IPythonWidget):
                 menu.addAction('Save SVG As...',
                                lambda: save_svg(svg, self._control))
         else:
-            menu = super(RichIPythonWidget, self)._context_menu_make(pos)
+            menu = super(RichJupyterWidget, self)._context_menu_make(pos)
         return menu
 
     #---------------------------------------------------------------------------
@@ -137,7 +137,7 @@ class RichIPythonWidget(IPythonWidget):
                 self._append_html(self.output_sep2, True)
             else:
                 # Default back to the plain text representation.
-                return super(RichIPythonWidget, self)._handle_execute_result(msg)
+                return super(RichJupyterWidget, self)._handle_execute_result(msg)
 
     def _handle_display_data(self, msg):
         """Overridden to handle rich data types, like SVG."""
@@ -164,10 +164,10 @@ class RichIPythonWidget(IPythonWidget):
                 self._append_latex(data['text/latex'], True)
             else:
                 # Default back to the plain text representation.
-                return super(RichIPythonWidget, self)._handle_display_data(msg)
+                return super(RichJupyterWidget, self)._handle_display_data(msg)
 
     #---------------------------------------------------------------------------
-    # 'RichIPythonWidget' protected interface
+    # 'RichJupyterWidget' protected interface
     #---------------------------------------------------------------------------
 
     def _append_latex(self, latex, before_prompt=False, metadata=None):

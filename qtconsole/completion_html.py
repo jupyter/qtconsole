@@ -1,14 +1,9 @@
 """A navigable completer for the qtconsole"""
 # coding : utf-8
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012, IPython Development Team.$
-#
-# Distributed under the terms of the Modified BSD License.$
-#
-# The full license is in the file COPYING.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 
-# System library imports
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
+
 import ipython_genutils.text as text
 
 from qtconsole.qt import QtCore, QtGui

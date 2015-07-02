@@ -1,9 +1,9 @@
-"""A FrontendWidget that emulates the interface of the console IPython.
+"""A FrontendWidget that emulates a repl for a Jupyter kernel.
 
-This supports the additional functionality provided by the IPython kernel.
+This supports the additional functionality provided by Jupyter kernel.
 """
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from collections import namedtuple
@@ -42,12 +42,11 @@ else:
     default_editor = ''
 
 #-----------------------------------------------------------------------------
-# IPythonWidget class
+# JupyterWidget class
 #-----------------------------------------------------------------------------
 
-class IPythonWidget(FrontendWidget):
-    """ A FrontendWidget for an IPython kernel.
-    """
+class JupyterWidget(FrontendWidget):
+    """A FrontendWidget for a Jupyter kernel."""
 
     # If set, the 'custom_edit_requested(str, int)' signal will be emitted when
     # an editor is needed for a file. This overrides 'editor' and 'editor_line'
@@ -75,7 +74,7 @@ class IPythonWidget(FrontendWidget):
         A CSS stylesheet. The stylesheet can contain classes for:
             1. Qt: QPlainTextEdit, QFrame, QWidget, etc
             2. Pygments: .c, .k, .o, etc. (see PygmentsHighlighter)
-            3. IPython: .error, .in-prompt, .out-prompt, etc
+            3. QtConsole: .error, .in-prompt, .out-prompt, etc
         """)
 
     syntax_style = Unicode(config=True,
@@ -92,7 +91,7 @@ class IPythonWidget(FrontendWidget):
     output_sep = Unicode(default_output_sep, config=True)
     output_sep2 = Unicode(default_output_sep2, config=True)
 
-    # IPythonWidget protected class variables.
+    # JupyterWidget protected class variables.
     _PromptBlock = namedtuple('_PromptBlock', ['block', 'length', 'number'])
     _payload_source_edit = 'edit_magic'
     _payload_source_exit = 'ask_exit'
@@ -106,9 +105,9 @@ class IPythonWidget(FrontendWidget):
     #---------------------------------------------------------------------------
 
     def __init__(self, *args, **kw):
-        super(IPythonWidget, self).__init__(*args, **kw)
+        super(JupyterWidget, self).__init__(*args, **kw)
 
-        # IPythonWidget protected variables.
+        # JupyterWidget protected variables.
         self._payload_handlers = {
             self._payload_source_edit : self._handle_payload_edit,
             self._payload_source_exit : self._handle_payload_exit,
@@ -130,7 +129,7 @@ class IPythonWidget(FrontendWidget):
     # 'BaseFrontendMixin' abstract interface
     #---------------------------------------------------------------------------
     def _handle_complete_reply(self, rep):
-        """ Reimplemented to support IPython's improved completion machinery.
+        """Reimplemented to support Jupyter's improved completion machinery.
         """
         self.log.debug("complete: %s", rep.get('content', ''))
         cursor = self._get_cursor()
@@ -176,11 +175,11 @@ class IPythonWidget(FrontendWidget):
                 self._show_interpreter_prompt(number)
             self._request_info['execute'].pop(msg_id)
         else:
-            super(IPythonWidget, self)._handle_execute_reply(msg)
+            super(JupyterWidget, self)._handle_execute_reply(msg)
 
     def _handle_history_reply(self, msg):
         """ Implemented to handle history tail replies, which are only supported
-            by the IPython kernel.
+            by Jupyter kernels.
         """
         content = msg['content']
         if 'history' not in content:
@@ -230,7 +229,7 @@ class IPythonWidget(FrontendWidget):
 
     
     def _handle_execute_result(self, msg):
-        """Reimplemented for IPython-style "display hook"."""
+        """Handle an execute_result message"""
         if self.include_output(msg):
             self.flush_clearoutput()
             content = msg['content']
@@ -255,7 +254,7 @@ class IPythonWidget(FrontendWidget):
             self.flush_clearoutput()
             data = msg['content']['data']
             metadata = msg['content']['metadata']
-            # In the regular IPythonWidget, we simply print the plain text
+            # In the regular JupyterWidget, we simply print the plain text
             # representation.
             if 'text/plain' in data:
                 text = data['text/plain']
@@ -271,7 +270,7 @@ class IPythonWidget(FrontendWidget):
         if self._starting:
             # finish handling started channels
             self._starting = False
-            super(IPythonWidget, self)._started_channels()
+            super(JupyterWidget, self)._started_channels()
 
     def _started_channels(self):
         """Reimplemented to make a history request and load %guiref."""
@@ -287,8 +286,7 @@ class IPythonWidget(FrontendWidget):
     #---------------------------------------------------------------------------
 
     def _process_execute_error(self, msg):
-        """ Reimplemented for IPython-style traceback formatting.
-        """
+        """Handle an execute_error message"""
         content = msg['content']
         traceback = '\n'.join(content['traceback']) + '\n'
         if False:
@@ -379,7 +377,7 @@ class IPythonWidget(FrontendWidget):
         self._show_interpreter_prompt(previous_prompt_number + 1)
 
     #---------------------------------------------------------------------------
-    # 'IPythonWidget' interface
+    # 'JupyterWidget' interface
     #---------------------------------------------------------------------------
 
     def set_default_style(self, colors='lightbg'):
@@ -388,7 +386,7 @@ class IPythonWidget(FrontendWidget):
         Parameters
         ----------
         colors : str, optional (default lightbg)
-            Whether to use the default IPython light background or dark
+            Whether to use the default light background or dark
             background or B&W style.
         """
         colors = colors.lower()
@@ -405,7 +403,7 @@ class IPythonWidget(FrontendWidget):
             raise KeyError("No such color scheme: %s"%colors)
 
     #---------------------------------------------------------------------------
-    # 'IPythonWidget' protected interface
+    # 'JupyterWidget' protected interface
     #---------------------------------------------------------------------------
 
     def _edit(self, filename, line=None):
@@ -423,7 +421,7 @@ class IPythonWidget(FrontendWidget):
             self.custom_edit_requested.emit(filename, line)
         elif not self.editor:
             self._append_plain_text('No default editor available.\n'
-            'Specify a GUI text editor in the `IPythonWidget.editor` '
+            'Specify a GUI text editor in the `JupyterWidget.editor` '
             'configurable to enable the %edit magic')
         else:
             try:

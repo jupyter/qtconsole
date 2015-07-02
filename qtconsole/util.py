@@ -1,13 +1,10 @@
 """ Defines miscellaneous Qt-related helper classes and functions.
 """
 
-# Standard library imports.
 import inspect
 
-# System library imports.
 from qtconsole.qt import QtCore, QtGui
 
-# IPython imports.
 from ipython_genutils.py3compat import iteritems
 from traitlets import HasTraits, TraitType
 

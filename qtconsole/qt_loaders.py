@@ -32,7 +32,7 @@ QT_API_PYSIDE = 'pyside'
 
 class ImportDenier(object):
     """Import Hook that will guard against bad Qt imports
-    once IPython commits to a specific binding
+    once committed to a specific binding
     """
 
     def __init__(self):
@@ -50,8 +50,8 @@ class ImportDenier(object):
 
     def load_module(self, fullname):
         raise ImportError("""
-    Importing %s disabled by IPython, which has
-    already imported an Incompatible QT Binding: %s
+    Importing %s disabled by QtConsole, which has
+    already imported an incompatible Qt Binding: %s
     """ % (fullname, loaded_api()))
 
 ID = ImportDenier()

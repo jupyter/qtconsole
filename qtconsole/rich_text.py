@@ -1,18 +1,14 @@
 """ Defines classes and functions for working with Qt's rich text system.
 """
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
 
-# Standard library imports
 import io
 import os
 import re
 
-# System library imports
 from qtconsole.qt import QtGui
 
-# IPython imports
 from ipython_genutils import py3compat
 
 #-----------------------------------------------------------------------------
