@@ -225,7 +225,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         # Create the widget.
 
         base_path = os.path.abspath(os.path.dirname(__file__))
-        icon_path = os.path.join(base_path, 'resources', 'icon', 'IPythonConsole.svg')
+        icon_path = os.path.join(base_path, 'resources', 'icon', 'JupyterConsole.svg')
         self.app.icon = QtGui.QIcon(icon_path)
         QtGui.QApplication.setWindowIcon(self.app.icon)
 
