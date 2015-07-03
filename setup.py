@@ -62,7 +62,7 @@ setup_args = dict(
     url             = 'http://jupyter.org',
     license         = 'BSD',
     platforms       = "Linux, Mac OS X, Windows",
-    keywords        = ['Interactive', 'Interpreter', 'Shell', 'Web'],
+    keywords        = ['Interactive', 'Interpreter', 'Shell'],
     classifiers     = [
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
@@ -80,16 +80,17 @@ if 'develop' in sys.argv or any(a.startswith('bdist') for a in sys.argv):
 
 setuptools_args = {}
 install_requires = setuptools_args['install_requires'] = [
+    'traitlets',
+    'jupyter_core',
     'jupyter_client',
-    'ipython',
-    'ipykernel',
     'pygments',
+    'ipykernel', # not a real dependency, but require the reference kernel
 ]
 
 extras_require = setuptools_args['extras_require'] = {
     'test:python_version=="2.7"': ['mock'],
     'test:sys_platform != "win32"': ['pexpect'],
-    'doc': 'Sphinx>=1.1'
+    'doc': 'Sphinx>=1.3'
 }
 
 if 'setuptools' in sys.modules:
