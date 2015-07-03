@@ -1,33 +1,31 @@
 .. _qtconsole:
 
 =========================
-A Qt Console for IPython
+A Qt Console for Jupyter
 =========================
 
-To start the Qt Console::
+To start the Qt console::
 
-    $> ipython qtconsole
+    $> jupyter qtconsole
 
 .. toctree::
    :maxdepth: 2
 
    config_options
 
-We now have a version of IPython, using the two-process ZeroMQ Kernel, running in a PyQt_ GUI.  This is a very lightweight widget that
+You can use any Jupyter kernel with this PyQt_ console GUI.
+This is a very lightweight widget that
 largely feels like a terminal, but provides a number of enhancements only
 possible in a GUI, such as inline figures, proper multiline editing with syntax
 highlighting, graphical calltips, and much more.
 
 .. figure:: _images/qtconsole.png
     :width: 400px
-    :alt: IPython Qt console with embedded plots
+    :alt: Qt console with embedded plots
     :align: center
     :target: _images/qtconsole.png
 
-    The Qt console for IPython, using inline matplotlib plots.
-
-To get acquainted with the Qt console, type `%guiref` to see a quick
-introduction of its main features.
+    The Qt console with IPython, using inline matplotlib plots.
 
 The Qt frontend has hand-coded emacs-style bindings for text navigation. This
 is not yet configurable.
@@ -41,157 +39,16 @@ is not yet configurable.
    point in a multiline block, you can force its execution (without having to
    go to the bottom) with :kbd:`Shift-Enter`.
 
-``%load``
-=========
 
-The new ``%load`` magic (previously ``%loadpy``) takes any script, and pastes
-its contents as your next input, so you can edit it before executing. The
-script may be on your machine, but you can also specify an history range, or a
-url, and it will download the script from the web. This is particularly useful
-for playing with examples from documentation, such as matplotlib.
+Inline graphics
+===============
 
-.. sourcecode:: ipython
-
-    In [6]: %load http://matplotlib.org/plot_directive/mpl_examples/mplot3d/contour3d_demo.py
-
-    In [7]: from mpl_toolkits.mplot3d import axes3d
-       ...: import matplotlib.pyplot as plt
-       ...:
-       ...: fig = plt.figure()
-       ...: ax = fig.add_subplot(111, projection='3d')
-       ...: X, Y, Z = axes3d.get_test_data(0.05)
-       ...: cset = ax.contour(X, Y, Z)
-       ...: ax.clabel(cset, fontsize=9, inline=1)
-       ...:
-       ...: plt.show()
-
-The ``%load`` magic can also load source code from objects in the user or 
-global namespace by invoking the ``-n`` option.
-
-.. sourcecode:: ipython
-
-   In [1]: import hello_world
-      ...: %load -n hello_world.say_hello
-
-   In [3]: def say_hello() :
-      ...:    print("Hello World!") 
-
-Inline Matplotlib
-=================
-
-One of the most exciting features of the QtConsole is embedded matplotlib
-figures. You can use any standard matplotlib GUI backend
-to draw the figures, and since there is now a two-process model, there is no
-longer a conflict between user input and the drawing eventloop.
+One of the most exciting features of the QtConsole is embedded figures.
+You can plot with matplotlib in IPython, or the plotting library of choice
+in your kernel.
 
 .. image:: figs/besselj.png
     :width: 519px
-
-.. _display:
-
-:func:`display`
-***************
-
-IPython provides a function :func:`display` for displaying rich representations
-of objects if they are available. The IPython display
-system provides a mechanism for specifying PNG or SVG (and more)
-representations of objects for GUI frontends.
-When you enable matplotlib integration via the ``%matplotlib`` magic, IPython registers
-convenient PNG and SVG renderers for matplotlib figures, so you can embed them
-in your document by calling :func:`display` on one or more of them. This is
-especially useful for saving_ your work.
-
-.. sourcecode:: ipython
-
-    In [4]: from IPython.display import display
-    
-    In [5]: plt.plot(range(5)) # plots in the matplotlib window
-    
-    In [6]: display(plt.gcf()) # embeds the current figure in the qtconsole
-    
-    In [7]: display(*getfigs()) # embeds all active figures in the qtconsole
-
-If you have a reference to a matplotlib figure object, you can always display
-that specific figure:
-
-.. sourcecode:: ipython
-
-   In [1]: f = plt.figure()
-
-   In [2]: plt.plot(np.rand(100))
-   Out[2]: [<matplotlib.lines.Line2D at 0x7fc6ac03dd90>]
-
-   In [3]: display(f)
-
-   # Plot is shown here
-
-   In [4]: plt.title('A title')
-   Out[4]: <matplotlib.text.Text at 0x7fc6ac023450>
-
-   In [5]: display(f)
-
-   # Updated plot with title is shown here.
-
-.. _inline:
-
-``--matplotlib inline``
-***********************
-
-If you want to have all of your figures embedded in your session, instead of
-calling :func:`display`, you can specify ``--matplotlib inline`` when you start the
-console, and each time you make a plot, it will show up in your document, as if
-you had called :func:`display(fig)`.
-
-The inline backend can use either SVG or PNG figures (PNG being the default).
-It also supports the special key ``'retina'``, which is 2x PNG for high-DPI displays.
-To switch between them, set the ``InlineBackend.figure_format`` configurable
-in a config file, or via the ``%config`` magic:
-
-.. sourcecode:: ipython
-
-    In [10]: %config InlineBackend.figure_format = 'svg'
-
-.. note::
-
-    Changing the inline figure format also affects calls to :func:`display` above,
-    even if you are not using the inline backend for all figures.
-
-By default, IPython closes all figures at the completion of each execution. This means you
-don't have to manually close figures, which is less convenient when figures aren't attached
-to windows with an obvious close button.  It also means that the first matplotlib call in
-each cell will always create a new figure:
-
-.. sourcecode:: ipython
-
-    In [11]: plt.plot(range(100))
-    <single-line plot>
-    
-    In [12]: plt.plot([1,3,2])
-    <another single-line plot>
-
-
-However, it does prevent the list of active figures surviving from one input cell to the
-next, so if you want to continue working with a figure, you must hold on to a reference to
-it:
-
-.. sourcecode:: ipython
-
-    In [11]: fig = gcf()
-       ....: fig.plot(rand(100))
-    <plot>
-    In [12]: fig.title('Random Title')
-    <redraw plot with title>
-
-This behavior is controlled by the :attr:`InlineBackend.close_figures` configurable, and
-if you set it to False, via %config or config file, then IPython will *not* close figures,
-and tools like :func:`gcf`, :func:`gca`, :func:`getfigs` will behave the same as they
-do with other backends.  You will, however, have to manually close figures:
-
-.. sourcecode:: ipython
-
-    # close all active figures:
-    In [13]: [ fig.close() for fig in getfigs() ]
-
 
 
 .. _saving:
@@ -199,8 +56,8 @@ do with other backends.  You will, however, have to manually close figures:
 Saving and Printing
 ===================
 
-IPythonQt has the ability to save your current session, as either HTML or
-XHTML. If you have been using :func:`display` or inline_ matplotlib, your figures
+QtConsole has the ability to save your current session, as either HTML or
+XHTML. Your inlinke figures
 will be PNG in HTML, or inlined as SVG in XHTML. PNG images have the option to
 be either in an external folder, as in many browsers' "Webpage, Complete"
 option, or inlined as well, for a larger, but more portable file.
@@ -208,8 +65,7 @@ option, or inlined as well, for a larger, but more portable file.
 .. note::
 
     Export to SVG+XHTML requires that you are using SVG figures, which is *not*
-    the default.  To switch the inline figure format to use SVG during an active
-    session, do:
+    the default.  To switch the inline figure format in IPython to use SVG, do:
     
     .. sourcecode:: ipython
     
@@ -223,12 +79,6 @@ option, or inlined as well, for a larger, but more portable file.
 
 The widget also exposes the ability to print directly, via the default print
 shortcut or context menu.
-
-
-.. Note:: 
-
-    Saving is only available to richtext Qt widgets, which are used by default,
-    but if you pass the ``--plain`` flag, saving will not be available to you.
 
 
 See these examples of :download:`png/html<figs/jn.html>` and
@@ -247,25 +97,21 @@ flag or ``%colors`` magic:
 * Linux for dark backgrounds
 * NoColor for a simple colorless terminal
 
-The Qt widget has full support for the ``colors`` flag used in the terminal shell.
-
 The Qt widget, however, has full syntax highlighting as you type, handled by
 the `pygments`_ library. The ``style`` argument exposes access to any style by
 name that can be found by pygments, and there are several already
-installed. The ``colors`` argument, if unspecified, will be guessed based on
-the chosen style. Similarly, there are default styles associated with each
-``colors`` option.
+installed.
 
 
-Screenshot of ``ipython qtconsole --colors=linux``, which uses the 'monokai'
-theme by default:
+Screenshot of ``jupyter qtconsole --style monokai``, which uses the 'monokai'
+theme:
 
 .. image:: figs/colors_dark.png
     :width: 627px
     
 .. Note::
 
-    Calling ``ipython qtconsole -h`` will show all the style names that
+    Calling ``jupyter qtconsole -h`` will show all the style names that
     pygments can find on your system.
 
 You can also pass the filename of a custom CSS stylesheet, if you want to do
@@ -292,7 +138,7 @@ The QtConsole has configurable via the ConsoleWidget. To change these, set the
 ``font_family`` or ``font_size`` traits of the ConsoleWidget. For instance, to
 use 9pt Anonymous Pro::
 
-    $> ipython qtconsole --ConsoleWidget.font_family="Anonymous Pro" --ConsoleWidget.font_size=9
+    $> jupyter qtconsole --ConsoleWidget.font_family="Anonymous Pro" --ConsoleWidget.font_size=9
 
 Process Management
 ==================
@@ -311,12 +157,8 @@ Multiple Consoles
 *****************
 
 Since the Kernel listens on the network, multiple frontends can connect to it.
-These do not have to all be qt frontends - any IPython frontend can connect and
-run code.  When you start ipython qtconsole, there will be an output line,
-like::
-
-    [IPKernelApp] To connect another client to this kernel, use:
-    [IPKernelApp] --existing kernel-12345.json
+These do not have to all be qt frontends - any Jupyter frontend can connect and
+run code.
 
 Other frontends can connect to your kernel, and share in the execution. This is
 great for collaboration.  The ``--existing`` flag means connect to a kernel
@@ -324,13 +166,13 @@ that already exists.  Starting other consoles
 with that flag will not try to start their own kernel, but rather connect to
 yours.  :file:`kernel-12345.json` is a small JSON file with the ip, port, and
 authentication information necessary to connect to your kernel. By default, this file
-will be in your default profile's security directory.  If it is somewhere else,
-the output line will print the full path of the connection file, rather than
+will be in your Jupyter runtime directory.  If it is somewhere else,
+you will need to use the full path of the connection file, rather than
 just its filename.
 
 If you need to find the connection info to send, and don't know where your connection file
-lives, there are a couple of ways to get it. If you are already running an IPython console
-connected to the kernel, you can use the ``%connect_info`` magic to display the information
+lives, there are a couple of ways to get it. If you are already running a console
+connected to an IPython kernel, you can use the ``%connect_info`` magic to display the information
 necessary to connect another frontend to the kernel.
 
 .. sourcecode:: ipython
@@ -351,37 +193,17 @@ necessary to connect another frontend to the kernel.
         $> ipython <app> --existing kernel-12345.json
     or even just:
         $> ipython <app> --existing
-    if this is the most recent IPython session you have started.
+    if this is the most recent kernel you have started.
 
 Otherwise, you can find a connection file by name (and optionally profile) with
-:func:`IPython.lib.kernel.find_connection_file`:
+:func:`jupyter_client.find_connection_file`:
 
 .. sourcecode:: bash
 
-    $> python -c "from IPython.lib.kernel import find_connection_file;\
-    print find_connection_file('kernel-12345.json')"
-    /home/you/.ipython/profile_default/security/kernel-12345.json
+    $> python -c "from jupyter_client import find_connection_file;\
+    print(find_connection_file('kernel-12345.json'))"
+    /home/you/Library/Jupyter/runtime/kernel-12345.json
 
-And if you are using a particular IPython profile:
-
-.. sourcecode:: bash
-
-    $> python -c "from IPython.lib.kernel import find_connection_file;\
-    print find_connection_file('kernel-12345.json', profile='foo')"
-    /home/you/.ipython/profile_foo/security/kernel-12345.json
-
-You can even launch a standalone kernel, and connect and disconnect Qt Consoles
-from various machines.  This lets you keep the same running IPython session
-on your work machine (with matplotlib plots and everything), logging in from home,
-cafés, etc.::
-
-    $> ipython kernel
-    [IPKernelApp] To connect another client to this kernel, use:
-    [IPKernelApp] --existing kernel-12345.json
-
-This is actually exactly the same as the subprocess launched by the qtconsole, so
-all the information about connecting to a standalone kernel is identical to that
-of connecting to the kernel attached to a running console.
 
 .. _kernel_security:
 
@@ -394,21 +216,21 @@ Security
     external-facing IP is dangerous.  You are giving any computer that can see
     you on the network the ability to connect to your kernel, and view your traffic.
     Read the rest of this section before listening on external ports
-    or running an IPython kernel on a shared machine.
+    or running a kernel on a shared machine.
 
 By default (for security reasons), the kernel only listens on localhost, so you
 can only connect multiple frontends to the kernel from your local machine. You
 can specify to listen on an external interface by specifying the ``ip``
 argument::
 
-    $> ipython qtconsole --ip=192.168.1.123
+    $> jupyter qtconsole --ip=192.168.1.123
 
 If you specify the ip as 0.0.0.0 or '*', that means all interfaces, so any
 computer that can see yours on the network can connect to the kernel.
 
 Messages are not encrypted, so users with access to the ports your kernel is using will be
 able to see any output of the kernel. They will **NOT** be able to issue shell commands as
-you due to message signatures, which are enabled by default as of IPython 0.12.
+you due to message signatures.
 
 .. warning::
 
@@ -416,27 +238,12 @@ you due to message signatures, which are enabled by default as of IPython 0.12.
     kernel is listening on can issue arbitrary code as you. **DO NOT** disable message
     signatures unless you have a lot of trust in your environment.
 
-The one security feature IPython does provide is protection from unauthorized execution.
-IPython's messaging system will sign messages with HMAC digests using a shared-key. The key
+The one security feature Jupyter does provide is protection from unauthorized execution.
+Jupyter's messaging system will sign messages with HMAC digests using a shared-key. The key
 is never sent over the network, it is only used to generate a unique hash for each message,
-based on its content. When IPython receives a message, it will check that the digest
+based on its content. When the kernel receives a message, it will check that the digest
 matches, and discard the message. You can use any file that only you have access to to
-generate this key, but the default is just to generate a new UUID. You can generate a random
-private key with::
-
-    # generate 1024b of random data, and store in a file only you can read:
-    # (assumes IPYTHONDIR is defined, otherwise use your IPython directory)
-    $> python -c "import os; print os.urandom(128).encode('base64')" > $IPYTHONDIR/sessionkey
-    $> chmod 600 $IPYTHONDIR/sessionkey
-
-The *contents* of this file will be stored in the JSON connection file, so that file
-contains everything you need to connect to and use a kernel.
-
-To use this generated key, simply specify the ``Session.keyfile`` configurable
-in :file:`ipython_config.py` or at the command-line, as in::
-
-    # instruct IPython to sign messages with that key, instead of a new UUID
-    $> ipython qtconsole --Session.keyfile=$IPYTHONDIR/sessionkey
+generate this key, but the default is just to generate a new UUID.
 
 .. _ssh_tunnels:
 
@@ -449,7 +256,7 @@ machines on the network.  To do this, you can use SSH tunnels.  SSH tunnels
 are a way to securely forward ports on your local machine to ports on another
 machine, to which you have SSH access.
 
-In simple cases, IPython's tools can forward ports over ssh by simply adding the
+In simple cases, Jupyter's tools can forward ports over ssh by simply adding the
 ``--ssh=remote`` argument to the usual ``--existing...`` set of flags for connecting
 to a running kernel, after copying the JSON connection file (or its contents) to
 the second computer.
@@ -460,7 +267,7 @@ the second computer.
     tunneling from one machine to another *both* machines have open
     ports on localhost available for connections to the kernel.
 
-There are two primary models for using SSH tunnels with IPython.  The first
+There are two primary models for using SSH tunnels with Jupyter.  The first
 is to have the Kernel listen only on localhost, and connect to it from
 another machine on the same LAN.
 
@@ -475,12 +282,12 @@ In this case, the IP that you would connect
 to would still be 127.0.0.1, but you want to specify the additional ``--ssh`` argument
 with the hostname of the kernel (in this example, it's 'worker')::
 
-    user@client $> ipython qtconsole  --ssh=worker --existing /path/to/kernel-12345.json
+    user@client $> jupyter qtconsole  --ssh=worker --existing /path/to/kernel-12345.json
 
 Which will write a new connection file with the forwarded ports, so you can reuse them::
 
-    [IPythonQtConsoleApp] To connect another client via this tunnel, use:
-    [IPythonQtConsoleApp] --existing kernel-12345-ssh.json
+    [JupyterQtConsoleApp] To connect another client via this tunnel, use:
+    [JupyterQtConsoleApp] --existing kernel-12345-ssh.json
 
 Note again that this opens ports on the *client* machine that point to your kernel.
 
@@ -502,7 +309,7 @@ on external interfaces, so that its ports are visible to `login`::
 
 Which we can connect to from the client with::
 
-    user@client $> ipython qtconsole --ssh=login --ip=192.168.1.123 --existing /path/to/kernel-12345.json
+    user@client $> jupyter qtconsole --ssh=login --ip=192.168.1.123 --existing /path/to/kernel-12345.json
 
 .. note::
 
@@ -514,7 +321,7 @@ Which we can connect to from the client with::
 Manual SSH tunnels
 ------------------
 
-It's possible that IPython's ssh helper functions won't work for you, for various
+It's possible that Jupyter's ssh helper functions won't work for you, for various
 reasons.  You can still connect to remote machines, as long as you set up the tunnels
 yourself.  The basic format of forwarding a local port to a remote one is::
 
@@ -568,16 +375,7 @@ Qt and the QtConsole
 An important part of working with the QtConsole when you are writing your own
 Qt code is to remember that user code (in the kernel) is *not* in the same
 process as the frontend.  This means that there is not necessarily any Qt code
-running in the kernel, and under most normal circumstances there isn't. If,
-however, you specify ``--matplotlib qt`` at the command-line, then there *will* be a
-:class:`QCoreApplication` instance running in the kernel process along with
-user-code. To get a reference to this application, do:
-
-.. sourcecode:: python
-
-    from PyQt4 import QtCore
-    app = QtCore.QCoreApplication.instance()
-    # app will be None if there is no such instance
+running in the kernel, and under most normal circumstances there isn't.
 
 A common problem listed in the PyQt4 Gotchas_ is the fact that Python's garbage
 collection will destroy Qt objects (Windows, etc.) once there is no longer a
@@ -624,7 +422,7 @@ command-line application), there are a few options:
   as described above.  Effectively, this embeds your application in IPython
   rather than the other way round.
 
-* Use :class:`IPython.qt.console.rich_ipython_widget.RichIPythonWidget` in your
+* Use :class:`qtconsole.rich_jupyter_widget.RichJupyterWidget` in your
   Qt application. This will embed the console widget in your GUI and start the
   kernel in a separate process, so code typed into the console cannot access
   objects in your application.
