@@ -589,12 +589,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """
         self._control.copy()
 
-    def execute_file(self, path, hidden=False):
-        """ Attempts to execute file with 'path'. If 'hidden', no output is
-            shown.
-        """
-        self.execute('execfile(%r)' % path, hidden=hidden)
-
     def interrupt_kernel(self):
         """ Attempts to interrupt the running kernel.
         

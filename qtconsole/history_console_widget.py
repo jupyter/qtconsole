@@ -225,49 +225,6 @@ class HistoryConsoleWidget(ConsoleWidget):
         """
         return self._history[-n:]
 
-    def _request_update_session_history_length(self):
-        msg_id = self.kernel_client.execute('',
-            silent=True,
-            user_expressions={
-                'hlen':'len(get_ipython().history_manager.input_hist_raw)',
-                }
-            )
-        self._request_info['execute'][msg_id] = self._ExecutionRequest(msg_id, 'save_magic')
-
-    def _handle_execute_reply(self, msg):
-        """ Handles replies for code execution, here only session history length
-        """
-        msg_id = msg['parent_header']['msg_id']
-        info = self._request_info['execute'].pop(msg_id,None)
-        if info and info.kind == 'save_magic' and not self._hidden:
-            content = msg['content']
-            status = content['status']
-            if status == 'ok':
-                self._max_session_history = int(
-                    content['user_expressions']['hlen']['data']['text/plain']
-                )
-
-    def save_magic(self):
-        # update the session history length
-        self._request_update_session_history_length()
-
-        file_name,extFilter = QtGui.QFileDialog.getSaveFileName(self,
-            "Enter A filename",
-            filter='Python File (*.py);; All files (*.*)'
-            )
-
-        # let's the user search/type for a file name, while the history length
-        # is fetched
-
-        if file_name:
-            hist_range, ok = QtGui.QInputDialog.getText(self,
-                'Please enter an interval of command to save',
-                'Saving commands:',
-                text=str('1-'+str(self._max_session_history))
-                )
-            if ok:
-                self.execute("%save"+" "+file_name+" "+str(hist_range))
-
     #---------------------------------------------------------------------------
     # 'HistoryConsoleWidget' protected interface
     #---------------------------------------------------------------------------
