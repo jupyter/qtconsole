@@ -599,10 +599,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
             self.input_buffer = source
 
         # Execute the source or show a continuation prompt if it is incomplete.
-        if self.execute_on_complete_input:
+        if interactive and self.execute_on_complete_input:
             complete, indent = self._is_complete(source, interactive)
         else:
-            complete = not interactive
+            complete = True
             indent = ''
         if hidden:
             if complete or not self.execute_on_complete_input:

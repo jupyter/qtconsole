@@ -251,7 +251,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             if reply['parent_header'].get('msg_id', None) == msg_id:
                 status = reply['content'].get('status', u'complete')
                 indent = reply['content'].get('indent', u'')
-                return status == u'complete', indent
+                return status != 'incomplete', indent
 
     def _execute(self, source, hidden):
         """ Execute 'source'. If 'hidden', do not show any output.
