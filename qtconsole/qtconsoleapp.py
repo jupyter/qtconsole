@@ -48,7 +48,7 @@ from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
 from qtconsole.ipython_widget import IPythonWidget
 from qtconsole.rich_ipython_widget import RichIPythonWidget
-from qtconsole import styles
+from qtconsole import styles, __version__
 from qtconsole.mainwindow import MainWindow
 from qtconsole.client import QtKernelClient
 from qtconsole.manager import QtKernelManager
@@ -112,7 +112,7 @@ qt_flags = set(qt_flags.keys())
 
 class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     name = 'jupyter-qtconsole'
-
+    version = __version__
     description = """
         The Jupyter QtConsole.
         
