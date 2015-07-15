@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="Jupyter Qt Console 4.0.0 documentation" href="index.html" />
-    <link rel="prev" title="A Qt Console for IPython" href="index.html" />
+    <link rel="prev" title="A Qt Console for Jupyter" href="index.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -38,7 +38,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="index.html" title="A Qt Console for IPython"
+          <a href="index.html" title="A Qt Console for Jupyter"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">Jupyter Qt Console 4.0.0 documentation</a> &raquo;</li> 
       </ul>
@@ -262,56 +262,60 @@ of characters (will double with <code class="docutils literal"><span class="pre"
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">True</span></code></p>
 <p class="last">Whether to draw information calltips on open-parentheses.</p>
 </dd>
+<dt>FrontendWidget.is_complete_timeout <span class="classifier-delimiter">:</span> <span class="classifier">Float</span></dt>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">0.25</span></code></p>
+<p class="last">Seconds to wait for is_complete replies from the kernel.</p>
+</dd>
 <dt>FrontendWidget.lexer_class <span class="classifier-delimiter">:</span> <span class="classifier">DottedObjectName</span></dt>
-<dd><p class="first">Default: <code class="docutils literal"><span class="pre">&lt;traitlets.traitlets.Undefined</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f29fedb8630&gt;</span></code></p>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">traitlets.Undefined</span></code></p>
 <p class="last">The pygments lexer class to use.</p>
 </dd>
-<dt>IPythonWidget.editor <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.editor <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
 <p class="last">A command for invoking a system text editor. If the string contains a
 {filename} format specifier, it will be used. Otherwise, the filename
 will be appended to the end the command.</p>
 </dd>
-<dt>IPythonWidget.editor_line <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.editor_line <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
 <p class="last">The editor command to use when a specific line number is requested. The
 string should contain two format specifiers: {line} and {filename}. If
 this parameter is not specified, the line number option to the %edit
 magic will be ignored.</p>
 </dd>
-<dt>IPythonWidget.in_prompt <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.in_prompt <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">'In</span> <span class="pre">[&lt;span</span> <span class="pre">class=&quot;in-prompt-number&quot;&gt;%i&lt;/span&gt;]:</span> <span class="pre">'</span></code></p>
 <p class="last">No description</p>
 </dd>
-<dt>IPythonWidget.input_sep <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.input_sep <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">'\\n'</span></code></p>
 <p class="last">No description</p>
 </dd>
-<dt>IPythonWidget.out_prompt <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.out_prompt <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">'Out[&lt;span</span> <span class="pre">class=&quot;out-prompt-number&quot;&gt;%i&lt;/span&gt;]:</span> <span class="pre">'</span></code></p>
 <p class="last">No description</p>
 </dd>
-<dt>IPythonWidget.output_sep <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.output_sep <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
 <p class="last">No description</p>
 </dd>
-<dt>IPythonWidget.output_sep2 <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.output_sep2 <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
 <p class="last">No description</p>
 </dd>
-<dt>IPythonWidget.style_sheet <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.style_sheet <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
 <dl class="last docutils">
 <dt>A CSS stylesheet. The stylesheet can contain classes for:</dt>
 <dd><ol class="first last arabic simple">
 <li>Qt: QPlainTextEdit, QFrame, QWidget, etc</li>
 <li>Pygments: .c, .k, .o, etc. (see PygmentsHighlighter)</li>
-<li>IPython: .error, .in-prompt, .out-prompt, etc</li>
+<li>QtConsole: .error, .in-prompt, .out-prompt, etc</li>
 </ol>
 </dd>
 </dl>
 </dd>
-<dt>IPythonWidget.syntax_style <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
+<dt>JupyterWidget.syntax_style <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
 <dd><p class="first">Default: <code class="docutils literal"><span class="pre">''</span></code></p>
 <p class="last">If not empty, use this Pygments style for syntax highlighting.
 Otherwise, the style sheet is queried for Pygments style
@@ -322,7 +326,7 @@ information.</p>
 <p class="last">Should we autorestart the kernel if it dies.</p>
 </dd>
 <dt>KernelManager.kernel_cmd <span class="classifier-delimiter">:</span> <span class="classifier">List</span></dt>
-<dd><p class="first">Default: <code class="docutils literal"><span class="pre">[]</span></code></p>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">traitlets.Undefined</span></code></p>
 <p>DEPRECATED: Use kernel_name instead.</p>
 <p class="last">The Popen Command to launch the kernel.
 Override this if you have a custom kernel.
@@ -364,7 +368,7 @@ Containers larger than this are pickled outright.</p>
 <p class="last">path to file containing execution key.</p>
 </dd>
 <dt>Session.metadata <span class="classifier-delimiter">:</span> <span class="classifier">Dict</span></dt>
-<dd><p class="first">Default: <code class="docutils literal"><span class="pre">{}</span></code></p>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">traitlets.Undefined</span></code></p>
 <p class="last">Metadata dictionary, which serves as the default top-level metadata dict for each message.</p>
 </dd>
 <dt>Session.packer <span class="classifier-delimiter">:</span> <span class="classifier">DottedObjectName</span></dt>
@@ -388,7 +392,7 @@ Must have the form &#8216;hmac-HASH&#8217;.</p>
 Only used with custom functions for <code class="docutils literal"><span class="pre">packer</span></code>.</p>
 </dd>
 <dt>Session.username <span class="classifier-delimiter">:</span> <span class="classifier">Unicode</span></dt>
-<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'takluyver'</span></code></p>
+<dd><p class="first">Default: <code class="docutils literal"><span class="pre">'minrk'</span></code></p>
 <p class="last">Username for the Session. Default is your system username.</p>
 </dd>
 </dl>
@@ -402,7 +406,7 @@ Only used with custom functions for <code class="docutils literal"><span class="
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="index.html"
-                        title="previous chapter">A Qt Console for IPython</a></p>
+                        title="previous chapter">A Qt Console for Jupyter</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -432,7 +436,7 @@ Only used with custom functions for <code class="docutils literal"><span class="
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.3</a>
       
       |
       <a href="_sources/config_options.txt"

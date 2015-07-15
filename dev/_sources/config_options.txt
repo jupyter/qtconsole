@@ -273,12 +273,18 @@ FrontendWidget.enable_calltips : Bool
 
     Whether to draw information calltips on open-parentheses.
 
+FrontendWidget.is_complete_timeout : Float
+    Default: ``0.25``
+
+    Seconds to wait for is_complete replies from the kernel.
+
 FrontendWidget.lexer_class : DottedObjectName
-    Default: ``<traitlets.traitlets.Undefined object at 0x7f29fedb8630>``
+    Default: ``traitlets.Undefined``
 
     The pygments lexer class to use.
 
-IPythonWidget.editor : Unicode
+
+JupyterWidget.editor : Unicode
     Default: ``''``
 
     
@@ -287,7 +293,7 @@ IPythonWidget.editor : Unicode
     will be appended to the end the command.
 
 
-IPythonWidget.editor_line : Unicode
+JupyterWidget.editor_line : Unicode
     Default: ``''``
 
     
@@ -297,42 +303,42 @@ IPythonWidget.editor_line : Unicode
     magic will be ignored.
 
 
-IPythonWidget.in_prompt : Unicode
+JupyterWidget.in_prompt : Unicode
     Default: ``'In [<span class="in-prompt-number">%i</span>]: '``
 
     No description
 
-IPythonWidget.input_sep : Unicode
+JupyterWidget.input_sep : Unicode
     Default: ``'\\n'``
 
     No description
 
-IPythonWidget.out_prompt : Unicode
+JupyterWidget.out_prompt : Unicode
     Default: ``'Out[<span class="out-prompt-number">%i</span>]: '``
 
     No description
 
-IPythonWidget.output_sep : Unicode
+JupyterWidget.output_sep : Unicode
     Default: ``''``
 
     No description
 
-IPythonWidget.output_sep2 : Unicode
+JupyterWidget.output_sep2 : Unicode
     Default: ``''``
 
     No description
 
-IPythonWidget.style_sheet : Unicode
+JupyterWidget.style_sheet : Unicode
     Default: ``''``
 
     
     A CSS stylesheet. The stylesheet can contain classes for:
         1. Qt: QPlainTextEdit, QFrame, QWidget, etc
         2. Pygments: .c, .k, .o, etc. (see PygmentsHighlighter)
-        3. IPython: .error, .in-prompt, .out-prompt, etc
+        3. QtConsole: .error, .in-prompt, .out-prompt, etc
 
 
-IPythonWidget.syntax_style : Unicode
+JupyterWidget.syntax_style : Unicode
     Default: ``''``
 
     
@@ -347,7 +353,7 @@ KernelManager.autorestart : Bool
     Should we autorestart the kernel if it dies.
 
 KernelManager.kernel_cmd : List
-    Default: ``[]``
+    Default: ``traitlets.Undefined``
 
     DEPRECATED: Use kernel_name instead.
     
@@ -402,7 +408,7 @@ Session.keyfile : Unicode
     path to file containing execution key.
 
 Session.metadata : Dict
-    Default: ``{}``
+    Default: ``traitlets.Undefined``
 
     Metadata dictionary, which serves as the default top-level metadata dict for each message.
 
@@ -431,6 +437,6 @@ Session.unpacker : DottedObjectName
     Only used with custom functions for `packer`.
 
 Session.username : Unicode
-    Default: ``'takluyver'``
+    Default: ``'minrk'``
 
     Username for the Session. Default is your system username.
