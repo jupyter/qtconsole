@@ -1,10 +1,10 @@
-""" A minimal application using the Qt console-style IPython frontend.
+""" A minimal application using the Qt console-style Jupyter frontend.
 
 This is not a complete console app, as subprocess will not be able to receive
 input, there is no real readline support, among other limitations.
 """
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import os
@@ -46,8 +46,8 @@ from qtconsole.qt import QtCore, QtGui
 
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
-from qtconsole.ipython_widget import IPythonWidget
-from qtconsole.rich_ipython_widget import RichIPythonWidget
+from qtconsole.jupyter_widget import JupyterWidget
+from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole import styles, __version__
 from qtconsole.mainwindow import MainWindow
 from qtconsole.client import QtKernelClient
@@ -93,10 +93,10 @@ flags.update(qt_flags)
 # start with copy of front&backend aliases list
 aliases = dict(aliases)
 qt_aliases = dict(
-    style = 'IPythonWidget.syntax_style',
+    style = 'JupyterWidget.syntax_style',
     stylesheet = 'JupyterQtConsoleApp.stylesheet',
 
-    editor = 'IPythonWidget.editor',
+    editor = 'JupyterWidget.editor',
     paging = 'ConsoleWidget.paging',
 )
 # and app_aliases from the Console Mixin
@@ -123,7 +123,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     """
     examples = _examples
 
-    classes = [IPythonWidget] + JupyterConsoleApp.classes
+    classes = [JupyterWidget] + JupyterConsoleApp.classes
     flags = Dict(flags)
     aliases = Dict(aliases)
     frontend_flags = Any(qt_flags)
@@ -151,12 +151,12 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         kind = 'plain' if new else 'rich'
         self.config.ConsoleWidget.kind = kind
         if new:
-            self.widget_factory = IPythonWidget
+            self.widget_factory = JupyterWidget
         else:
-            self.widget_factory = RichIPythonWidget
+            self.widget_factory = RichJupyterWidget
 
     # the factory for creating a widget
-    widget_factory = Any(RichIPythonWidget)
+    widget_factory = Any(RichJupyterWidget)
 
     def parse_command_line(self, argv=None):
         super(JupyterQtConsoleApp, self).parse_command_line(argv)
@@ -196,8 +196,8 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         
         Parameters
         ----------
-        current_widget : IPythonWidget
-            The IPythonWidget whose kernel this frontend is to share
+        current_widget : JupyterWidget
+            The JupyterWidget whose kernel this frontend is to share
         """
         kernel_client = self.kernel_client_class(
                                 connection_file=current_widget.kernel_client.connection_file,
@@ -225,7 +225,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         # Create the widget.
 
         base_path = os.path.abspath(os.path.dirname(__file__))
-        icon_path = os.path.join(base_path, 'resources', 'icon', 'IPythonConsole.svg')
+        icon_path = os.path.join(base_path, 'resources', 'icon', 'JupyterConsole.svg')
         self.app.icon = QtGui.QIcon(icon_path)
         QtGui.QApplication.setWindowIcon(self.app.icon)
 
@@ -254,7 +254,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         if sys.platform != 'darwin' and self.hide_menubar:
             self.window.menuBar().setVisible(False)
 
-        self.window.setWindowTitle('IPython')
+        self.window.setWindowTitle('Jupyter QtConsole')
 
     def init_colors(self, widget):
         """Configure the coloring of the widget"""
@@ -264,8 +264,8 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         # parse the colors arg down to current known labels
         cfg = self.config
         colors = cfg.ZMQInteractiveShell.colors if 'ZMQInteractiveShell.colors' in cfg else None
-        style = cfg.IPythonWidget.syntax_style if 'IPythonWidget.syntax_style' in cfg else None
-        sheet = cfg.IPythonWidget.style_sheet if 'IPythonWidget.style_sheet' in cfg else None
+        style = cfg.JupyterWidget.syntax_style if 'JupyterWidget.syntax_style' in cfg else None
+        sheet = cfg.JupyterWidget.style_sheet if 'JupyterWidget.style_sheet' in cfg else None
 
         # find the value for colors:
         if colors:
@@ -321,19 +321,32 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         # hold onto ref, so the timer doesn't get cleaned up
         self._sigint_timer = timer
 
+    def _deprecate_config(self, cfg, old_name, new_name):
+        """Warn about deprecated config"""
+        if old_name in cfg:
+            self.log.warn("Use %s in config, not %s. Outdated config:\n    %s",
+                new_name, old_name,
+                '\n    '.join('{name}.{key} = {value!r}'.format(key=key, value=value, name=old_name)
+                    for key, value in self.config[old_name].items()
+                )
+            )
+            cfg = cfg.copy()
+            cfg[new_name].merge(cfg[old_name])
+            return cfg
+
     @catch_config_error
     def initialize(self, argv=None):
         self.init_qt_app()
         super(JupyterQtConsoleApp, self).initialize(argv)
-        if 'IPythonQtConsoleApp' in self.config:
-            self.log.warn("Use JupyterQtConsoleApp in config, not IPythonQtConsoleApp. Outdated config:\n%s",
-                '\n'.join('IPythonQtConsoleApp.{key} = {value!r}'.format(key=key, value=value)
-                    for key, value in self.config.IPythonQtConsoleApp.items()
-                )
-            )
-            cfg = self.config.copy()
-            cfg.JupyterQtConsoleApp.merge(cfg.IPythonQtConsoleApp)
-            self.update_config(cfg)
+        # handle deprecated renames
+        for old_name, new_name in [
+            ('IPythonQtConsoleApp', 'JupyterQtConsole'),
+            ('IPythonWidget', 'JupyterWidget'),
+            ('RichIPythonWidget', 'RichJupyterWidget'),
+        ]:
+            cfg = self._deprecate_config(self.config, old_name, new_name)
+            if cfg:
+                self.update_config(cfg)
         JupyterConsoleApp.initialize(self,argv)
         self.init_qt_elements()
         self.init_signal()

@@ -1,13 +1,8 @@
 """A simple completer for the qtconsole"""
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012, IPython Development Team.$
-#
-# Distributed under the terms of the Modified BSD License.$
-#
-# The full license is in the file COPYING.txt, distributed with this software.
-#-------------------------------------------------------------------
 
-# System library imports
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
+
 from qtconsole.qt import QtCore, QtGui
 import ipython_genutils.text as text
 
