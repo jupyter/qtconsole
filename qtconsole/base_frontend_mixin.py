@@ -69,12 +69,18 @@ class BaseFrontendMixin(object):
         kc = self.kernel_client
         if kc is None:
             return
+        
+        try:
+            blocking_client = kc.blocking_client
+        except AttributeError:
+            def blocking_client():
+                info = kc.get_connection_info()
+                bc = BlockingKernelClient(**info)
+                bc.session.key = kc.session.key
+                return bc
 
-        info = kc.get_connection_info()
-        bc = BlockingKernelClient(**info)
-        bc.session.key = kc.session.key
-        bc.shell_channel.start()
-        self._blocking_client = bc
+        self._blocking_client = blocking_client()
+        self._blocking_client.shell_channel.start()
     
     @property
     def blocking_client(self):
