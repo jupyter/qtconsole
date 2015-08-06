@@ -39,6 +39,38 @@ is not yet configurable.
    point in a multiline block, you can force its execution (without having to
    go to the bottom) with :kbd:`Shift-Enter`.
 
+Installation
+============
+
+.. seealso::
+
+   `Installing Jupyter <http://jupyter.readthedocs.org/en/latest/install.html>`__
+     The Qt console is part of the Jupyter ecosystem.
+
+You can install the Qt console with::
+
+    pip install qtconsole
+    # OR
+    conda install qtconsole
+
+If you're new to Python, we recommend installing `Anaconda <http://continuum.io/downloads#py34>`__,
+a Python distribution which includes the Qt console and the other Jupyter components.
+
+Qt
+--
+
+The Qt console requires `PyQt <http://www.riverbankcomputing.com/software/pyqt/intro>`__
+or `PySide <http://pyside.github.io/docs/pyside/>`__, which can't be installed
+with pip.
+
+If you install the Qt console using conda, it will automatically install PyQt
+as well.
+
+Otherwise, you can `download PyQt manually <http://www.riverbankcomputing.com/software/pyqt/download5>`__,
+or install it using your system package manager, e.g.::
+
+    sudo apt-get install python3-pyqt5
+
 
 Inline graphics
 ===============
