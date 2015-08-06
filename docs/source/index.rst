@@ -1,8 +1,8 @@
 .. _qtconsole:
 
-=========================
+========================
 A Qt Console for Jupyter
-=========================
+========================
 
 To start the Qt console::
 
@@ -38,6 +38,38 @@ is not yet configurable.
    instead of :kbd:`Enter`, and it will open a new line for input.  At any
    point in a multiline block, you can force its execution (without having to
    go to the bottom) with :kbd:`Shift-Enter`.
+
+Installation
+============
+
+.. seealso::
+
+   `Installing Jupyter <http://jupyter.readthedocs.org/en/latest/install.html>`__
+     The Qt console is part of the Jupyter ecosystem.
+
+You can install the Qt console with::
+
+    pip install qtconsole
+    # OR
+    conda install qtconsole
+
+If you're new to Python, we recommend installing `Anaconda <http://continuum.io/downloads#py34>`__,
+a Python distribution which includes the Qt console and the other Jupyter components.
+
+Qt
+--
+
+The Qt console requires `PyQt <http://www.riverbankcomputing.com/software/pyqt/intro>`__
+or `PySide <http://pyside.github.io/docs/pyside/>`__, which can't be installed
+with pip.
+
+If you install the Qt console using conda, it will automatically install PyQt
+as well.
+
+Otherwise, you can `download PyQt manually <http://www.riverbankcomputing.com/software/pyqt/download5>`__,
+or install it using your system package manager, e.g.::
+
+    sudo apt-get install python3-pyqt5
 
 
 Inline graphics
@@ -154,7 +186,7 @@ kernel.
 .. _multiple_consoles:
 
 Multiple Consoles
-*****************
+-----------------
 
 Since the Kernel listens on the network, multiple frontends can connect to it.
 These do not have to all be qt frontends - any Jupyter frontend can connect and
@@ -351,7 +383,7 @@ and don't actually run any commands beyond creating the tunnel.
 
 
 Stopping Kernels and Consoles
-*****************************
+-----------------------------
 
 Since there can be many consoles per kernel, the shutdown mechanism and dialog
 are probably more complicated than you are used to. Since you don't always want
@@ -412,7 +444,7 @@ garbage collected until the application itself is destroyed.
 .. _Gotchas: http://www.riverbankcomputing.co.uk/static/Docs/PyQt4/html/gotchas.html#garbage-collection
 
 Embedding the QtConsole in a Qt application
-*******************************************
+-------------------------------------------
 
 In order to make the QtConsole available to an external Qt GUI application (just as
 :func:`IPython.embed` enables one to embed a terminal session of IPython in a
