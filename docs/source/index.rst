@@ -1,8 +1,8 @@
 .. _qtconsole:
 
-=========================
+========================
 A Qt Console for Jupyter
-=========================
+========================
 
 To start the Qt console::
 
@@ -186,7 +186,7 @@ kernel.
 .. _multiple_consoles:
 
 Multiple Consoles
-*****************
+-----------------
 
 Since the Kernel listens on the network, multiple frontends can connect to it.
 These do not have to all be qt frontends - any Jupyter frontend can connect and
@@ -383,7 +383,7 @@ and don't actually run any commands beyond creating the tunnel.
 
 
 Stopping Kernels and Consoles
-*****************************
+-----------------------------
 
 Since there can be many consoles per kernel, the shutdown mechanism and dialog
 are probably more complicated than you are used to. Since you don't always want
@@ -444,7 +444,7 @@ garbage collected until the application itself is destroyed.
 .. _Gotchas: http://www.riverbankcomputing.co.uk/static/Docs/PyQt4/html/gotchas.html#garbage-collection
 
 Embedding the QtConsole in a Qt application
-*******************************************
+-------------------------------------------
 
 In order to make the QtConsole available to an external Qt GUI application (just as
 :func:`IPython.embed` enables one to embed a terminal session of IPython in a
