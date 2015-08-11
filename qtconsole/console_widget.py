@@ -1976,7 +1976,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
 
         self._control.moveCursor(QtGui.QTextCursor.End)
 
-    def _readline(self, prompt='', callback=None):
+    def _readline(self, prompt='', callback=None, password=False):
         """ Reads one line of input from the user.
 
         Parameters
@@ -2003,6 +2003,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
                                'is not visible!')
 
         self._reading = True
+        if password:
+            self._show_prompt('Warning: QtConsole does not support password mode, '\
+                              'the text you type will be visible.', newline=True)
         self._show_prompt(prompt, newline=False)
 
         if callback is None:
