@@ -90,7 +90,8 @@ class CompletionWidget(QtGui.QListWidget):
         point = text_edit.mapToGlobal(point)
         height = self.sizeHint().height()
         screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
-        if screen_rect.size().height() - point.y() - height < 0:
+        if (screen_rect.size().height() + screen_rect.y() 
+                    - point.y() - height < 0):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
             point.setY(point.y() - height)
         self.move(point)
