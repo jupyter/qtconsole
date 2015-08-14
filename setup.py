@@ -94,6 +94,12 @@ extras_require = setuptools_args['extras_require'] = {
 }
 
 if 'setuptools' in sys.modules:
+    setup_args['entry_points'] = {
+        'console_scripts': [
+            'jupyter-qtconsole = qtconsole.qtconsoleapp:main',
+        ]
+    }
+    setup_args.pop('scripts')
     setup_args.update(setuptools_args)
 
 if __name__ == '__main__':
