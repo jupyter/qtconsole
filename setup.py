@@ -42,7 +42,7 @@ for d, _, _ in os.walk(pjoin(here, name)):
         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
 package_data = {
-    'qtconsole.console' : ['resources/icon/*.svg'],
+    'qtconsole' : ['resources/icon/*.svg'],
 }
 
 version_ns = {}
