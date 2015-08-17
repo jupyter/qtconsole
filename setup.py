@@ -57,6 +57,7 @@ setup_args = dict(
     packages        = packages,
     package_data    = package_data,
     description     = "Jupyter Qt console",
+    long_description= "Qt-based console for Jupyter with support for rich media output",
     author          = 'Jupyter Development Team',
     author_email    = 'jupyter@googlegroups.com',
     url             = 'http://jupyter.org',
