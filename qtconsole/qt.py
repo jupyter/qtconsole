@@ -16,7 +16,7 @@ if QT_API not in [QT_API_PYSIDE, QT_API_PYQT, QT_API_PYQT5, None]:
     raise RuntimeError("Invalid Qt API %r, valid values are: %r, %r, %r" %
                        (QT_API, QT_API_PYSIDE, QT_API_PYQT, QT_API_PYQT5))
 if QT_API is None:
-    api_opts = [QT_API_PYSIDE, QT_API_PYQT, QT_API_PYQT5]
+    api_opts = [QT_API_PYQT5, QT_API_PYSIDE, QT_API_PYQT]
 else:
     api_opts = [QT_API]
 
