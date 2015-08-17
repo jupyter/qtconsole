@@ -2,6 +2,9 @@ include COPYING.md
 include CONTRIBUTING.md
 include README.md
 
+# Resources
+graft qtconsole/resources
+
 # Documentation
 graft docs
 exclude docs/\#*
