@@ -56,9 +56,9 @@ from traitlets import (
     Dict, Unicode, CBool, Any
 )
 
-from jupyter_core.application import JupyterApp
+from jupyter_core.application import JupyterApp, base_flags, base_aliases
 from jupyter_client.consoleapp import (
-        JupyterConsoleApp, app_aliases, app_flags, flags, aliases
+        JupyterConsoleApp, app_aliases, app_flags,
     )
 
 
@@ -73,8 +73,8 @@ jupyter qtconsole                      # start the qtconsole
 # Aliases and Flags
 #-----------------------------------------------------------------------------
 
-# start with copy of flags
-flags = dict(flags)
+# FIXME: workaround bug in jupyter_client < 4.1 excluding base_flags,aliases
+flags = dict(base_flags)
 qt_flags = {
     'plain' : ({'JupyterQtConsoleApp' : {'plain' : True}},
             "Disable rich text support."),
@@ -90,8 +90,8 @@ qt_flags.update(app_flags)
 # add frontend flags to the full set
 flags.update(qt_flags)
 
-# start with copy of front&backend aliases list
-aliases = dict(aliases)
+# start with copy of base jupyter aliases
+aliases = dict(base_aliases)
 qt_aliases = dict(
     style = 'JupyterWidget.syntax_style',
     stylesheet = 'JupyterQtConsoleApp.stylesheet',
@@ -338,6 +338,8 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     def initialize(self, argv=None):
         self.init_qt_app()
         super(JupyterQtConsoleApp, self).initialize(argv)
+        if self._dispatching:
+            return
         # handle deprecated renames
         for old_name, new_name in [
             ('IPythonQtConsoleApp', 'JupyterQtConsole'),
@@ -352,6 +354,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         self.init_signal()
 
     def start(self):
+        super(JupyterQtConsoleApp, self).start()
 
         # draw the window
         if self.maximize:
@@ -375,9 +378,7 @@ class IPythonQtConsoleApp(JupyterQtConsoleApp):
 #-----------------------------------------------------------------------------
 
 def main():
-    app = JupyterQtConsoleApp()
-    app.initialize()
-    app.start()
+    JupyterQtConsoleApp.launch_instance()
 
 
 if __name__ == '__main__':
