@@ -47,10 +47,8 @@ def transform_ipy_prompt(line):
 
     if not line or line.isspace():
         return line
-    #print 'LINE:  %r' % line # dbg
     m = _ipy_prompt_re.match(line)
     if m:
-        #print 'MATCH! %r -> %r' % (line, line[len(m.group(0)):]) # dbg
         return line[len(m.group(0)):]
     else:
         return line
@@ -251,8 +249,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                 was_newline = text[-1] == '\n'
                 if was_newline:  # user doesn't need newline
                     text = text[:-1]
-                # Expand tabs so that we respect PEP-8.
-                QtGui.QApplication.clipboard().setText(text.expandtabs(4))
+                QtGui.QApplication.clipboard().setText(text)
         else:
             self.log.debug("frontend widget : unknown copy target")
 
