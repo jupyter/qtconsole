@@ -12,6 +12,7 @@ try:
     from queue import Empty
 except ImportError:
     from Queue import Empty
+import re
 
 from qtconsole import qt
 from qtconsole.qt import QtCore, QtGui
@@ -24,6 +25,33 @@ from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
 from .pygments_highlighter import PygmentsHighlighter
+
+_classic_prompt_re = re.compile(r'^([ \t]*>>> |^[ \t]*\.\.\. )')
+
+def transform_classic_prompt(line):
+    """Handle inputs that start with '>>> ' syntax."""
+
+    if not line or line.isspace():
+        return line
+    m = _classic_prompt_re.match(line)
+    if m:
+        return line[len(m.group(0)):]
+    else:
+        return line
+
+
+_ipy_prompt_re = re.compile(r'^([ \t]*In \[\d+\]: |^[ \t]*\ \ \ \.\.\.+: )')
+
+def transform_ipy_prompt(line):
+    """Handle inputs that start classic IPython prompt syntax."""
+
+    if not line or line.isspace():
+        return line
+    m = _ipy_prompt_re.match(line)
+    if m:
+        return line[len(m.group(0)):]
+    else:
+        return line
 
 
 class FrontendHighlighter(PygmentsHighlighter):
@@ -213,8 +241,13 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         elif self._control.hasFocus():
             text = self._control.textCursor().selection().toPlainText()
             if text:
+                # Remove prompts.
+                lines = text.splitlines()
+                lines = map(transform_classic_prompt, lines)
+                lines = map(transform_ipy_prompt, lines)
+                text = '\n'.join(lines)
                 was_newline = text[-1] == '\n'
-                if not was_newline: # user doesn't need newline
+                if was_newline:  # user doesn't need newline
                     text = text[:-1]
                 QtGui.QApplication.clipboard().setText(text)
         else:
