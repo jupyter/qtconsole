@@ -4,6 +4,9 @@
 A Qt Console for Jupyter
 ========================
 
+:Release: |release|
+:Date: |today|
+
 To start the Qt console::
 
     $> jupyter qtconsole
