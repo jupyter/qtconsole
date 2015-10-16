@@ -83,9 +83,9 @@ setuptools_args = {}
 install_requires = setuptools_args['install_requires'] = [
     'traitlets',
     'jupyter_core',
-    'jupyter_client',
+    'jupyter_client>=4.1',
     'pygments',
-    'ipykernel', # not a real dependency, but require the reference kernel
+    'ipykernel>=4.1', # not a real dependency, but require the reference kernel
 ]
 
 extras_require = setuptools_args['extras_require'] = {

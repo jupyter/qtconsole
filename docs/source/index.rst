@@ -12,6 +12,7 @@ To start the Qt console::
    :maxdepth: 2
 
    config_options
+   changelog
 
 You can use any Jupyter kernel with this PyQt_ console GUI.
 This is a very lightweight widget that
