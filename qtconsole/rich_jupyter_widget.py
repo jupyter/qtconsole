@@ -138,7 +138,12 @@ class RichJupyterWidget(RichIPythonWidget):
                 self._append_html(self.output_sep2, True)
             elif 'text/latex' in data:
                 self._pre_image_append(msg, prompt_number)
-                self._append_latex(data['text/latex'], True)
+                try:
+                    self._append_latex(data['text/latex'], True)
+                except Exception as e:
+                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
+                    self.log.error("Failed to render latex: %s" % e)
+                    return super(RichJupyterWidget, self)._handle_execute_result(msg)
                 self._append_html(self.output_sep2, True)
             else:
                 # Default back to the plain text representation.
@@ -166,7 +171,12 @@ class RichJupyterWidget(RichIPythonWidget):
                 jpg = decodestring(data['image/jpeg'].encode('ascii'))
                 self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
             elif 'text/latex' in data and latex_to_png:
-                self._append_latex(data['text/latex'], True)
+                try:
+                    self._append_latex(data['text/latex'], True)
+                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
+                    self.log.error("Failed to render latex: %s" % e)
+                except Exception as e:
+                    return super(RichJupyterWidget, self)._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
                 return super(RichJupyterWidget, self)._handle_display_data(msg)
@@ -177,13 +187,7 @@ class RichJupyterWidget(RichIPythonWidget):
 
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
-        try:
-            png = latex_to_png(latex, wrap=False)
-        except Exception as e:
-            self.log.error("Failed to render latex: '%s'", latex, exc_info=True)
-            self._append_plain_text("Failed to render latex: %s" % e, before_prompt)
-        else:
-            self._append_png(png, before_prompt, metadata)
+        self._append_png(latex_to_png(latex, wrap=False), before_prompt, metadata)
 
     def _append_jpg(self, jpg, before_prompt=False, metadata=None):
         """ Append raw JPG data to the widget."""
@@ -365,4 +369,3 @@ class RichIPythonWidget(RichJupyterWidget):
     def __init__(self, *a, **kw):
         warn("RichIPythonWidget is deprecated, use RichJupyterWidget")
         super(RichIPythonWidget, self).__init__(*a, **kw)
-
