@@ -8,7 +8,7 @@ been updated to use qtconsole.
 """
 
 
-from PyQt4 import QtGui
+from qtconsole.qt import QtGui
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 
