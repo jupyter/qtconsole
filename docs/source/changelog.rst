@@ -4,6 +4,16 @@ Changes in Jupyter QtConsole
 ============================
 
 .. _4.1:
+
+.. _4.1.1:
+
+4.1.1
+-----
+
+`4.1.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.1.1>`__
+
+- Set AppUserModelID for taskbar icon on Windows 7 and later
+
 .. _4.1.0:
 
 4.1
