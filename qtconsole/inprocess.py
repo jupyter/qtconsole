@@ -12,6 +12,7 @@ from .util import SuperQObject
 from .kernel_mixins import (
     QtKernelClientMixin, QtKernelManagerMixin,
 )
+from .rich_jupyter_widget import RichJupyterWidget
 
 class QtInProcessChannel(SuperQObject, InProcessChannel):
     # Emitted when the channel is started.
@@ -72,3 +73,18 @@ class QtInProcessKernelClient(QtKernelClientMixin, InProcessKernelClient):
 
 class QtInProcessKernelManager(QtKernelManagerMixin, InProcessKernelManager):
     client_class = __module__ + '.QtInProcessKernelClient'
+
+
+class QtInProcessRichJupyterWidget(RichJupyterWidget):
+    """ An in-process Jupyter Widget that enables multiline editing
+    """
+
+    def _is_complete(self, source, interactive=True):
+        shell = self.kernel_manager.kernel.shell
+        status, indent_spaces = \
+            shell.input_transformer_manager.check_complete(source)
+        if indent_spaces is None:
+            indent = ''
+        else:
+            indent = ' ' * indent_spaces
+        return status != 'incomplete', indent
