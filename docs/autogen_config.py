@@ -7,7 +7,7 @@ header = """\
 Configuration options
 =====================
 
-These options can be set in ``~/.jupyer/jupyter_qtconsole_config.py``, or
+These options can be set in ``~/.jupyter/jupyter_qtconsole_config.py``, or
 at the command line when you start it.
 """
 
