@@ -466,6 +466,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         # unset reading flag, because if execute finished, raw_input can't
         # still be pending.
         self._reading = False
+        # Note:  If info is NoneType, this is ignored
         if info and info.kind == 'user' and not self._hidden:
             # Make sure that all output from the SUB channel has been processed
             # before writing a new prompt.
@@ -492,8 +493,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         elif info and info.kind == 'silent_exec_callback' and not self._hidden:
             self._handle_exec_callback(msg)
             self._request_info['execute'].pop(msg_id)
-        else:
-            super(FrontendWidget, self)._handle_execute_reply(msg)
+        elif info and not self._hidden:
+            raise RuntimeError("Unknown handler for %s" % info.kind)
 
     def _handle_input_request(self, msg):
         """ Handle requests for raw_input.
