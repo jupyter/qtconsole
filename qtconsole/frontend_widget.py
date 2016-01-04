@@ -134,7 +134,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     confirm_restart = Bool(True, config=True,
         help="Whether to ask for user confirmation when restarting kernel")
-    
+
     lexer_class = DottedObjectName(config=True,
         help="The pygments lexer class to use."
     )
@@ -144,13 +144,13 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _lexer_class_changed(self, name, old, new):
         lexer_class = import_item(new)
         self.lexer = lexer_class()
-    
+
     def _lexer_class_default(self):
         if py3compat.PY3:
             return 'pygments.lexers.Python3Lexer'
         else:
             return 'pygments.lexers.PythonLexer'
-    
+
     lexer = Any()
     def _lexer_default(self):
         lexer_class = import_item(self.lexer_class)
@@ -261,10 +261,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """ Returns whether 'source' can be completely processed and a new
             prompt created. When triggered by an Enter/Return key press,
             'interactive' is True; otherwise, it is False.
-            
+
             Returns
             -------
-            
+
             (complete, indent): (bool, str)
             complete is a bool, indicating whether the input is complete or not.
             indent is the current indentation string for autoindent.
@@ -466,6 +466,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         # unset reading flag, because if execute finished, raw_input can't
         # still be pending.
         self._reading = False
+        # Note:  If info is NoneType, this is ignored
         if info and info.kind == 'user' and not self._hidden:
             # Make sure that all output from the SUB channel has been processed
             # before writing a new prompt.
@@ -492,8 +493,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         elif info and info.kind == 'silent_exec_callback' and not self._hidden:
             self._handle_exec_callback(msg)
             self._request_info['execute'].pop(msg_id)
-        else:
-            super(FrontendWidget, self)._handle_execute_reply(msg)
+        elif info and not self._hidden:
+            raise RuntimeError("Unknown handler for %s" % info.kind)
 
     def _handle_input_request(self, msg):
         """ Handle requests for raw_input.
@@ -624,7 +625,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def interrupt_kernel(self):
         """ Attempts to interrupt the running kernel.
-        
+
         Also unsets _reading flag, to avoid runtime errors
         if raw_input is called again.
         """
@@ -739,10 +740,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     #---------------------------------------------------------------------------
     # 'FrontendWidget' protected interface
     #---------------------------------------------------------------------------
-    
+
     def _auto_call_tip(self):
         """Trigger call tip automatically on open parenthesis
-        
+
         Call tips can be requested explcitly with `_call_tip`.
         """
         cursor = self._get_cursor()
@@ -750,7 +751,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         if cursor.document().characterAt(cursor.position()) == '(':
             # trigger auto call tip on open paren
             self._call_tip()
-    
+
     def _call_tip(self):
         """Shows a call tip, if appropriate, at the current cursor location."""
         # Decide if it makes sense to show a call tip
