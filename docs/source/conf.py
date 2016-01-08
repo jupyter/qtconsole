@@ -12,13 +12,19 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
-import os
-import shlex
 
 # Check the version information
 release_info = {}
 exec(compile(open('../../qtconsole/_version.py').read(), '../../qtconsole/_version.py', 'exec'), release_info)
+
+import os
+if os.environ.get('READTHEDOCS', None) == 'True':
+    print('On RTD, regen API')
+    #from ..autogen_config import main
+    ns = {'__file__':'../autogen_config.py'}
+    exec(compile(open('../autogen_config.py').read(), '../autogen_config.py', 'exec'), ns )
+    ns['main']()
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

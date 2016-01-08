@@ -1,0 +1,12 @@
+name: qtconsole_docs
+channels:
+- asmeurer
+dependencies:
+- ipykernel
+- numpydoc # we seem to not use that, but removing break readthedocs conda (for now)
+- pexpect
+- pygments
+- pyqt
+- pip:
+    - recommonmark # we seem to not use that, but removing break readthedocs conda (for now)
+    - readthedocs-sphinx-ext # we seem to not use that, but removing break readthedocs conda (for now)
