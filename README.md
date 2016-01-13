@@ -7,6 +7,12 @@
 A rich Qt-based console for working with Jupyter kernels,
 supporting rich media output, session export, and more.
 
+This is a very lightweight widget that
+largely feels like a terminal, but provides a number of enhancements only
+possible in a GUI, such as inline figures, proper multiline editing with syntax
+highlighting, graphical calltips, and much more.
+
+
 ![qtconsole](docs/source/_images/qtconsole.png)
 
 ## Installation
@@ -40,10 +46,9 @@ To run qtconsole:
 
 ## Resources
 - [Project Jupyter website](https://jupyter.org)
-- [Online Demo at try.jupyter.org](https://try.jupyter.org)
 - Documentation for qtconsole
   * [latest version](http://qtconsole.readthedocs.org/en/latest/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/latest/qtconsole.pdf)]
   * [stable version](http://qtconsole.readthedocs.org/en/stable/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/stable/qtconsole.pdf)]
 - [Documentation for Project Jupyter](http://jupyter.readthedocs.org/en/latest/index.html) [[PDF](https://media.readthedocs.org/pdf/jupyter/latest/jupyter.pdf)]
-- [Issues](https://github.com/jupyter/notebook/issues)
+- [Issues](https://github.com/jupyter/qtconsole/issues)
 - [Technical support - Jupyter Google Group](https://groups.google.com/forum/#!forum/jupyter)
