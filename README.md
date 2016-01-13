@@ -34,6 +34,13 @@ To install:
 
     pip install qtconsole
 
+or:
+
+    conda install qtconsole
+
+Note: If you install the Qt console using conda, it will automatically install
+PyQt as well.
+
 ## Usage
 
 To run qtconsole:
