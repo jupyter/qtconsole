@@ -140,9 +140,8 @@ class RichJupyterWidget(RichIPythonWidget):
                 self._pre_image_append(msg, prompt_number)
                 try:
                     self._append_latex(data['text/latex'], True)
-                except Exception as e:
+                except Exception:
                     self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
-                    self.log.error("Failed to render latex: %s" % e)
                     return super(RichJupyterWidget, self)._handle_execute_result(msg)
                 self._append_html(self.output_sep2, True)
             else:
@@ -174,8 +173,7 @@ class RichJupyterWidget(RichIPythonWidget):
                 try:
                     self._append_latex(data['text/latex'], True)
                     self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
-                    self.log.error("Failed to render latex: %s" % e)
-                except Exception as e:
+                except Exception:
                     return super(RichJupyterWidget, self)._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
