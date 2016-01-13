@@ -27,7 +27,7 @@ PyQt may be installed with [conda](http://conda.pydata.org/docs):
 
 or your system package manager, e.g. for Linux Debian/Ubuntu:
 
-    apt-get install python3-pyqt5
+    sudo apt-get install python3-pyqt5
 
 or:
 
