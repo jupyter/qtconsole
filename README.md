@@ -18,9 +18,10 @@ highlighting, graphical calltips, and much more.
 ## Installation
 
 ### Prerequisites
-The qtconsole requires [PyQt][] or [PySide][].
+The qtconsole requires [PyQt](http://www.riverbankcomputing.com/software/pyqt/intro)
+or [PySide](http://pyside.github.io/docs/pyside).
 These requirements cannot be installed with pip.
-PyQt may be installed with [conda][]:
+PyQt may be installed with [conda](http://conda.pydata.org/docs):
 
     conda install pyqt
 
@@ -53,10 +54,6 @@ PyQt as well.
 To run qtconsole:
 
     jupyter qtconsole
-
-[PyQt]: http://www.riverbankcomputing.com/software/pyqt/intro
-[PySide]: http://pyside.github.io/docs/pyside
-[conda]: http://conda.pydata.org/docs
 
 ## Resources
 - [Project Jupyter website](https://jupyter.org)
