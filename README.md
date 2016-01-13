@@ -28,6 +28,13 @@ or your system package manager, e.g. for Linux Debian/Ubuntu:
 
     apt-get install python3-pyqt5
 
+or:
+
+    sudo apt-get install python-pyqt
+    sudo apt-get install python3-pyqt
+
+if PyQt4 is desired.
+
 ### Install qtconsole
 
 To install:
