@@ -54,7 +54,9 @@ Installation
 You can install the Qt console with::
 
     pip install qtconsole
-    # OR
+
+or::
+
     conda install qtconsole
 
 If you're new to Python, we recommend installing `Anaconda <http://continuum.io/downloads#py34>`__,
@@ -75,6 +77,12 @@ or install it using your system package manager, e.g.::
 
     sudo apt-get install python3-pyqt5
 
+or::
+
+    sudo apt-get install python-pyqt
+    sudo apt-get install python3-pyqt
+
+if PyQt4 is desired.
 
 Inline graphics
 ===============
@@ -102,14 +110,14 @@ option, or inlined as well, for a larger, but more portable file.
 
     Export to SVG+XHTML requires that you are using SVG figures, which is *not*
     the default.  To switch the inline figure format in IPython to use SVG, do:
-    
+
     .. sourcecode:: ipython
-    
+
         In [10]: %config InlineBackend.figure_format = 'svg'
-    
+
     Or, you can add the same line (c.Inline... instead of %config Inline...) to
     your config files.
-    
+
     This will only affect figures plotted after making this call
 
 
@@ -144,7 +152,7 @@ theme:
 
 .. image:: figs/colors_dark.png
     :width: 627px
-    
+
 .. Note::
 
     Calling ``jupyter qtconsole -h`` will show all the style names that
@@ -421,7 +429,7 @@ Python reference to them, so you have to hold on to them.  For instance, in:
 
     def make_window():
         win = QtGui.QMainWindow()
-    
+
     def make_and_return_window():
         win = QtGui.QMainWindow()
         return win
@@ -433,7 +441,7 @@ you know that you always want your objects to last as long as the process, you
 can attach them to the QApplication instance itself:
 
 .. sourcecode:: python
-    
+
     # do this just once:
     app = QtCore.QCoreApplication.instance()
     app.references = set()
