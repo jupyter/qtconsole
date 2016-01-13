@@ -172,8 +172,8 @@ class RichJupyterWidget(RichIPythonWidget):
             elif 'text/latex' in data and latex_to_png:
                 try:
                     self._append_latex(data['text/latex'], True)
-                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
                 except Exception:
+                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
                     return super(RichJupyterWidget, self)._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
