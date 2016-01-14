@@ -19,9 +19,11 @@ The qtconsole requires Qt, such as [PyQt5](http://www.riverbankcomputing.com/sof
 [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download),
 or [PySide](http://pyside.github.io/docs/pyside).
 
-Although pip and conda may be used to install qtconsole, conda is simpler to use
-since it automatically installs PyQt. Alternatively, qtconsole installation
-with pip needs additional steps since pip cannot install the Qt requirement.
+Although [pip](https://pypi.python.org/pypi/pip) and
+[conda](http://conda.pydata.org/docs) may be used to install qtconsole, conda
+is simpler to use since it automatically installs PyQt. Alternatively,
+qtconsole installation with pip needs additional steps since pip cannot install
+the Qt requirement.
 
 ### Install using conda
 To install:
@@ -36,8 +38,8 @@ To install:
 
     pip install qtconsole
 
-**Note:** Make sure that Qt is installed. Unfortunately, Qt may not be installed
-using pip. The next section gives instructions on installing Qt.
+**Note:** Make sure that Qt is installed. Unfortunately, Qt cannot be
+installed using pip. The next section gives instructions on installing Qt.
 
 ### Installing Qt (if needed)
 We recommend installing PyQt with [conda](http://conda.pydata.org/docs):
