@@ -7,22 +7,22 @@
 A rich Qt-based console for working with Jupyter kernels,
 supporting rich media output, session export, and more.
 
-This is a very lightweight application that largely feels like a terminal, but
+The Qt console is a very lightweight application that largely feels like a terminal, but
 provides a number of enhancements only possible in a GUI, such as inline
 figures, proper multiline editing with syntax highlighting, graphical calltips,
 and more.
 
 ![qtconsole](docs/source/_images/qtconsole.png)
 
-## Install qtconsole
-The qtconsole requires Qt, such as [PyQt5](http://www.riverbankcomputing.com/software/pyqt/intro),
+## Install Qt console
+The Qt console requires Qt, such as [PyQt5](http://www.riverbankcomputing.com/software/pyqt/intro),
 [PyQt4](https://www.riverbankcomputing.com/software/pyqt/download),
 or [PySide](http://pyside.github.io/docs/pyside).
 
 Although [pip](https://pypi.python.org/pypi/pip) and
-[conda](http://conda.pydata.org/docs) may be used to install qtconsole, conda
+[conda](http://conda.pydata.org/docs) may be used to install the Qt console, conda
 is simpler to use since it automatically installs PyQt. Alternatively,
-qtconsole installation with pip needs additional steps since pip cannot install
+the Qt console installation with pip needs additional steps since pip cannot install
 the Qt requirement.
 
 ### Install using conda
@@ -52,17 +52,17 @@ used.
 **Note:** Additional information about using a system package manager may be
 found in the [qtconsole documentation](https://qtconsole.readthedocs.org). For
 example, on Linux Debian/Ubuntu, use ``sudo apt-get install python3-pyqt5`` to
-install PyQt5, ``sudo apt-get install python-pyqt`` or
-``sudo apt-get install python3-pyqt`` to install PyQt4.
+install PyQt5, ``sudo apt-get install python-qt4`` or
+``sudo apt-get install python3-pyqt4`` to install PyQt4.
 
 ## Usage
-To run qtconsole:
+To run the Qt console:
 
     jupyter qtconsole
 
 ## Resources
 - [Project Jupyter website](https://jupyter.org)
-- Documentation for qtconsole
+- Documentation for the Qt console
   * [latest version](http://qtconsole.readthedocs.org/en/latest/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/latest/qtconsole.pdf)]
   * [stable version](http://qtconsole.readthedocs.org/en/stable/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/stable/qtconsole.pdf)]
 - [Documentation for Project Jupyter](http://jupyter.readthedocs.org/en/latest/index.html) [[PDF](https://media.readthedocs.org/pdf/jupyter/latest/jupyter.pdf)]
