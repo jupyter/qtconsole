@@ -9,19 +9,21 @@ A Qt Console for Jupyter
 
 To start the Qt console::
 
-    $> jupyter qtconsole
+    $ jupyter qtconsole
 
 .. toctree::
    :maxdepth: 2
 
    config_options
+   installation
    changelog
 
-You can use any Jupyter kernel with this PyQt_ console GUI.
-This is a very lightweight widget that
-largely feels like a terminal, but provides a number of enhancements only
-possible in a GUI, such as inline figures, proper multiline editing with syntax
-highlighting, graphical calltips, and much more.
+Overview
+========
+Qt console is a very lightweight application that largely feels like a
+terminal, but provides a number of enhancements only possible in a GUI, such as
+inline figures, proper multiline editing with syntax highlighting, graphical
+calltips, and much more. Qt console can use any Jupyter kernel.
 
 .. figure:: _images/qtconsole.png
     :width: 400px
@@ -31,8 +33,8 @@ highlighting, graphical calltips, and much more.
 
     The Qt console with IPython, using inline matplotlib plots.
 
-The Qt frontend has hand-coded emacs-style bindings for text navigation. This
-is not yet configurable.
+The Qt console frontend has hand-coded emacs-style bindings for text
+navigation. This is not yet configurable.
 
 .. tip::
 
@@ -43,46 +45,6 @@ is not yet configurable.
    point in a multiline block, you can force its execution (without having to
    go to the bottom) with :kbd:`Shift-Enter`.
 
-Installation
-============
-
-.. seealso::
-
-   `Installing Jupyter <http://jupyter.readthedocs.org/en/latest/install.html>`__
-     The Qt console is part of the Jupyter ecosystem.
-
-You can install the Qt console with::
-
-    pip install qtconsole
-
-or::
-
-    conda install qtconsole
-
-If you're new to Python, we recommend installing `Anaconda <http://continuum.io/downloads#py34>`__,
-a Python distribution which includes the Qt console and the other Jupyter components.
-
-Qt
---
-
-The Qt console requires `PyQt <http://www.riverbankcomputing.com/software/pyqt/intro>`__
-or `PySide <http://pyside.github.io/docs/pyside/>`__, which can't be installed
-with pip.
-
-If you install the Qt console using conda, it will automatically install PyQt
-as well.
-
-Otherwise, you can `download PyQt manually <http://www.riverbankcomputing.com/software/pyqt/download5>`__,
-or install it using your system package manager, e.g.::
-
-    sudo apt-get install python3-pyqt5
-
-or::
-
-    sudo apt-get install python-pyqt
-    sudo apt-get install python3-pyqt
-
-if PyQt4 is desired.
 
 Inline graphics
 ===============
