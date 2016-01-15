@@ -48,11 +48,11 @@ For example with Linux Debian's system package manager, use::
 
 to install PyQt5,::
 
-   sudo apt-get install python-pyqt
+   sudo apt-get install python-qt4
 
 or::
 
-   sudo apt-get install python3-pyqt
+   sudo apt-get install python3-pyqt4
 
 to install PyQt4.
 
