@@ -1,8 +1,8 @@
 .. _qtconsole:
 
-========================
-A Qt Console for Jupyter
-========================
+==========================
+The Qt Console for Jupyter
+==========================
 
 :Release: |release|
 :Date: |today|
@@ -14,16 +14,16 @@ To start the Qt console::
 .. toctree::
    :maxdepth: 2
 
-   config_options
    installation
+   config_options
    changelog
 
 Overview
 ========
-Qt console is a very lightweight application that largely feels like a
+The Qt console is a very lightweight application that largely feels like a
 terminal, but provides a number of enhancements only possible in a GUI, such as
 inline figures, proper multiline editing with syntax highlighting, graphical
-calltips, and much more. Qt console can use any Jupyter kernel.
+calltips, and much more. The Qt console can use any Jupyter kernel.
 
 .. figure:: _images/qtconsole.png
     :width: 400px
@@ -49,7 +49,7 @@ navigation. This is not yet configurable.
 Inline graphics
 ===============
 
-One of the most exciting features of the QtConsole is embedded figures.
+One of the most exciting features of the Qt Console is embedded figures.
 You can plot with matplotlib in IPython, or the plotting library of choice
 in your kernel.
 
@@ -62,11 +62,11 @@ in your kernel.
 Saving and Printing
 ===================
 
-QtConsole has the ability to save your current session, as either HTML or
-XHTML. Your inlinke figures
-will be PNG in HTML, or inlined as SVG in XHTML. PNG images have the option to
-be either in an external folder, as in many browsers' "Webpage, Complete"
-option, or inlined as well, for a larger, but more portable file.
+The Qt Console has the ability to save your current session, as either HTML or
+XHTML. Your inline figures will be PNG in HTML, or inlined as SVG in XHTML.
+PNG images have the option to be either in an external folder, as in many
+browsers' "Webpage, Complete" option, or inlined as well, for a larger, but
+more portable file.
 
 .. note::
 
@@ -140,7 +140,7 @@ stylesheet:
 Fonts
 =====
 
-The QtConsole has configurable via the ConsoleWidget. To change these, set the
+The Qt console is configurable via the ConsoleWidget. To change these, set the
 ``font_family`` or ``font_size`` traits of the ConsoleWidget. For instance, to
 use 9pt Anonymous Pro::
 
@@ -375,10 +375,10 @@ Rules:
       the Kernel has been shutdown.
     * Remote Consoles may not restart or shutdown the kernel.
 
-Qt and the QtConsole
+Qt and the Qt console
 ====================
 
-An important part of working with the QtConsole when you are writing your own
+An important part of working with the Qt console when you are writing your own
 Qt code is to remember that user code (in the kernel) is *not* in the same
 process as the frontend.  This means that there is not necessarily any Qt code
 running in the kernel, and under most normal circumstances there isn't.
