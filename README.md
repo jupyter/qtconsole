@@ -7,7 +7,7 @@
 A rich Qt-based console for working with Jupyter kernels,
 supporting rich media output, session export, and more.
 
-This is a very lightweight widget that largely feels like a terminal, but
+This is a very lightweight application that largely feels like a terminal, but
 provides a number of enhancements only possible in a GUI, such as inline
 figures, proper multiline editing with syntax highlighting, graphical calltips,
 and more.
@@ -31,7 +31,7 @@ To install:
     conda install qtconsole
 
 **Note:** If the Qt console is installed using conda, it will **automatically**
-install the Qt requirement, PyQt, as well.
+install the Qt requirement as well.
 
 ### Install using pip
 To install:
