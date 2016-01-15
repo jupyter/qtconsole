@@ -1,7 +1,7 @@
 .. _changelog:
 
-Changes in Jupyter QtConsole
-============================
+Changes in Jupyter Qt console
+=============================
 
 .. _4.1:
 
@@ -45,4 +45,4 @@ Changes in Jupyter QtConsole
 
 `4.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.0>`__
 
-First release of qtconsole as a standalone package.
+First release of the Qt console as a standalone package.

@@ -1,27 +1,29 @@
 .. _qtconsole:
 
-========================
-A Qt Console for Jupyter
-========================
+==========================
+The Qt Console for Jupyter
+==========================
 
 :Release: |release|
 :Date: |today|
 
 To start the Qt console::
 
-    $> jupyter qtconsole
+    $ jupyter qtconsole
 
 .. toctree::
    :maxdepth: 2
 
+   installation
    config_options
    changelog
 
-You can use any Jupyter kernel with this PyQt_ console GUI.
-This is a very lightweight widget that
-largely feels like a terminal, but provides a number of enhancements only
-possible in a GUI, such as inline figures, proper multiline editing with syntax
-highlighting, graphical calltips, and much more.
+Overview
+========
+The Qt console is a very lightweight application that largely feels like a
+terminal, but provides a number of enhancements only possible in a GUI, such as
+inline figures, proper multiline editing with syntax highlighting, graphical
+calltips, and much more. The Qt console can use any Jupyter kernel.
 
 .. figure:: _images/qtconsole.png
     :width: 400px
@@ -31,8 +33,8 @@ highlighting, graphical calltips, and much more.
 
     The Qt console with IPython, using inline matplotlib plots.
 
-The Qt frontend has hand-coded emacs-style bindings for text navigation. This
-is not yet configurable.
+The Qt console frontend has hand-coded emacs-style bindings for text
+navigation. This is not yet configurable.
 
 .. tip::
 
@@ -43,43 +45,11 @@ is not yet configurable.
    point in a multiline block, you can force its execution (without having to
    go to the bottom) with :kbd:`Shift-Enter`.
 
-Installation
-============
-
-.. seealso::
-
-   `Installing Jupyter <http://jupyter.readthedocs.org/en/latest/install.html>`__
-     The Qt console is part of the Jupyter ecosystem.
-
-You can install the Qt console with::
-
-    pip install qtconsole
-    # OR
-    conda install qtconsole
-
-If you're new to Python, we recommend installing `Anaconda <http://continuum.io/downloads#py34>`__,
-a Python distribution which includes the Qt console and the other Jupyter components.
-
-Qt
---
-
-The Qt console requires `PyQt <http://www.riverbankcomputing.com/software/pyqt/intro>`__
-or `PySide <http://pyside.github.io/docs/pyside/>`__, which can't be installed
-with pip.
-
-If you install the Qt console using conda, it will automatically install PyQt
-as well.
-
-Otherwise, you can `download PyQt manually <http://www.riverbankcomputing.com/software/pyqt/download5>`__,
-or install it using your system package manager, e.g.::
-
-    sudo apt-get install python3-pyqt5
-
 
 Inline graphics
 ===============
 
-One of the most exciting features of the QtConsole is embedded figures.
+One of the most exciting features of the Qt Console is embedded figures.
 You can plot with matplotlib in IPython, or the plotting library of choice
 in your kernel.
 
@@ -92,24 +62,24 @@ in your kernel.
 Saving and Printing
 ===================
 
-QtConsole has the ability to save your current session, as either HTML or
-XHTML. Your inlinke figures
-will be PNG in HTML, or inlined as SVG in XHTML. PNG images have the option to
-be either in an external folder, as in many browsers' "Webpage, Complete"
-option, or inlined as well, for a larger, but more portable file.
+The Qt Console has the ability to save your current session, as either HTML or
+XHTML. Your inline figures will be PNG in HTML, or inlined as SVG in XHTML.
+PNG images have the option to be either in an external folder, as in many
+browsers' "Webpage, Complete" option, or inlined as well, for a larger, but
+more portable file.
 
 .. note::
 
     Export to SVG+XHTML requires that you are using SVG figures, which is *not*
     the default.  To switch the inline figure format in IPython to use SVG, do:
-    
+
     .. sourcecode:: ipython
-    
+
         In [10]: %config InlineBackend.figure_format = 'svg'
-    
+
     Or, you can add the same line (c.Inline... instead of %config Inline...) to
     your config files.
-    
+
     This will only affect figures plotted after making this call
 
 
@@ -144,7 +114,7 @@ theme:
 
 .. image:: figs/colors_dark.png
     :width: 627px
-    
+
 .. Note::
 
     Calling ``jupyter qtconsole -h`` will show all the style names that
@@ -170,7 +140,7 @@ stylesheet:
 Fonts
 =====
 
-The QtConsole has configurable via the ConsoleWidget. To change these, set the
+The Qt console is configurable via the ConsoleWidget. To change these, set the
 ``font_family`` or ``font_size`` traits of the ConsoleWidget. For instance, to
 use 9pt Anonymous Pro::
 
@@ -405,10 +375,10 @@ Rules:
       the Kernel has been shutdown.
     * Remote Consoles may not restart or shutdown the kernel.
 
-Qt and the QtConsole
+Qt and the Qt console
 ====================
 
-An important part of working with the QtConsole when you are writing your own
+An important part of working with the Qt console when you are writing your own
 Qt code is to remember that user code (in the kernel) is *not* in the same
 process as the frontend.  This means that there is not necessarily any Qt code
 running in the kernel, and under most normal circumstances there isn't.
@@ -421,7 +391,7 @@ Python reference to them, so you have to hold on to them.  For instance, in:
 
     def make_window():
         win = QtGui.QMainWindow()
-    
+
     def make_and_return_window():
         win = QtGui.QMainWindow()
         return win
@@ -433,7 +403,7 @@ you know that you always want your objects to last as long as the process, you
 can attach them to the QApplication instance itself:
 
 .. sourcecode:: python
-    
+
     # do this just once:
     app = QtCore.QCoreApplication.instance()
     app.references = set()
