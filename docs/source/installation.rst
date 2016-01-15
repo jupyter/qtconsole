@@ -44,17 +44,9 @@ used.
 
 For example with Linux Debian's system package manager, use::
 
-   sudo apt-get install python3-pyqt5
-
-to install PyQt5,::
-
-   sudo apt-get install python-qt4
-
-or::
-
-   sudo apt-get install python3-pyqt4
-
-to install PyQt4.
+   sudo apt-get install python3-pyqt5 # PyQt5 on Python 3
+   sudo apt-get install python3-pyqt4 # PyQt4 on Python 3
+   sudo apt-get install python-qt4    # PyQt4 on Python 2
 
 .. seealso::
 
