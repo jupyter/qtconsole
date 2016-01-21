@@ -14,12 +14,6 @@ from qtconsole.svg import save_svg, svg_to_clipboard, svg_to_image
 from .jupyter_widget import JupyterWidget
 
 
-try:
-    from IPython.lib.latextools import latex_to_png
-except ImportError:
-    latex_to_png = None
-
-
 class RichIPythonWidget(JupyterWidget):
     """Dummy class for config inheritance. Destroyed below."""
 
@@ -136,10 +130,6 @@ class RichJupyterWidget(RichIPythonWidget):
                 jpg = decodestring(data['image/jpeg'].encode('ascii'))
                 self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
                 self._append_html(self.output_sep2, True)
-            elif 'text/latex' in data:
-                self._pre_image_append(msg, prompt_number)
-                self._append_latex(data['text/latex'], True)
-                self._append_html(self.output_sep2, True)
             else:
                 # Default back to the plain text representation.
                 return super(RichJupyterWidget, self)._handle_execute_result(msg)
@@ -165,8 +155,6 @@ class RichJupyterWidget(RichIPythonWidget):
             elif 'image/jpeg' in data and self._jpg_supported:
                 jpg = decodestring(data['image/jpeg'].encode('ascii'))
                 self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
-            elif 'text/latex' in data and latex_to_png:
-                self._append_latex(data['text/latex'], True)
             else:
                 # Default back to the plain text representation.
                 return super(RichJupyterWidget, self)._handle_display_data(msg)
@@ -174,16 +162,6 @@ class RichJupyterWidget(RichIPythonWidget):
     #---------------------------------------------------------------------------
     # 'RichJupyterWidget' protected interface
     #---------------------------------------------------------------------------
-
-    def _append_latex(self, latex, before_prompt=False, metadata=None):
-        """ Append latex data to the widget."""
-        try:
-            png = latex_to_png(latex, wrap=False)
-        except Exception as e:
-            self.log.error("Failed to render latex: '%s'", latex, exc_info=True)
-            self._append_plain_text("Failed to render latex: %s" % e, before_prompt)
-        else:
-            self._append_png(png, before_prompt, metadata)
 
     def _append_jpg(self, jpg, before_prompt=False, metadata=None):
         """ Append raw JPG data to the widget."""
