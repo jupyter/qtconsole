@@ -1527,7 +1527,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
         The formatted string.
         """
         # Calculate the number of characters available.
-        width = self._control.viewport().width()
+        width = self._control.document().textWidth()
         char_width = QtGui.QFontMetrics(self.font).width(' ')
         displaywidth = max(10, (width / char_width) - 1)
 
