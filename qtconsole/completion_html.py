@@ -37,7 +37,9 @@ def html_tableify(item_matrix, select=None, header=None , footer=None) :
         foot = (u'<tr>'\
             +''.join((u'<td>'+footer+u'</td>')*len(item_matrix[0]))\
             +'</tr>')
-    html = (u'<table class="completion" style="white-space:pre">'+head+(u''.join(html_cols))+foot+u'</table>')
+    html = (u'<table class="completion" style="white-space:pre"'
+            'cellspacing=0>' +
+            head + (u''.join(html_cols)) + foot + u'</table>')
     return html
 
 class SlidingInterval(object): 
