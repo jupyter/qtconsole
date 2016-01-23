@@ -240,36 +240,41 @@ def import_pyside():
 
 def load_qt(api_options):
     """
-    Attempt to import Qt, given a preference list
-    of permissible bindings
+    Import Qt, given a preference list of permissible bindings.
 
-    It is safe to call this function multiple times.
+    It is safe to call this function multiple times.  If a Qt binding
+    has already been loaded, it will be returned regardless of the
+    preference list.
 
     Parameters
     ----------
     api_options: List of strings
-        The order of APIs to try. Valid items are 'pyside',
-        'pyqt', 'pyqt5', 'pyqtv1' and 'pyqtdefault'
+        The order of APIs to try. Valid items are 'pyside', 'pyqt',
+        'pyqt5', 'pyqtv1' and 'pyqtdefault'
 
     Returns
     -------
 
     A tuple of QtCore, QtGui, QtSvg, QT_API
-    The first three are the Qt modules. The last is the
-    string indicating which module was loaded.
+    The first three are the Qt modules. The last is the string
+    indicating which module was loaded.
 
     Raises
     ------
-    ImportError, if it isn't possible to import any requested
-    bindings (either becaues they aren't installed, or because
-    an incompatible library has already been installed)
+    ImportError, if it isn't possible to import any requested bindings
+    (because they aren't installed).
     """
+
     loaders = {QT_API_PYSIDE: import_pyside,
                QT_API_PYQT: import_pyqt4,
                QT_API_PYQT5: import_pyqt5,
                QT_API_PYQTv1: partial(import_pyqt4, version=1),
                QT_API_PYQT_DEFAULT: partial(import_pyqt4, version=None)
                }
+
+    loaded = loaded_api()
+    if loaded:
+        api_options = [loaded]
 
     for api in api_options:
 
@@ -297,7 +302,7 @@ def load_qt(api_options):
     PyQt5 installed:                 %s
     PySide >= 1.0.3 installed:       %s
     Tried to load:                   %r
-    """ % (loaded_api(),
+    """ % (loaded,
            has_binding(QT_API_PYQT),
            has_binding(QT_API_PYQT5),
            has_binding(QT_API_PYSIDE),
