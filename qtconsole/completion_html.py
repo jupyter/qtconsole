@@ -302,7 +302,12 @@ class CompletionHtml(QtGui.QWidget):
             return
         self._start_position = cursor.position()
         self._consecutive_tab = 1
-        items_m, ci = text.compute_item_matrix(items, empty=' ')
+        # Calculate the number of characters available.
+        width = self._text_edit.document().textWidth()
+        char_width = QtGui.QFontMetrics(self._console_widget.font).width(' ')
+        displaywidth = int(max(10, (width / char_width) - 1))
+        items_m, ci = text.compute_item_matrix(items, empty=' ',
+                                               displaywidth=displaywidth)
         self._sliding_interval = SlidingInterval(len(items_m)-1)
 
         self._items = items_m
