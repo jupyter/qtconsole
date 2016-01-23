@@ -40,7 +40,7 @@ class CompletionWidget(QtGui.QListWidget):
             etype = event.type()
 
             if etype == QtCore.QEvent.KeyPress:
-                key, text = event.key(), event.text()
+                key = event.key()
                 if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter,
                            QtCore.Qt.Key_Tab):
                     self._complete_current()
