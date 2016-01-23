@@ -36,7 +36,7 @@ class CompletionWidget(QtGui.QListWidget):
         """ Reimplemented to handle keyboard input and to auto-hide when the
             text edit loses focus.
         """
-        if obj == self._text_edit:
+        if obj is self._text_edit:
             etype = event.type()
 
             if etype == QtCore.QEvent.KeyPress:
