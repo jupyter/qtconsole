@@ -68,8 +68,7 @@ class CompletionWidget(QtGui.QListWidget):
                 pos = self.mapToGlobal(event.pos())
                 target = QtGui.QApplication.widgetAt(pos)
                 if (target and self.isAncestorOf(target) or target is self):
-                    target.event(event)
-                    return True
+                    return False
                 else:
                     self.cancel_completion()
                     if target:
