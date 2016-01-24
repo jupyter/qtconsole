@@ -95,17 +95,18 @@ class CompletionWidget(QtGui.QListWidget):
         text_edit = self._text_edit
         point = text_edit.cursorRect(cursor).bottomRight()
         point = text_edit.mapToGlobal(point)
-        height = self.sizeHint().height()
-        screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
-        if (screen_rect.size().height() + screen_rect.y() 
-                    - point.y() - height < 0):
-            point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
-            point.setY(point.y() - height)
-        self.move(point)
-
-        self._start_position = cursor.position()
         self.clear()
         self.addItems(items)
+        height = self.sizeHint().height()
+        screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
+        if (screen_rect.size().height() + screen_rect.y() -
+                point.y() - height < 0):
+            point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
+            point.setY(point.y() - height)
+        w = (self.sizeHintForColumn(0) +
+             self.verticalScrollBar().sizeHint().width())
+        self.setGeometry(point.x(), point.y(), w, height)
+        self._start_position = cursor.position()
         self.setCurrentRow(0)
         self.show()
 
