@@ -63,6 +63,18 @@ class CompletionWidget(QtGui.QListWidget):
 
             elif etype == QtCore.QEvent.FocusOut:
                 self.hide()
+        elif obj is self:
+            if event.type() == QtCore.QEvent.MouseButtonPress:
+                pos = self.mapToGlobal(event.pos())
+                target = QtGui.QApplication.widgetAt(pos)
+                if (target and self.isAncestorOf(target) or target is self):
+                    target.event(event)
+                    return True
+                else:
+                    self.cancel_completion()
+                    if target:
+                        target.event(event)
+                    return True
 
         return super(CompletionWidget, self).eventFilter(obj, event)
 
@@ -85,6 +97,7 @@ class CompletionWidget(QtGui.QListWidget):
         super(CompletionWidget, self).hideEvent(event)
         self._text_edit.cursorPositionChanged.disconnect(self._update_current)
         self._text_edit.removeEventFilter(self)
+        self.removeEventFilter(self)
 
     def showEvent(self, event):
         """ Reimplemented to connect signal handlers and event filter.
@@ -92,6 +105,7 @@ class CompletionWidget(QtGui.QListWidget):
         super(CompletionWidget, self).showEvent(event)
         self._text_edit.cursorPositionChanged.connect(self._update_current)
         self._text_edit.installEventFilter(self)
+        self.installEventFilter(self)
 
     #--------------------------------------------------------------------------
     # 'CompletionWidget' interface
