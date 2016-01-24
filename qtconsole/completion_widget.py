@@ -66,6 +66,15 @@ class CompletionWidget(QtGui.QListWidget):
 
         return super(CompletionWidget, self).eventFilter(obj, event)
 
+    def keyPressEvent(self, event):
+        key = event.key()
+        if key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down,
+                   QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown,
+                   QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
+            return super(CompletionWidget, self).keyPressEvent(event)
+        else:
+            QtGui.QApplication.sendEvent(self._text_edit, event)
+
     #--------------------------------------------------------------------------
     # 'QWidget' interface
     #--------------------------------------------------------------------------
