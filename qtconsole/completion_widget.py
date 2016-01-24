@@ -20,9 +20,16 @@ class CompletionWidget(QtGui.QListWidget):
         super(CompletionWidget, self).__init__()
 
         self._text_edit = text_edit
+        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
 
         self.setAttribute(QtCore.Qt.WA_StaticContents)
-        self.setWindowFlags(QtCore.Qt.ToolTip | QtCore.Qt.WindowStaysOnTopHint)
+        origPolicy = text_edit.focusPolicy()
+        self.setWindowFlags(QtCore.Qt.Popup)
+        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        text_edit.setFocusPolicy(origPolicy)
 
         # Ensure that the text edit keeps focus when widget is displayed.
         self.setFocusProxy(self._text_edit)
