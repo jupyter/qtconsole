@@ -18,6 +18,8 @@ elif api == QT_API_PYQT5:
 elif api == QT_API_PYSIDE:
     from PySide.QtTest import QTest
 
+setup = dec.skip_file_no_x11(__name__)
+
 
 class TestCompletionWidget(unittest.TestCase):
 
