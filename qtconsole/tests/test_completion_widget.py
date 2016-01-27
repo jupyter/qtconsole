@@ -55,3 +55,16 @@ class TestCompletionWidget(unittest.TestCase):
         QTest.keyClick(self.text_edit, QtCore.Qt.Key_PageDown)
         QTest.keyClick(self.text_edit, QtCore.Qt.Key_Enter)
         self.assertEqual(self.text_edit.toPlainText(), "item3")
+
+    def test_html_completer_mousepick(self):
+        leftButton = QtCore.Qt.LeftButton
+
+        w = CompletionWidget(self.console)
+        w.show_items(self.text_edit.textCursor(), ["item1", "item2", "item3"])
+
+        QTest.mouseClick(w.viewport(), leftButton, pos=QtCore.QPoint(19, 8))
+        QTest.mouseRelease(w.viewport(), leftButton, pos=QtCore.QPoint(19, 8))
+        QTest.mouseDClick(w.viewport(), leftButton, pos=QtCore.QPoint(19, 8))
+
+        self.assertEqual(self.text_edit.toPlainText(), "item1")
+        self.assertFalse(w.isVisible())
