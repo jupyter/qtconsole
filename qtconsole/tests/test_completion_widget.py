@@ -3,9 +3,20 @@ import unittest
 
 from qtconsole.qt import QtCore, QtGui
 
+from qtconsole.qt_loaders import (loaded_api, QT_API_PYQT, QT_API_PYQT5,
+QT_API_PYQTv1, QT_API_PYQT_DEFAULT, QT_API_PYSIDE)
+
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.completion_widget import CompletionWidget
 import ipython_genutils.testing.decorators as dec
+
+api = loaded_api()
+if api in (QT_API_PYQT, QT_API_PYQTv1, QT_API_PYQT_DEFAULT):
+    from PyQt4.QtTest import QTest
+elif api == QT_API_PYQT5:
+    from PyQt5.QtTest import QTest
+elif api == QT_API_PYSIDE:
+    from PySide.QtTest import QTest
 
 setup = dec.skip_file_no_x11(__name__)
 
@@ -39,13 +50,8 @@ class TestCompletionWidget(unittest.TestCase):
         self.assertTrue(w.isVisible())
 
     def test_html_completer_keyboard(self):
-        noModifiers = QtCore.Qt.KeyboardModifiers(0)
         w = CompletionWidget(self.console)
         w.show_items(self.text_edit.textCursor(), ["item1", "item2", "item3"])
-        downEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
-                                    QtCore.Qt.Key_PageDown, noModifiers)
-        self._app.sendEvent(self.text_edit, downEvent)
-        enterEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
-                                     QtCore.Qt.Key_Enter, noModifiers)
-        self._app.sendEvent(self.text_edit, enterEvent)
+        QTest.keyClick(self.text_edit, QtCore.Qt.Key_PageDown)
+        QTest.keyClick(self.text_edit, QtCore.Qt.Key_Enter)
         self.assertEqual(self.text_edit.toPlainText(), "item3")
