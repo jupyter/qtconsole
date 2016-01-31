@@ -136,6 +136,7 @@ class CompletionWidget(QtGui.QListWidget):
         self.setGeometry(point.x(), point.y(), w, height)
         self._start_position = cursor.position()
         self.setCurrentRow(0)
+        self.raise_()
         self.show()
 
     #--------------------------------------------------------------------------
