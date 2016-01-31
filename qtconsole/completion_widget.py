@@ -26,9 +26,16 @@ class CompletionWidget(QtGui.QListWidget):
         self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
 
+        # Use platform specific window flags to ensure correct behavior
+        # See github.com/jupyter/qtconsole/pull/93 for detailed discussion
         if os.name == 'nt':
+            # On windows, we need Popup style to ensure correct mouse
+            # interaction (dialog would dissappear on mouse click with
+            # ToolTip style)
             flags = QtCore.Qt.Popup
         else:
+            # On other OS, we need ToolTip style to ensure that the widget
+            # shows correctly (dialog is not drawn with Popup style)
             flags = QtCore.Qt.ToolTip | QtCore.Qt.WindowStaysOnTopHint
 
         self.setAttribute(QtCore.Qt.WA_StaticContents)
