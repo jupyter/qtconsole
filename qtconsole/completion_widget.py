@@ -1,5 +1,6 @@
 """A dropdown completer widget for the qtconsole."""
 # System library imports
+import os
 from qtconsole.qt import QtCore, QtGui
 
 
@@ -25,9 +26,14 @@ class CompletionWidget(QtGui.QListWidget):
         self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
 
+        if os.name == 'nt':
+            flags = QtCore.Qt.Popup
+        else:
+            flags = QtCore.Qt.ToolTip | QtCore.Qt.WindowStaysOnTopHint
+
         self.setAttribute(QtCore.Qt.WA_StaticContents)
         origPolicy = text_edit.focusPolicy()
-        self.setWindowFlags(QtCore.Qt.Popup)
+        self.setWindowFlags(flags)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
         text_edit.setFocusPolicy(origPolicy)
 
