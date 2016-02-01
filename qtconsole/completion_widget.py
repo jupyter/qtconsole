@@ -39,10 +39,10 @@ class CompletionWidget(QtGui.QListWidget):
             flags = QtCore.Qt.ToolTip | QtCore.Qt.WindowStaysOnTopHint
 
         self.setAttribute(QtCore.Qt.WA_StaticContents)
-        origPolicy = text_edit.focusPolicy()
+        original_policy = text_edit.focusPolicy()
         self.setWindowFlags(flags)
         self.setFocusPolicy(QtCore.Qt.NoFocus)
-        text_edit.setFocusPolicy(origPolicy)
+        text_edit.setFocusPolicy(original_policy)
 
         # Ensure that the text edit keeps focus when widget is displayed.
         self.setFocusProxy(self._text_edit)
