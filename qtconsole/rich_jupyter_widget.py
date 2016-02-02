@@ -138,7 +138,10 @@ class RichJupyterWidget(RichIPythonWidget):
                 self._append_html(self.output_sep2, True)
             elif 'text/latex' in data:
                 self._pre_image_append(msg, prompt_number)
-                self._append_latex(data['text/latex'], True)
+                try:
+                    self._append_latex(data['text/latex'], True)
+                except ValueError:
+                    return super(RichJupyterWidget, self)._handle_display_data(msg)
                 self._append_html(self.output_sep2, True)
             else:
                 # Default back to the plain text representation.
@@ -166,7 +169,10 @@ class RichJupyterWidget(RichIPythonWidget):
                 jpg = decodestring(data['image/jpeg'].encode('ascii'))
                 self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
             elif 'text/latex' in data and latex_to_png:
-                self._append_latex(data['text/latex'], True)
+                try:
+                    self._append_latex(data['text/latex'], True)
+                except ValueError:
+                    return super(RichJupyterWidget, self)._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
                 return super(RichJupyterWidget, self)._handle_display_data(msg)
@@ -181,7 +187,7 @@ class RichJupyterWidget(RichIPythonWidget):
         if png:
             self._append_png(png, before_prompt, metadata)
         else:
-            return super(RichJupyterWidget, self)._handle_display_data(msg)
+            raise ValueError
 
     def _append_jpg(self, jpg, before_prompt=False, metadata=None):
         """ Append raw JPG data to the widget."""
