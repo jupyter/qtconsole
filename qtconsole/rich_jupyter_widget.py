@@ -183,9 +183,13 @@ class RichJupyterWidget(RichIPythonWidget):
 
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
-        png = latex_to_png(latex, wrap=False)
-        if png:
-            self._append_png(png, before_prompt, metadata)
+        supported_latex = latex.startswith('$') and latex.endswith('$')
+        if supported_latex:
+            png = latex_to_png(latex, wrap=False)
+            if png:
+                self._append_png(png, before_prompt, metadata)
+            else:
+                raise ValueError
         else:
             raise ValueError
 
