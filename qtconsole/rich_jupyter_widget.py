@@ -138,11 +138,11 @@ class RichJupyterWidget(RichIPythonWidget):
                 self._append_html(self.output_sep2, True)
             elif 'text/latex' in data:
                 self._pre_image_append(msg, prompt_number)
-                try:
-                    self._append_latex(data['text/latex'], True)
-                except Exception:
-                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
-                    return super(RichJupyterWidget, self)._handle_execute_result(msg)
+                png = latex_to_png(data['text/latex'], wrap=False)
+                if png:
+                    self._append_png(png, True)
+                else:
+                    return super(RichJupyterWidget, self)._handle_display_data(msg)
                 self._append_html(self.output_sep2, True)
             else:
                 # Default back to the plain text representation.
@@ -170,10 +170,10 @@ class RichJupyterWidget(RichIPythonWidget):
                 jpg = decodestring(data['image/jpeg'].encode('ascii'))
                 self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
             elif 'text/latex' in data and latex_to_png:
-                try:
-                    self._append_latex(data['text/latex'], True)
-                except Exception:
-                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
+                png = latex_to_png(data['text/latex'], wrap=False)
+                if png:
+                    self._append_png(png, True)
+                else:
                     return super(RichJupyterWidget, self)._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
@@ -182,10 +182,6 @@ class RichJupyterWidget(RichIPythonWidget):
     #---------------------------------------------------------------------------
     # 'RichJupyterWidget' protected interface
     #---------------------------------------------------------------------------
-
-    def _append_latex(self, latex, before_prompt=False, metadata=None):
-        """ Append latex data to the widget."""
-        self._append_png(latex_to_png(latex, wrap=False), before_prompt, metadata)
 
     def _append_jpg(self, jpg, before_prompt=False, metadata=None):
         """ Append raw JPG data to the widget."""
