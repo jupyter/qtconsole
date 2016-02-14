@@ -20,6 +20,10 @@ except ImportError:
     latex_to_png = None
 
 
+class LatexError(Exception):
+    """Exception for Latex errors"""
+
+
 class RichIPythonWidget(JupyterWidget):
     """Dummy class for config inheritance. Destroyed below."""
 
@@ -140,9 +144,8 @@ class RichJupyterWidget(RichIPythonWidget):
                 self._pre_image_append(msg, prompt_number)
                 try:
                     self._append_latex(data['text/latex'], True)
-                except Exception:
-                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
-                    return super(RichJupyterWidget, self)._handle_execute_result(msg)
+                except LatexError:
+                    return super(RichJupyterWidget, self)._handle_display_data(msg)
                 self._append_html(self.output_sep2, True)
             else:
                 # Default back to the plain text representation.
@@ -172,8 +175,7 @@ class RichJupyterWidget(RichIPythonWidget):
             elif 'text/latex' in data and latex_to_png:
                 try:
                     self._append_latex(data['text/latex'], True)
-                except Exception:
-                    self.log.error("Failed to render latex: '%s'", data['text/latex'], exc_info=True)
+                except LatexError:
                     return super(RichJupyterWidget, self)._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
@@ -182,10 +184,46 @@ class RichJupyterWidget(RichIPythonWidget):
     #---------------------------------------------------------------------------
     # 'RichJupyterWidget' protected interface
     #---------------------------------------------------------------------------
+    def _is_latex_math(self, latex):
+        """
+        Determine if a Latex string is in math mode
+
+        This is the only mode supported by qtconsole
+        """
+        basic_envs = ['math', 'displaymath']
+        starable_envs = ['equation', 'eqnarray' 'multline', 'gather', 'align',
+                         'flalign', 'alignat']
+        star_envs = [env + '*' for env in starable_envs]
+        envs = basic_envs + starable_envs + star_envs
+
+        env_syntax = [r'\begin{{{0}}} \end{{{0}}}'.format(env).split() for env in envs]
+
+        math_syntax = [
+            (r'\[', r'\]'), (r'\(', r'\)'),
+            ('$$', '$$'), ('$', '$'),
+        ]
+
+        for start, end in math_syntax + env_syntax:
+            inner = latex[len(start):-len(end)]
+            if start in inner or end in inner:
+                return False
+            if latex.startswith(start) and latex.endswith(end):
+                return True
+        return False
 
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
-        self._append_png(latex_to_png(latex, wrap=False), before_prompt, metadata)
+        png = None
+        if self._is_latex_math(latex):
+            png = latex_to_png(latex, wrap=False, backend='dvipng')
+        if png is None and latex.startswith('$') and latex.endswith('$'):
+            # matplotlib only supports strings enclosed in dollar signs
+            png = latex_to_png(latex, wrap=False, backend='matplotlib')
+
+        if png:
+            self._append_png(png, before_prompt, metadata)
+        else:
+            raise LatexError
 
     def _append_jpg(self, jpg, before_prompt=False, metadata=None):
         """ Append raw JPG data to the widget."""
