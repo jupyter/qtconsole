@@ -209,13 +209,15 @@ class RichJupyterWidget(RichIPythonWidget):
 
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
-        supported_latex = self._is_latex_math(latex)
-        if supported_latex:
-            png = latex_to_png(latex, wrap=False)
-            if png:
-                self._append_png(png, before_prompt, metadata)
-            else:
-                raise ValueError
+        png = None
+        if self._is_latex_math(latex):
+            png = latex_to_png(latex, wrap=False, backend='dvipng')
+        if png is None and latex.startswith('$') and latex.endswith('$'):
+            # matplotlib only supports strings enclosed in dollar signs
+            png = latex_to_png(latex, wrap=False, backend='matplotlib')
+
+        if png:
+            self._append_png(png, before_prompt, metadata)
         else:
             raise ValueError
 
