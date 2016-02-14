@@ -180,10 +180,36 @@ class RichJupyterWidget(RichIPythonWidget):
     #---------------------------------------------------------------------------
     # 'RichJupyterWidget' protected interface
     #---------------------------------------------------------------------------
+    def _is_latex_math(self, latex):
+        """
+        Determine if a Latex string is in math mode
+
+        This is the only mode supported by qtconsole
+        """
+        basic_envs = ['math', 'displaymath']
+        starable_envs = ['equation', 'eqnarray' 'multline', 'gather', 'align',
+                         'flalign', 'alignat']
+        star_envs = [env + '*' for env in starable_envs]
+        envs = basic_envs + starable_envs + star_envs
+
+        env_syntax = [r'\begin{{{0}}} \end{{{0}}}'.format(env).split() for env in envs]
+
+        math_syntax = [
+            (r'\[', r'\]'), (r'\(', r'\)'),
+            ('$$', '$$'), ('$', '$'),
+        ]
+
+        for start, end in math_syntax + env_syntax:
+            inner = latex[len(start):-len(end)]
+            if start in inner or end in inner:
+                return False
+            if latex.startswith(start) and latex.endswith(end):
+                return True
+        return False
 
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
-        supported_latex = latex.startswith('$') and latex.endswith('$')
+        supported_latex = self._is_latex_math(latex)
         if supported_latex:
             png = latex_to_png(latex, wrap=False)
             if png:
