@@ -20,6 +20,10 @@ except ImportError:
     latex_to_png = None
 
 
+class LatexError(Exception):
+    """Exception for Latex errors"""
+
+
 class RichIPythonWidget(JupyterWidget):
     """Dummy class for config inheritance. Destroyed below."""
 
@@ -140,7 +144,7 @@ class RichJupyterWidget(RichIPythonWidget):
                 self._pre_image_append(msg, prompt_number)
                 try:
                     self._append_latex(data['text/latex'], True)
-                except ValueError:
+                except LatexError:
                     return super(RichJupyterWidget, self)._handle_display_data(msg)
                 self._append_html(self.output_sep2, True)
             else:
@@ -171,7 +175,7 @@ class RichJupyterWidget(RichIPythonWidget):
             elif 'text/latex' in data and latex_to_png:
                 try:
                     self._append_latex(data['text/latex'], True)
-                except ValueError:
+                except LatexError:
                     return super(RichJupyterWidget, self)._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
@@ -219,7 +223,7 @@ class RichJupyterWidget(RichIPythonWidget):
         if png:
             self._append_png(png, before_prompt, metadata)
         else:
-            raise ValueError
+            raise LatexError
 
     def _append_jpg(self, jpg, before_prompt=False, metadata=None):
         """ Append raw JPG data to the widget."""
