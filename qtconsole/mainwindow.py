@@ -12,6 +12,8 @@ import webbrowser
 from threading import Thread
 
 from qtconsole.qt import QtGui,QtCore
+from qtconsole.usage import gui_reference
+
 
 def background(f):
     """call a function in a simple thread, to prevent blocking"""
@@ -603,16 +605,15 @@ class MainWindow(QtGui.QMainWindow):
         # please keep it spelled in English, as long as Qt Doesn't support
         # a QAction.MenuRole like HelpMenuRole otherwise it will lose
         # this search field functionality
-
         self.help_menu = self.menuBar().addMenu("&Help")
-        
 
         # Help Menu
-
-        self.onlineHelpAct = QtGui.QAction("Open Online &Help",
-            self,
-            triggered=self._open_online_help)
-        self.add_menu_action(self.help_menu, self.onlineHelpAct)
+        self.help_action = QtGui.QAction("Show &QtConsole help", self,
+                                         triggered=self._show_help)
+        self.online_help_action = QtGui.QAction("Open online &help", self,
+                                                triggered=self._open_online_help)
+        self.add_menu_action(self.help_menu, self.help_action)
+        self.add_menu_action(self.help_menu, self.online_help_action)
 
     def _set_active_frontend_focus(self):
         # this is a hack, self.active_frontend._control seems to be 
@@ -634,6 +635,9 @@ class MainWindow(QtGui.QMainWindow):
             self.showMinimized()
         else:
             self.showNormal()
+
+    def _show_help(self):
+        self.active_frontend._page(gui_reference)
 
     def _open_online_help(self):
         filename="http://ipython.org/ipython-doc/stable/index.html"
