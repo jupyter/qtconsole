@@ -1,6 +1,5 @@
 """A dropdown completer widget for the qtconsole."""
-# System library imports
-import os
+
 from qtconsole.qt import QtCore, QtGui
 
 
@@ -26,21 +25,13 @@ class CompletionWidget(QtGui.QListWidget):
         self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
 
-        # Use platform specific window flags to ensure correct behavior
-        # See github.com/jupyter/qtconsole/pull/93 for detailed discussion
-        if os.name == 'nt':
-            # On windows, we need Popup style to ensure correct mouse
-            # interaction (dialog would dissappear on mouse click with
-            # ToolTip style)
-            flags = QtCore.Qt.Popup
-        else:
-            # On other OS, we need ToolTip style to ensure that the widget
-            # shows correctly (dialog is not drawn with Popup style)
-            flags = QtCore.Qt.ToolTip | QtCore.Qt.WindowStaysOnTopHint
+        # We need Popup style to ensure correct mouse interaction
+        # (dialog would dissappear on mouse click with ToolTip style)
+        self.setWindowFlags(QtCore.Qt.Popup)
 
         self.setAttribute(QtCore.Qt.WA_StaticContents)
         original_policy = text_edit.focusPolicy()
-        self.setWindowFlags(flags)
+
         self.setFocusPolicy(QtCore.Qt.NoFocus)
         text_edit.setFocusPolicy(original_policy)
 
@@ -56,27 +47,7 @@ class CompletionWidget(QtGui.QListWidget):
         """ Reimplemented to handle keyboard input and to auto-hide when the
             text edit loses focus.
         """
-        if obj is self._text_edit:
-            etype = event.type()
-
-            if etype == QtCore.QEvent.KeyPress:
-                key = event.key()
-                if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter,
-                           QtCore.Qt.Key_Tab):
-                    self._complete_current()
-                    return True
-                elif key == QtCore.Qt.Key_Escape:
-                    self.hide()
-                    return True
-                elif key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down,
-                             QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown,
-                             QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
-                    self.keyPressEvent(event)
-                    return True
-
-            elif etype == QtCore.QEvent.FocusOut:
-                self.hide()
-        elif obj is self:
+        if obj is self:
             if event.type() == QtCore.QEvent.MouseButtonPress:
                 pos = self.mapToGlobal(event.pos())
                 target = QtGui.QApplication.widgetAt(pos)
@@ -85,16 +56,24 @@ class CompletionWidget(QtGui.QListWidget):
                 else:
                     self.cancel_completion()
                     if target:
-                        target.event(event)
+                        try:
+                            target.event(event)
+                        except RuntimeError:
+                            pass
                     return True
 
         return super(CompletionWidget, self).eventFilter(obj, event)
 
     def keyPressEvent(self, event):
         key = event.key()
-        if key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down,
-                   QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown,
-                   QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
+        if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter,
+                   QtCore.Qt.Key_Tab):
+            self._complete_current()
+        elif key == QtCore.Qt.Key_Escape:
+            self.hide()
+        elif key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down,
+                     QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown,
+                     QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
             return super(CompletionWidget, self).keyPressEvent(event)
         else:
             QtGui.QApplication.sendEvent(self._text_edit, event)
