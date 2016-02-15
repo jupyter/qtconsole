@@ -44,7 +44,7 @@ class CompletionWidget(QtGui.QListWidget):
         self.itemActivated.connect(self._complete_current)
 
     def eventFilter(self, obj, event):
-        """ Reimplemented to handle keyboard input and to auto-hide when the
+        """ Reimplemented to handle mouse input and to auto-hide when the
             text edit loses focus.
         """
         if obj is self:
@@ -87,7 +87,6 @@ class CompletionWidget(QtGui.QListWidget):
         """
         super(CompletionWidget, self).hideEvent(event)
         self._text_edit.cursorPositionChanged.disconnect(self._update_current)
-        self._text_edit.removeEventFilter(self)
         self.removeEventFilter(self)
 
     def showEvent(self, event):
@@ -95,7 +94,6 @@ class CompletionWidget(QtGui.QListWidget):
         """
         super(CompletionWidget, self).showEvent(event)
         self._text_edit.cursorPositionChanged.connect(self._update_current)
-        self._text_edit.installEventFilter(self)
         self.installEventFilter(self)
 
     #--------------------------------------------------------------------------
