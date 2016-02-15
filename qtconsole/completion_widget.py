@@ -55,12 +55,6 @@ class CompletionWidget(QtGui.QListWidget):
                     return False
                 else:
                     self.cancel_completion()
-                    if target:
-                        try:
-                            target.event(event)
-                        except RuntimeError:
-                            pass
-                    return True
 
         return super(CompletionWidget, self).eventFilter(obj, event)
 
