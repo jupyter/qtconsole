@@ -1,5 +1,5 @@
 """A dropdown completer widget for the qtconsole."""
-# System library imports
+
 from qtconsole.qt import QtCore, QtGui
 
 
@@ -20,9 +20,20 @@ class CompletionWidget(QtGui.QListWidget):
         super(CompletionWidget, self).__init__()
 
         self._text_edit = text_edit
+        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+
+        # We need Popup style to ensure correct mouse interaction
+        # (dialog would dissappear on mouse click with ToolTip style)
+        self.setWindowFlags(QtCore.Qt.Popup)
 
         self.setAttribute(QtCore.Qt.WA_StaticContents)
-        self.setWindowFlags(QtCore.Qt.ToolTip | QtCore.Qt.WindowStaysOnTopHint)
+        original_policy = text_edit.focusPolicy()
+
+        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        text_edit.setFocusPolicy(original_policy)
 
         # Ensure that the text edit keeps focus when widget is displayed.
         self.setFocusProxy(self._text_edit)
@@ -33,31 +44,33 @@ class CompletionWidget(QtGui.QListWidget):
         self.itemActivated.connect(self._complete_current)
 
     def eventFilter(self, obj, event):
-        """ Reimplemented to handle keyboard input and to auto-hide when the
+        """ Reimplemented to handle mouse input and to auto-hide when the
             text edit loses focus.
         """
-        if obj == self._text_edit:
-            etype = event.type()
-
-            if etype == QtCore.QEvent.KeyPress:
-                key, text = event.key(), event.text()
-                if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter,
-                           QtCore.Qt.Key_Tab):
-                    self._complete_current()
-                    return True
-                elif key == QtCore.Qt.Key_Escape:
-                    self.hide()
-                    return True
-                elif key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down,
-                             QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown,
-                             QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
-                    self.keyPressEvent(event)
-                    return True
-
-            elif etype == QtCore.QEvent.FocusOut:
-                self.hide()
+        if obj is self:
+            if event.type() == QtCore.QEvent.MouseButtonPress:
+                pos = self.mapToGlobal(event.pos())
+                target = QtGui.QApplication.widgetAt(pos)
+                if (target and self.isAncestorOf(target) or target is self):
+                    return False
+                else:
+                    self.cancel_completion()
 
         return super(CompletionWidget, self).eventFilter(obj, event)
+
+    def keyPressEvent(self, event):
+        key = event.key()
+        if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter,
+                   QtCore.Qt.Key_Tab):
+            self._complete_current()
+        elif key == QtCore.Qt.Key_Escape:
+            self.hide()
+        elif key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down,
+                     QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown,
+                     QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
+            return super(CompletionWidget, self).keyPressEvent(event)
+        else:
+            QtGui.QApplication.sendEvent(self._text_edit, event)
 
     #--------------------------------------------------------------------------
     # 'QWidget' interface
@@ -68,14 +81,14 @@ class CompletionWidget(QtGui.QListWidget):
         """
         super(CompletionWidget, self).hideEvent(event)
         self._text_edit.cursorPositionChanged.disconnect(self._update_current)
-        self._text_edit.removeEventFilter(self)
+        self.removeEventFilter(self)
 
     def showEvent(self, event):
         """ Reimplemented to connect signal handlers and event filter.
         """
         super(CompletionWidget, self).showEvent(event)
         self._text_edit.cursorPositionChanged.connect(self._update_current)
-        self._text_edit.installEventFilter(self)
+        self.installEventFilter(self)
 
     #--------------------------------------------------------------------------
     # 'CompletionWidget' interface
@@ -88,18 +101,20 @@ class CompletionWidget(QtGui.QListWidget):
         text_edit = self._text_edit
         point = text_edit.cursorRect(cursor).bottomRight()
         point = text_edit.mapToGlobal(point)
-        height = self.sizeHint().height()
-        screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
-        if (screen_rect.size().height() + screen_rect.y() 
-                    - point.y() - height < 0):
-            point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
-            point.setY(point.y() - height)
-        self.move(point)
-
-        self._start_position = cursor.position()
         self.clear()
         self.addItems(items)
+        height = self.sizeHint().height()
+        screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
+        if (screen_rect.size().height() + screen_rect.y() -
+                point.y() - height < 0):
+            point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
+            point.setY(point.y() - height)
+        w = (self.sizeHintForColumn(0) +
+             self.verticalScrollBar().sizeHint().width())
+        self.setGeometry(point.x(), point.y(), w, height)
+        self._start_position = cursor.position()
         self.setCurrentRow(0)
+        self.raise_()
         self.show()
 
     #--------------------------------------------------------------------------
