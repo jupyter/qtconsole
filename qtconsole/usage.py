@@ -6,12 +6,6 @@ Usage information for QtConsole
 # Distributed under the terms of the Modified BSD License.
 
 
-def page_guiref(arg_s=None):
-    """Show a basic reference about QtConsole."""
-    from IPython.core import page
-    page.page(gui_reference)
-
-
 gui_reference = """\
 =====================
 The Jupyter QtConsole
