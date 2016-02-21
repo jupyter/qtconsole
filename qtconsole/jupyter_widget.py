@@ -129,10 +129,13 @@ class JupyterWidget(IPythonWidget):
 
     #---------------------------------------------------------------------------
     # 'BaseFrontendMixin' abstract interface
+    #
+    # For JupyterWidget,  override FrontendWidget methods which implement the
+    # BaseFrontend Mixin abstract interface
     #---------------------------------------------------------------------------
 
     def _handle_complete_reply(self, rep):
-        """Reimplemented to support Jupyter's improved completion machinery.
+        """Support Jupyter's improved completion machinery.
         """
         self.log.debug("complete: %s", rep.get('content', ''))
         cursor = self._get_cursor()
@@ -165,7 +168,7 @@ class JupyterWidget(IPythonWidget):
             self._complete_with_items(cursor, matches)
 
     def _handle_execute_reply(self, msg):
-        """ Reimplemented to support prompt requests.
+        """Support prompt requests.
         """
         msg_id = msg['parent_header'].get('msg_id')
         info = self._request_info['execute'].get(msg_id)
@@ -181,7 +184,7 @@ class JupyterWidget(IPythonWidget):
             super(JupyterWidget, self)._handle_execute_reply(msg)
 
     def _handle_history_reply(self, msg):
-        """ Implemented to handle history tail replies, which are only supported
+        """ Handle history tail replies, which are only supported
             by Jupyter kernels.
         """
         content = msg['content']
@@ -276,7 +279,7 @@ class JupyterWidget(IPythonWidget):
             super(JupyterWidget, self)._started_channels()
 
     def _started_channels(self):
-        """Reimplemented to make a history request"""
+        """Make a history request"""
         self._starting = True
         self.kernel_client.history(hist_access_type='tail', n=1000)
 
