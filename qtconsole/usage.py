@@ -156,13 +156,9 @@ focus on the pager area).
 Running subprocesses
 ====================
 
-The Jupyter QtConsole uses the ``pexpect`` module to run subprocesses
-when you type ``!command``.  This has a number of advantages (true asynchronous
-output from subprocesses as well as very robust termination of rogue
-subprocesses with ``Control-C``), as well as some limitations.  The main
-limitation is that you can *not* interact back with the subprocess, so anything
-that invokes a pager or expects you to type input into it will block and hang
-(you can kill it with ``Control-C``).
+When running a subprocess from the kernel, you can not interact with it as if
+it was running in a terminal.  So anything that invokes a pager or expects
+you to type input into it will block and hang (you can kill it with ``Control-C``).
 
 The console can use magics provided by the IPython kernel. These magics include
 ``%less`` to page files (aliased to ``%more``),
