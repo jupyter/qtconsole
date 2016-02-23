@@ -3,7 +3,21 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.2:
+
+4.2
+---
+
+`4.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.2>`__
+
+- various latex display fixes
+- improvements for embedding in Qt applications (use existing Qt API if one is already loaded)
+
+
 .. _4.1:
+
+4.1
+---
 
 .. _4.1.1:
 
@@ -16,8 +30,8 @@ Changes in Jupyter Qt console
 
 .. _4.1.0:
 
-4.1
----
+4.1.0
+~~~~~
 
 `4.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.1>`__
 

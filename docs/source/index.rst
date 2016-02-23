@@ -376,7 +376,7 @@ Rules:
     * Remote Consoles may not restart or shutdown the kernel.
 
 Qt and the Qt console
-====================
+=====================
 
 An important part of working with the Qt console when you are writing your own
 Qt code is to remember that user code (in the kernel) is *not* in the same
