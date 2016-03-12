@@ -1318,7 +1318,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
                 if not self._reading:
                     if self._tab_pressed():
                         # real tab-key, insert four spaces
-                        cursor.insertText(' '*4)
+                        step = 4 - (self._get_cursor().columnNumber() -
+                                    len(self._continuation_prompt)) % 4
+                        cursor.insertText(' '*step)
                     intercepted = True
 
             elif key == QtCore.Qt.Key_Backtab:
