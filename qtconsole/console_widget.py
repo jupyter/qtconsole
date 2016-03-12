@@ -1166,10 +1166,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
                         self.execute(interactive = not shift_down)
                     else:
                         # Do this inside an edit block for clean undo/redo.
+                        indent = self._get_next_row_indent()
                         cursor.beginEditBlock()
                         cursor.setPosition(position)
                         cursor.insertText('\n')
                         self._insert_continuation_prompt(cursor)
+                        cursor.insertText(' ' * indent)
                         cursor.endEditBlock()
 
                         # Ensure that the whole input buffer is visible.
@@ -1659,6 +1661,24 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
         cur.select(QtGui.QTextCursor.LineUnderCursor)
         text = cur.selectedText()[len(self._continuation_prompt):]
         return len(text) - len(text.lstrip())
+
+    def _get_next_row_indent(self):
+        """ Convenience method that returns the number of leading spaces
+        to be used as indentation in the following line.
+        """
+        cur = self._control.textCursor()
+        prompt = len(self._continuation_prompt)
+        cur_pos = cur.columnNumber() - prompt
+        cur.select(QtGui.QTextCursor.LineUnderCursor)
+        text = cur.selectedText()[prompt:]
+        leading_spaces = len(text) - len(text.lstrip())
+        if cur_pos < leading_spaces:
+            indent = cur_pos
+        else:
+            indent = leading_spaces
+            if 0 < len(text) <= cur_pos and text.rstrip()[-1] == ':':
+                indent += 4
+        return indent
 
     def _get_prompt_cursor(self):
         """ Convenience method that returns a cursor for the prompt position.
