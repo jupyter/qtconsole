@@ -1,0 +1,10 @@
+name: qtconsole_docs
+channels:
+dependencies:
+- python=3.5
+- ipykernel
+- numpydoc # we seem to not use that, but removing break readthedocs conda (for now)
+- pexpect
+- pygments
+- pyqt
+- sphinx>=1.3.6
