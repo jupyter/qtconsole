@@ -1371,10 +1371,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
                     start_pos = cursor.position()
                     start_pos += len(self._continuation_prompt)
                     cursor.setPosition(position)
+
                 c = self._get_cursor()
                 spaces = self._get_leading_spaces()
-                if c.position() > start_pos + spaces:
-                    start_pos += spaces
+                if (c.position() > start_pos + spaces or
+                        c.columnNumber() == len(self._continuation_prompt)):
+                    start_pos += spaces     # Beginning of text
+
                 if shift_down and self._in_buffer(position):
                     if c.selectedText():
                         sel_max = max(c.selectionStart(), c.selectionEnd())
