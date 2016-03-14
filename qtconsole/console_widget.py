@@ -1321,6 +1321,20 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
                         cursor.insertText(' '*4)
                     intercepted = True
 
+            elif key == QtCore.Qt.Key_Backtab:
+                cur = self._get_cursor()
+                cur.movePosition(QtGui.QTextCursor.StartOfLine)
+                cur.movePosition(QtGui.QTextCursor.Right,
+                                 QtGui.QTextCursor.MoveAnchor,
+                                 self._get_prompt_cursor().columnNumber())
+                spaces = self._get_leading_spaces()
+                step = spaces % 4
+                cur.movePosition(QtGui.QTextCursor.Right,
+                                 QtGui.QTextCursor.KeepAnchor,
+                                 min(spaces, step if step != 0 else 4))
+                cur.removeSelectedText()
+                intercepted = True
+
             elif key == QtCore.Qt.Key_Left:
 
                 # Move to the previous line
@@ -1637,6 +1651,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
             if lines_pending <= 0:
                 break
         return ret[::-1]
+
+    def _get_leading_spaces(self):
+        """ Convenience method that returns the number of leading spaces.
+        """
+        cur = self._get_cursor()
+        cur.select(QtGui.QTextCursor.LineUnderCursor)
+        text = cur.selectedText()[len(self._continuation_prompt):]
+        return len(text) - len(text.lstrip())
 
     def _get_prompt_cursor(self):
         """ Convenience method that returns a cursor for the prompt position.
