@@ -1676,8 +1676,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
             indent = cur_pos
         else:
             indent = leading_spaces
-            if 0 < len(text) <= cur_pos and text.rstrip()[-1] == ':':
-                indent += 4
         return indent
 
     def _get_prompt_cursor(self):
