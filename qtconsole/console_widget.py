@@ -1166,10 +1166,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
                         self.execute(interactive = not shift_down)
                     else:
                         # Do this inside an edit block for clean undo/redo.
+                        pos = self._get_input_buffer_cursor_pos()
+                        complete, indent = self._is_complete(
+                            self._get_input_buffer()[:pos], True)
                         cursor.beginEditBlock()
                         cursor.setPosition(position)
                         cursor.insertText('\n')
                         self._insert_continuation_prompt(cursor)
+                        if indent:
+                            cursor.insertText(indent)
                         cursor.endEditBlock()
 
                         # Ensure that the whole input buffer is visible.
