@@ -67,7 +67,7 @@ copyright = 'The Jupyter Development Team'
 author = 'The Jupyter Development Team'
 
 # numpydoc config
-numpydoc_show_class_members = True # Otherwise Sphinx emits thousands of warnings
+numpydoc_show_class_members = True
 numpydoc_class_members_toctree = True
 
 # The version info for the project you're documenting, acts as replacement for
