@@ -20,7 +20,6 @@ exec(compile(open('../../qtconsole/_version.py').read(), '../../qtconsole/_versi
 import os
 if os.environ.get('READTHEDOCS', None) == 'True':
     print('On RTD, regen API')
-    #from ..autogen_config import main
     ns = {'__file__':'../autogen_config.py'}
     exec(compile(open('../autogen_config.py').read(), '../autogen_config.py', 'exec'), ns )
     ns['main']()
@@ -66,9 +65,9 @@ project = 'Jupyter Qt Console'
 copyright = 'The Jupyter Development Team'
 author = 'The Jupyter Development Team'
 
-# numpydoc config
-numpydoc_show_class_members = True
-numpydoc_class_members_toctree = True
+# numpydoc config TODO remove this block if really not being used
+#numpydoc_show_class_members = True
+#numpydoc_class_members_toctree = True
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -131,7 +130,7 @@ pygments_style = 'sphinx'
 #keep_warnings = False
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+#todo_include_todos = False
 
 
 # -- Options for HTML output ----------------------------------------------
@@ -167,7 +166,7 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+#html_static_path = ['_static']
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
