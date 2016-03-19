@@ -1,7 +1,7 @@
 Installation
 ============
 The Qt console requires Qt, such as
-`PyQt5 <http://www.riverbankcomputing.com/software/pyqt/intro>`_,
+`PyQt5 <https://www.riverbankcomputing.com/software/pyqt/intro>`_,
 `PyQt4 <https://www.riverbankcomputing.com/software/pyqt/download>`_, or
 `PySide <http://pyside.github.io/docs/pyside>`_.
 

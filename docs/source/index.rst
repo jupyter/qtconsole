@@ -22,7 +22,7 @@ Overview
 ========
 The Qt console is a very lightweight application that largely feels like a
 terminal, but provides a number of enhancements only possible in a GUI, such as
-inline figures, proper multiline editing with syntax highlighting, graphical
+inline figures, proper multi-line editing with syntax highlighting, graphical
 calltips, and much more. The Qt console can use any Jupyter kernel.
 
 .. figure:: _images/qtconsole.png
@@ -40,9 +40,9 @@ navigation. This is not yet configurable.
 
    Since the Qt console tries hard to behave like a terminal, by default it
    immediately executes single lines of input that are complete.  If you want
-   to force multiline input, hit :kbd:`Ctrl-Enter` at the end of the first line
+   to force multi-line input, hit :kbd:`Ctrl-Enter` at the end of the first line
    instead of :kbd:`Enter`, and it will open a new line for input.  At any
-   point in a multiline block, you can force its execution (without having to
+   point in a multi-line block, you can force its execution (without having to
    go to the bottom) with :kbd:`Shift-Enter`.
 
 
@@ -415,7 +415,7 @@ can attach them to the QApplication instance itself:
 Now the QApplication itself holds a reference to ``win``, so it will never be
 garbage collected until the application itself is destroyed.
 
-.. _Gotchas: http://www.riverbankcomputing.co.uk/static/Docs/PyQt4/html/gotchas.html#garbage-collection
+.. _Gotchas: http://pyqt.sourceforge.net/Docs/PyQt4/gotchas.html#garbage-collection
 
 Embedding the QtConsole in a Qt application
 -------------------------------------------
@@ -458,5 +458,5 @@ frontend:
   will not be fixed, as abandoning pexpect would significantly degrade the
   console experience.
 
-.. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/download
+.. _PyQt: https://www.riverbankcomputing.com/software/pyqt/download
 .. _pygments: http://pygments.org/
