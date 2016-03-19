@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""autogen_config.py generates configuration document for Sphinx docs.
+
+Using this helper tool, a reStructuredText document can be created from
+reading the config options from the JupyterQtConsole source code and
+writing to the rST doc, jupyter_qtconsole_config.py.
+
+"""
 import os.path
 from qtconsole.qtconsoleapp import JupyterQtConsoleApp
 
