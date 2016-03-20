@@ -45,8 +45,8 @@ class MetaQObjectHasTraits(MetaQObject, MetaHasTraits):
 # Classes
 #-----------------------------------------------------------------------------
 
-class SuperQObject(QtCore.QObject):
-    """ Permits the use of super() in class hierarchies that contain QObject.
+def superQ(QClass):
+    """ Permits the use of super() in class hierarchies that contain Qt classes.
 
     Unlike QObject, SuperQObject does not accept a QObject parent. If it did,
     super could not be emulated properly (all other classes in the heierarchy
@@ -56,22 +56,27 @@ class SuperQObject(QtCore.QObject):
     This class is primarily useful for attaching signals to existing non-Qt
     classes. See QtKernelManagerMixin for an example.
     """
+    class SuperQClass(QClass):
 
-    def __new__(cls, *args, **kw):
-        # We initialize QObject as early as possible. Without this, Qt complains
-        # if SuperQObject is not the first class in the super class list.
-        inst = QtCore.QObject.__new__(cls)
-        QtCore.QObject.__init__(inst)
-        return inst
+        def __new__(cls, *args, **kw):
+            # We initialize QClass as early as possible. Without this, Qt complains
+            # if SuperQClass is not the first class in the super class list.
+            inst = QClass.__new__(cls)
+            QClass.__init__(inst)
+            return inst
 
-    def __init__(self, *args, **kw):
-        # Emulate super by calling the next method in the MRO, if there is one.
-        mro = self.__class__.mro()
-        for qt_class in QtCore.QObject.mro():
-            mro.remove(qt_class)
-        next_index = mro.index(SuperQObject) + 1
-        if next_index < len(mro):
-            mro[next_index].__init__(self, *args, **kw)
+        def __init__(self, *args, **kw):
+            # Emulate super by calling the next method in the MRO, if there is one.
+            mro = self.__class__.mro()
+            for qt_class in QClass.mro():
+                mro.remove(qt_class)
+            next_index = mro.index(SuperQClass) + 1
+            if next_index < len(mro):
+                mro[next_index].__init__(self, *args, **kw)
+
+    return SuperQClass
+
+SuperQObject = superQ(QtCore.QObject)
 
 #-----------------------------------------------------------------------------
 # Functions

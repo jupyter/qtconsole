@@ -15,7 +15,7 @@ from qtconsole.qt import QtCore, QtGui
 
 from traitlets.config.configurable import LoggingConfigurable
 from qtconsole.rich_text import HtmlExporter
-from qtconsole.util import MetaQObjectHasTraits, get_font
+from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
 from ipython_genutils.text import columnize
 from traitlets import Bool, Enum, Integer, Unicode
 from .ansi_code_processor import QtAnsiCodeProcessor
@@ -35,7 +35,7 @@ def is_letter_or_number(char):
 # Classes
 #-----------------------------------------------------------------------------
 
-class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.QWidget), {})):
+class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtGui.QWidget)), {})):
     """ An abstract base class for console-type widgets. This class has
         functionality for:
 
@@ -207,8 +207,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, QtGui.
         parent : QWidget, optional [default None]
             The parent for this widget.
         """
-        QtGui.QWidget.__init__(self, parent)
-        LoggingConfigurable.__init__(self, **kw)
+        super(ConsoleWidget, self).__init__(**kw)
 
         # While scrolling the pager on Mac OS X, it tears badly.  The
         # NativeGesture is platform and perhaps build-specific hence
