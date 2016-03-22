@@ -208,6 +208,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             The parent for this widget.
         """
         super(ConsoleWidget, self).__init__(**kw)
+        if parent:
+            self.setParent(parent)
 
         # While scrolling the pager on Mac OS X, it tears badly.  The
         # NativeGesture is platform and perhaps build-specific hence
