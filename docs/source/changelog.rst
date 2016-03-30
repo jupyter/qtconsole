@@ -5,6 +5,13 @@ Changes in Jupyter Qt console
 
 .. _4.2:
 
+4.2.1
+-----
+
+`4.2.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.2.1>`__
+
+Fix compatibility with some Qt bindings and traitlets ≥ 4.2.
+
 4.2
 ---
 
