@@ -281,6 +281,7 @@ class JupyterWidget(IPythonWidget):
     def _started_channels(self):
         """Make a history request"""
         self._starting = True
+        self.kernel_client.kernel_info()
         self.kernel_client.history(hist_access_type='tail', n=1000)
 
 
