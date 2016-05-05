@@ -3,6 +3,17 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.3:
+
+4.3
+---
+
+`4.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.3>`__
+
+- Rename `ConsoleWidget.width/height` traits to `console_width/console_height`
+  to avoid a name clash with the `QWidget` properties.
+  WARNING: possibly, but unlikely code-breaking.
+
 .. _4.2:
 
 4.2
