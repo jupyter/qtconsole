@@ -76,4 +76,9 @@ class TestConsoleWidget(unittest.TestCase):
         w.eventFilter(obj, stillOverTextEvent)
         self.assertEqual(tip.isVisible(), True)
         self.assertEqual(tip.text(), "http://python.org")
-        
+
+    def test_width_height(self):
+        # width()/height() QWidget properties should not be overridden.
+        w = ConsoleWidget()
+        self.assertEqual(w.width(), QtGui.QWidget.width(w))
+        self.assertEqual(w.height(), QtGui.QWidget.height(w))

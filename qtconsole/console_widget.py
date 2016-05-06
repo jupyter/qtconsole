@@ -132,12 +132,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         with the size of the font.
         """)
 
-    width = Integer(81, config=True,
+    console_width = Integer(81, config=True,
         help="""The width of the console at start time in number
         of characters (will double with `hsplit` paging)
         """)
 
-    height = Integer(25, config=True,
+    console_height = Integer(25, config=True,
         help="""The height of the console at start time in number
         of characters (will double with `vsplit` paging)
         """)
@@ -472,12 +472,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # a fudge factor of one character here.
         # Note 2: QFontMetrics.maxWidth is not used here or anywhere else due
         # to a Qt bug on certain Mac OS systems where it returns 0.
-        width = font_metrics.width(' ') * self.width + margin
+        width = font_metrics.width(' ') * self.console_width + margin
         width += style.pixelMetric(QtGui.QStyle.PM_ScrollBarExtent)
         if self.paging == 'hsplit':
             width = width * 2 + splitwidth
 
-        height = font_metrics.height() * self.height + margin
+        height = font_metrics.height() * self.console_height + margin
         if self.paging == 'vsplit':
             height = height * 2 + splitwidth
 
