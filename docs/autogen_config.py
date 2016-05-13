@@ -19,6 +19,9 @@ These options can be set in the configuration file,
 ``~/.jupyter/jupyter_qtconsole_config.py``, or
 at the command line when you start Qt console.
 
+You may enter ``jupyter qtconsole --help-all`` to get information
+about all available configuration options.
+
 Options
 -------
 """
