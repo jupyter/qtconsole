@@ -375,19 +375,38 @@ Rules:
       the Kernel has been shutdown.
     * Remote Consoles may not restart or shutdown the kernel.
 
-Qt and the Qt console
-=====================
+Qt and the REPL
+===============
 
-An important part of working with the Qt console when you are writing your own
-Qt code is to remember that user code (in the kernel) is *not* in the same
-process as the frontend.  This means that there is not necessarily any Qt code
-running in the kernel, and under most normal circumstances there isn't.
+.. note::
+
+    This section is relevant regardless of the frontend you use to write Qt
+    Code. This section is mostly there as it is easy to get confused and assume
+    that writing Qt code in the QtConsole should change from usual Qt code. It
+    should not. If you get confused, take a step back, and try writing your
+    code using the pure terminal based ``jupyter console`` that does not
+    involve Qt.
+
+An important part of working with the REPL – QtConsole, Jupyter notebook,
+IPython terminal – when you are writing your own Qt code is to remember that
+user code (in the kernel) is *not* in the same process as the frontend.  This
+means that there is not necessarily any Qt code running in the kernel, and
+under most normal circumstances there isn't. This is true even if you are
+running the QtConsole.
+
+.. warning::
+
+    When executing code from the qtconsole prompt, it is **not possible** to
+    access the QtApplication instance of the QtConsole itself.
+
 
 A common problem listed in the PyQt4 Gotchas_ is the fact that Python's garbage
 collection will destroy Qt objects (Windows, etc.) once there is no longer a
 Python reference to them, so you have to hold on to them.  For instance, in:
 
 .. sourcecode:: python
+
+    from PyQt4 import QtGui
 
     def make_window():
         win = QtGui.QMainWindow()
@@ -400,19 +419,25 @@ Python reference to them, so you have to hold on to them.  For instance, in:
 destroy it before it is drawn, whereas :func:`make_and_return_window` lets the
 caller decide when the window object should be destroyed.  If, as a developer,
 you know that you always want your objects to last as long as the process, you
-can attach them to the QApplication instance itself:
+can attach them to the ``QApplication`` instance itself:
 
 .. sourcecode:: python
 
+    from PyQt4 import QtGui, QtCore
+
     # do this just once:
     app = QtCore.QCoreApplication.instance()
+    if not app:
+        # we are in the kernel in most of the case there is NO qt code running. 
+        # we need to create a Gui APP.
+        app = QtGui.QApplication([])
     app.references = set()
     # then when you create Windows, add them to the set
     def make_window():
         win = QtGui.QMainWindow()
         app.references.add(win)
 
-Now the QApplication itself holds a reference to ``win``, so it will never be
+Now the ``QApplication`` itself holds a reference to ``win``, so it will never be
 garbage collected until the application itself is destroyed.
 
 .. _Gotchas: http://pyqt.sourceforge.net/Docs/PyQt4/gotchas.html#garbage-collection
