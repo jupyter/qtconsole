@@ -259,7 +259,8 @@ class JupyterWidget(IPythonWidget):
         if self.include_output(msg):
             self.flush_clearoutput()
             data = msg['content']['data']
-            metadata = msg['content']['metadata']
+            if "metadata" in msg['content']:
+                metadata = msg['content']['metadata'] # FIXME: not used
             # In the regular JupyterWidget, we simply print the plain text
             # representation.
             if 'text/plain' in data:
