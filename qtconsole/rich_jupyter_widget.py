@@ -125,7 +125,10 @@ class RichJupyterWidget(RichIPythonWidget):
             content = msg['content']
             prompt_number = content.get('execution_count', 0)
             data = content['data']
-            metadata = msg['content']['metadata']
+            if 'metadata' in msg['content']:
+                metadata = msg['content']['metadata']
+            else:
+                metadata = {}
             if 'image/svg+xml' in data:
                 self._pre_image_append(msg, prompt_number)
                 self._append_svg(data['image/svg+xml'], True)
@@ -157,7 +160,10 @@ class RichJupyterWidget(RichIPythonWidget):
         if self.include_output(msg):
             self.flush_clearoutput()
             data = msg['content']['data']
-            metadata = msg['content']['metadata']
+            if 'metadata' in msg['content']:
+                metadata = msg['content']['metadata']
+            else:
+                metadata = {}
             # Try to use the svg or html representations.
             # FIXME: Is this the right ordering of things to try?
             self.log.debug("display: %s", msg.get('content', ''))
