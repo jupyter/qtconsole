@@ -426,7 +426,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Manually adjust the scrollbars *after* a resize event is dispatched.
         elif etype == QtCore.QEvent.Resize and not self._filter_resize:
             self._filter_resize = True
-            QtGui.qApp.sendEvent(obj, event)
+            QtGui.QApplication.instance().sendEvent(obj, event)
             self._adjust_scrollbars()
             self._filter_resize = False
             return True
@@ -780,7 +780,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.font_size:
             font.setPointSize(self.font_size)
         else:
-            font.setPointSize(QtGui.qApp.font().pointSize())
+            font.setPointSize(QtGui.QApplication.instance().font().pointSize())
         font.setStyleHint(QtGui.QFont.TypeWriter)
         self._set_font(font)
 
