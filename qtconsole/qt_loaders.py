@@ -123,12 +123,12 @@ def has_binding(api):
         #importing top level PyQt4/PySide module is ok...
         mod = __import__(module_name)
         #...importing submodules is not
-        imp.find_module('QtCore', mod.__path__)
-        imp.find_module('QtGui', mod.__path__)
-        imp.find_module('QtSvg', mod.__path__)
+        imp.find_module('QtCore', list(mod.__path__))
+        imp.find_module('QtGui', list(mod.__path__))
+        imp.find_module('QtSvg', list(mod.__path__))
         if api == QT_API_PYQT5:
             # QT5 requires QtWidgets too
-            imp.find_module('QtWidgets', mod.__path__)
+            imp.find_module('QtWidgets', list(mod.__path__))
 
         #we can also safely check PySide version
         if api == QT_API_PYSIDE:
