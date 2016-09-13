@@ -482,10 +482,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             status = content['status']
             if status == 'ok':
                 self._process_execute_ok(msg)
-            elif status == 'error':
-                self._process_execute_error(msg)
-            elif status == 'aborted':
-                self._process_execute_abort(msg)
+            # Of status != 'ok', a message of type 'error' will be sent with
+            # the details
 
             self._show_interpreter_prompt_for_reply(msg)
             self.executed.emit(msg)
@@ -495,6 +493,11 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             self._request_info['execute'].pop(msg_id)
         elif info and not self._hidden:
             raise RuntimeError("Unknown handler for %s" % info.kind)
+
+    def _handle_error(self, msg):
+        """ Handle error messages.
+        """
+        self._process_execute_error(msg)
 
     def _handle_input_request(self, msg):
         """ Handle requests for raw_input.
