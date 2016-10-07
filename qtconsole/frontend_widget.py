@@ -482,7 +482,9 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             status = content['status']
             if status == 'ok':
                 self._process_execute_ok(msg)
-            # Of status != 'ok', a message of type 'error' will be sent with
+            elif status == 'aborted':
+                self._process_execute_abort(msg)
+            # If status == 'error', a message of type 'error' will be sent with
             # the details
 
             self._show_interpreter_prompt_for_reply(msg)
