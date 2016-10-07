@@ -292,22 +292,30 @@ class JupyterWidget(IPythonWidget):
     def _process_execute_error(self, msg):
         """Handle an execute_error message"""
         content = msg['content']
-        traceback = '\n'.join(content['traceback']) + '\n'
-        if False:
-            # FIXME: For now, tracebacks come as plain text, so we can't use
-            # the html renderer yet.  Once we refactor ultratb to produce
-            # properly styled tracebacks, this branch should be the default
-            traceback = traceback.replace(' ', '&nbsp;')
-            traceback = traceback.replace('\n', '<br/>')
 
-            ename = content['ename']
-            ename_styled = '<span class="error">%s</span>' % ename
-            traceback = traceback.replace(ename, ename_styled)
-
-            self._append_html(traceback)
+        if content['ename'] == 'KeyboardInterrupt':
+            # If the user interrupted execution by pressing CTRL-C, only
+            # display a simple message.
+            self._append_plain_text("Execution aborted\n")
         else:
-            # This is the fallback for now, using plain text with ansi escapes
-            self._append_plain_text(traceback)
+            traceback = '\n'.join(content['traceback']) + '\n'
+            if False:
+                # FIXME: For now, tracebacks come as plain text, so we can't
+                # use the html renderer yet.  Once we refactor ultratb to
+                # produce properly styled tracebacks, this branch should be the
+                # default
+                traceback = traceback.replace(' ', '&nbsp;')
+                traceback = traceback.replace('\n', '<br/>')
+
+                ename = content['ename']
+                ename_styled = '<span class="error">%s</span>' % ename
+                traceback = traceback.replace(ename, ename_styled)
+
+                self._append_html(traceback)
+            else:
+                # This is the fallback for now, using plain text with ansi
+                # escapes
+                self._append_plain_text(traceback)
 
     def _process_execute_payload(self, item):
         """ Reimplemented to dispatch payloads to handler methods.
