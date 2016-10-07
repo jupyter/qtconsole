@@ -233,7 +233,6 @@ class JupyterWidget(IPythonWidget):
         if self.include_output(msg):
             self._append_custom(self._insert_other_input, msg['content'], before_prompt=True)
 
-    
     def _handle_execute_result(self, msg):
         """Handle an execute_result message"""
         if self.include_output(msg):

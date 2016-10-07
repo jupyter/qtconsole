@@ -244,7 +244,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         # Initialize protected variables. Some variables contain useful state
         # information for subclasses; they should be considered read-only.
-        self._append_before_prompt_pos = 0
+        self._append_before_prompt_cursor = self._control.textCursor()
         self._ansi_processor = QtAnsiCodeProcessor()
         if self.gui_completion == 'ncurses':
             self._completion_widget = CompletionHtml(self)
@@ -263,7 +263,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self._kill_ring = QtKillRing(self._control)
         self._prompt = ''
         self._prompt_html = None
-        self._prompt_pos = 0
+        self._prompt_cursor = self._control.textCursor()
         self._prompt_sep = ''
         self._reading = False
         self._reading_callback = None
@@ -888,17 +888,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             if insert != self._insert_plain_text:
                 self._flush_pending_stream()
             cursor.movePosition(QtGui.QTextCursor.End)
-        start_pos = cursor.position()
 
         # Perform the insertion.
         result = insert(cursor, input, *args, **kwargs)
-
-        # Adjust the prompt position if we have inserted before it. This is safe
-        # because buffer truncation is disabled when not executing.
-        if before_prompt and (self._reading or not self._executing):
-            diff = cursor.position() - start_pos
-            self._append_before_prompt_pos += diff
-            self._prompt_pos += diff
 
         return result
 
@@ -1525,10 +1517,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         pos = cursor.position()
         self._flush_pending_stream()
         cursor.movePosition(QtGui.QTextCursor.End)
-        diff = cursor.position() - pos
-        if diff > 0:
-            self._prompt_pos += diff
-            self._append_before_prompt_pos += diff
 
     def _flush_pending_stream(self):
         """ Flush out pending text into the widget. """
@@ -1586,6 +1574,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor = self._control.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         return cursor
+
+    def _get_end_pos(self):
+        """ Convenience method that returns the position of the last character.
+        """
+        return self._get_end_cursor().position()
 
     def _get_input_buffer_cursor_column(self):
         """ Returns the column of the cursor in the input buffer, excluding the
@@ -1679,6 +1672,18 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         text = cur.selectedText()[len(self._continuation_prompt):]
         return len(text) - len(text.lstrip())
 
+
+    @property
+    def _prompt_pos(self):
+        """Find the position in the text right after the prompt"""
+        return min(self._prompt_cursor.position() + 1, self._get_end_pos())
+
+    @property
+    def _append_before_prompt_pos(self):
+        """Find the position in the text right before the prompt"""
+        return min(self._append_before_prompt_cursor.position(),
+                   self._get_end_pos())
+
     def _get_prompt_cursor(self):
         """ Convenience method that returns a cursor for the prompt position.
         """
@@ -1718,7 +1723,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             them. (This emulates the behavior of bash, emacs, etc.)
         """
         document = self._control.document()
-        end = self._get_end_cursor().position()
+        end = self._get_end_pos()
         while position < end and \
                   not is_letter_or_number(document.characterAt(position)):
             position += 1
@@ -1793,7 +1798,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         if (self._executing and not flush and
                 self._pending_text_flush_interval.isActive() and
-                cursor.position() == self._get_end_cursor().position()):
+                cursor.position() == self._get_end_pos()):
             # Queue the text to insert in case it is being inserted at end
             self._pending_insert_text.append(text)
             if buffer_size > 0:
@@ -2110,10 +2115,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             If set, a new line will be written before showing the prompt if
             there is not already a newline at the end of the buffer.
         """
-        # Save the current end position to support _append*(before_prompt=True).
         self._flush_pending_stream()
         cursor = self._get_end_cursor()
-        self._append_before_prompt_pos = cursor.position()
+
+        # Save the current position to support _append*(before_prompt=True).
+        # We can't leave the cursor at the end of the document though, because
+        # that would cause any further additions to move the cursor. Therefore,
+        # we move it back one place and move it forward again at the end of
+        # this method.
+        self._append_before_prompt_cursor.setPosition(cursor.position() - 1)
 
         # Insert a preliminary newline, if necessary.
         if newline and cursor.position() > 0:
@@ -2121,7 +2131,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                                 QtGui.QTextCursor.KeepAnchor)
             if cursor.selection().toPlainText() != '\n':
                 self._append_block()
-                self._append_before_prompt_pos += 1
 
         # Write the prompt.
         self._append_plain_text(self._prompt_sep)
@@ -2140,7 +2149,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._prompt_html = None
 
         self._flush_pending_stream()
-        self._prompt_pos = self._get_end_cursor().position()
+        self._prompt_cursor.setPosition(self._get_end_pos() - 1)
+        self._append_before_prompt_cursor.setPosition(
+            self._append_before_prompt_cursor.position() + 1)
         self._prompt_started()
 
     #------ Signal handlers ----------------------------------------------------
