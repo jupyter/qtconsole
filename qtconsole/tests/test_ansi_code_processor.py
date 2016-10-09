@@ -66,6 +66,14 @@ class TestAnsiCodeProcessor(unittest.TestCase):
         self.assertEqual(self.processor.foreground_color, 20)
         self.assertEqual(self.processor.background_color, 25)
 
+    def test_true_color(self):
+        """Do 24bit True Color control sequences?
+        """
+        string = '\x1b[38;2;255;100;0m\x1b[48;2;100;100;100m'
+        substrings = list(self.processor.split_string(string))
+        self.assertEqual(self.processor.foreground_color, [255, 100, 0])
+        self.assertEqual(self.processor.background_color, [100, 100, 100])
+
     def test_scroll(self):
         """ Do control sequences for scrolling the buffer work?
         """
