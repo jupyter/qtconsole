@@ -50,5 +50,5 @@ For example with Linux Debian's system package manager, use::
 
 .. seealso::
 
-   `Installing Jupyter <http://jupyter.readthedocs.org/en/latest/install.html>`_
+   `Installing Jupyter <https://jupyter.readthedocs.io/en/latest/install.html>`_
    The Qt console is part of the Jupyter ecosystem.
