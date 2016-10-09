@@ -2,7 +2,7 @@
 
 [![Google Group](https://img.shields.io/badge/-Google%20Group-lightgrey.svg)](https://groups.google.com/forum/#!forum/jupyter)
 [![Build Status](https://travis-ci.org/jupyter/qtconsole.svg?branch=master)](https://travis-ci.org/jupyter/qtconsole)
-[![Documentation Status](https://readthedocs.org/projects/qtconsole/badge/?version=stable)](http://qtconsole.readthedocs.org/en/stable/)
+[![Documentation Status](https://readthedocs.org/projects/qtconsole/badge/?version=stable)](https://qtconsole.readthedocs.io/en/stable/)
 
 A rich Qt-based console for working with Jupyter kernels,
 supporting rich media output, session export, and more.
@@ -50,7 +50,7 @@ or with a system package manager. For Windows, PyQt binary packages may be
 used.
 
 **Note:** Additional information about using a system package manager may be
-found in the [qtconsole documentation](https://qtconsole.readthedocs.org). For
+found in the [qtconsole documentation](https://qtconsole.readthedocs.io). For
 example, on Linux Debian/Ubuntu, use ``sudo apt-get install python3-pyqt5`` to
 install PyQt5, ``sudo apt-get install python-qt4`` or
 ``sudo apt-get install python3-pyqt4`` to install PyQt4.
@@ -63,8 +63,8 @@ To run the Qt console:
 ## Resources
 - [Project Jupyter website](https://jupyter.org)
 - Documentation for the Qt console
-  * [latest version](http://qtconsole.readthedocs.org/en/latest/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/latest/qtconsole.pdf)]
-  * [stable version](http://qtconsole.readthedocs.org/en/stable/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/stable/qtconsole.pdf)]
-- [Documentation for Project Jupyter](http://jupyter.readthedocs.org/en/latest/index.html) [[PDF](https://media.readthedocs.org/pdf/jupyter/latest/jupyter.pdf)]
+  * [latest version](https://qtconsole.readthedocs.io/en/latest/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/latest/qtconsole.pdf)]
+  * [stable version](https://qtconsole.readthedocs.io/en/stable/) [[PDF](https://media.readthedocs.org/pdf/qtconsole/stable/qtconsole.pdf)]
+- [Documentation for Project Jupyter](https://jupyter.readthedocs.io/en/latest/index.html) [[PDF](https://media.readthedocs.org/pdf/jupyter/latest/jupyter.pdf)]
 - [Issues](https://github.com/jupyter/qtconsole/issues)
 - [Technical support - Jupyter Google Group](https://groups.google.com/forum/#!forum/jupyter)
