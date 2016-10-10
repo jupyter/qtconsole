@@ -98,7 +98,17 @@ class MainWindow(QtGui.QMainWindow):
         """create a new frontend and attach it to a new tab"""
         widget = self.new_frontend_factory()
         self.add_tab_with_frontend(widget)
-    
+
+    def set_window_title(self):
+        """Set the title of the console window"""
+        old_title = self.windowTitle()
+        title, ok = QtGui.QInputDialog.getText(self,
+                                               "Rename Window",
+                                               "New Title:".format(old_title),
+                                               text=old_title)
+        if ok:
+            self.setWindowTitle(title)
+
     def create_tab_with_current_kernel(self):
         """create a new frontend attached to the same kernel as the current tab"""
         current_widget = self.tab_widget.currentWidget()
@@ -598,7 +608,14 @@ class MainWindow(QtGui.QMainWindow):
             statusTip="Select next tab",
             triggered=self.next_tab)
         self.add_menu_action(self.window_menu, self.next_tab_act)
-    
+
+        self.rename_window_act = QtGui.QAction("Rename &Window",
+                                                    self,
+                                                    shortcut="Alt+R",
+                                                    statusTip="Rename window",
+                                                    triggered=self.set_window_title)
+        self.add_menu_action(self.window_menu, self.rename_window_act)
+
     def init_help_menu(self):
         # please keep the Help menu in Mac Os even if empty. It will
         # automatically contain a search field to search inside menus and
