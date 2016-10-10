@@ -117,7 +117,7 @@ class MainWindow(QtGui.QMainWindow):
         old_title = self.tab_widget.tabText(self.tab_widget.currentIndex())
         title, ok = QtGui.QInputDialog.getText(self,
                                                "Rename Tab",
-                                               "New Title:".format(old_title),
+                                               "New Title:",
                                                text=old_title)
         if ok:
             self.tab_widget.setTabText(self.tab_widget.currentIndex(), title)
