@@ -104,7 +104,7 @@ class MainWindow(QtGui.QMainWindow):
         old_title = self.windowTitle()
         title, ok = QtGui.QInputDialog.getText(self,
                                                "Rename Window",
-                                               "New Title:".format(old_title),
+                                               "New title:",
                                                text=old_title)
         if ok:
             self.setWindowTitle(title)
