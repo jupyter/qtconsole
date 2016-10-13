@@ -93,12 +93,22 @@ class MainWindow(QtGui.QMainWindow):
     @property
     def active_frontend(self):
         return self.tab_widget.currentWidget()
-    
+
     def create_tab_with_new_frontend(self):
         """create a new frontend and attach it to a new tab"""
         widget = self.new_frontend_factory()
         self.add_tab_with_frontend(widget)
-    
+
+    def set_window_title(self):
+        """Set the title of the console window"""
+        old_title = self.windowTitle()
+        title, ok = QtGui.QInputDialog.getText(self,
+                                               "Rename Window",
+                                               "New title:",
+                                               text=old_title)
+        if ok:
+            self.setWindowTitle(title)
+
     def create_tab_with_current_kernel(self):
         """create a new frontend attached to the same kernel as the current tab"""
         current_widget = self.tab_widget.currentWidget()
@@ -233,7 +243,7 @@ class MainWindow(QtGui.QMainWindow):
                 if kernel_manager:
                     kernel_manager.shutdown_kernel()
                 background(kernel_client.stop_channels)
-        
+
         self.update_tab_bar_visibility()
 
     def add_tab_with_frontend(self,frontend,name=None):
@@ -338,7 +348,7 @@ class MainWindow(QtGui.QMainWindow):
 
         if defer_shortcut:
             action.setShortcutContext(QtCore.Qt.WidgetShortcut)
-    
+
     def init_menu_bar(self):
         #create menu in the order they should appear in the menu bar
         self.init_file_menu()
@@ -347,10 +357,10 @@ class MainWindow(QtGui.QMainWindow):
         self.init_kernel_menu()
         self.init_window_menu()
         self.init_help_menu()
-    
+
     def init_file_menu(self):
         self.file_menu = self.menuBar().addMenu("&File")
-        
+
         self.new_kernel_tab_act = QtGui.QAction("New Tab with &New kernel",
             self,
             shortcut="Ctrl+T",
@@ -362,7 +372,7 @@ class MainWindow(QtGui.QMainWindow):
             shortcut="Ctrl+Shift+T",
             triggered=self.create_tab_with_current_kernel)
         self.add_menu_action(self.file_menu, self.slave_kernel_tab_act)
-        
+
         self.file_menu.addSeparator()
 
         self.close_action=QtGui.QAction("&Close Tab",
@@ -380,7 +390,7 @@ class MainWindow(QtGui.QMainWindow):
         self.add_menu_action(self.file_menu, self.export_action, True)
 
         self.file_menu.addSeparator()
-        
+
         printkey = QtGui.QKeySequence(QtGui.QKeySequence.Print)
         if printkey.matches("Ctrl+P") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
@@ -391,7 +401,7 @@ class MainWindow(QtGui.QMainWindow):
             shortcut=printkey,
             triggered=self.print_action_active_frontend)
         self.add_menu_action(self.file_menu, self.print_action, True)
-        
+
         if sys.platform != 'darwin':
             # OSX always has Quit in the Application menu, only add it
             # to the File menu elsewhere.
@@ -405,10 +415,10 @@ class MainWindow(QtGui.QMainWindow):
             )
             self.add_menu_action(self.file_menu, self.quit_action)
 
-    
+
     def init_edit_menu(self):
         self.edit_menu = self.menuBar().addMenu("&Edit")
-        
+
         self.undo_action = QtGui.QAction("&Undo",
             self,
             shortcut=QtGui.QKeySequence.Undo,
@@ -455,7 +465,7 @@ class MainWindow(QtGui.QMainWindow):
         self.add_menu_action(self.edit_menu, self.paste_action, True)
 
         self.edit_menu.addSeparator()
-        
+
         selectall = QtGui.QKeySequence(QtGui.QKeySequence.SelectAll)
         if selectall.matches("Ctrl+A") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
@@ -468,7 +478,7 @@ class MainWindow(QtGui.QMainWindow):
             )
         self.add_menu_action(self.edit_menu, self.select_all_action, True)
 
-    
+
     def init_view_menu(self):
         self.view_menu = self.menuBar().addMenu("&View")
 
@@ -480,7 +490,7 @@ class MainWindow(QtGui.QMainWindow):
                 statusTip="Toggle visibility of menubar",
                 triggered=self.toggle_menu_bar)
             self.add_menu_action(self.view_menu, self.toggle_menu_bar_act)
-        
+
         fs_key = "Ctrl+Meta+F" if sys.platform == 'darwin' else "F11"
         self.full_screen_act = QtGui.QAction("&Full Screen",
             self,
@@ -609,13 +619,21 @@ class MainWindow(QtGui.QMainWindow):
             triggered=self.next_tab)
         self.add_menu_action(self.window_menu, self.next_tab_act)
 
+        self.rename_window_act = QtGui.QAction("Rename &Window",
+                                               self,
+                                               shortcut="Alt+R",
+                                               statusTip="Rename window",
+                                               triggered=self.set_window_title)
+        self.add_menu_action(self.window_menu, self.rename_window_act)
+
+
         self.rename_current_tab_act = QtGui.QAction("&Rename Current Tab",
                                                     self,
                                                     shortcut="Ctrl+R",
                                                     statusTip="Rename current tab",
                                                     triggered=self.set_tab_title)
         self.add_menu_action(self.window_menu, self.rename_current_tab_act)
-    
+
     def init_help_menu(self):
         # please keep the Help menu in Mac Os even if empty. It will
         # automatically contain a search field to search inside menus and
@@ -763,7 +781,7 @@ class MainWindow(QtGui.QMainWindow):
         cancel = QtGui.QMessageBox.Cancel
         okay = QtGui.QMessageBox.Ok
         accept_role = QtGui.QMessageBox.AcceptRole
-        
+
         if self.confirm_exit:
             if self.tab_widget.count() > 1:
                 msg = "Close all tabs, stop all kernels, and Quit?"
@@ -784,7 +802,7 @@ class MainWindow(QtGui.QMainWindow):
             reply = box.exec_()
         else:
             reply = okay
-        
+
         if reply == cancel:
             event.ignore()
             return
