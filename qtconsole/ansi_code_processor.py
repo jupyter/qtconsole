@@ -244,18 +244,28 @@ class AnsiCodeProcessor(object):
             self.underline = False
         elif code >= 30 and code <= 37:
             self.foreground_color = code - 30
-        elif code == 38 and params and params.pop(0) == 5:
-            # xterm-specific: 256 color support.
-            if params:
+        elif code == 38 and params:
+            _color_type = params.pop(0)
+            if _color_type == 5 and params:
+                # xterm-specific: 256 color support.
                 self.foreground_color = params.pop(0)
+            elif _color_type == 2:
+                # 24bit true colour support.
+                self.foreground_color = params[:3]
+                params[:3] = []
         elif code == 39:
             self.foreground_color = None
         elif code >= 40 and code <= 47:
             self.background_color = code - 40
-        elif code == 48 and params and params.pop(0) == 5:
-            # xterm-specific: 256 color support.
-            if params:
+        elif code == 48 and params:
+            _color_type = params.pop(0)
+            if _color_type == 5 and params:
+                # xterm-specific: 256 color support.
                 self.background_color = params.pop(0)
+            elif _color_type == 2:
+                # 24bit true colour support.
+                self.background_color = params[:3]
+                params[:3] = []
         elif code == 49:
             self.background_color = None
 
@@ -310,17 +320,20 @@ class QtAnsiCodeProcessor(AnsiCodeProcessor):
     default_color_map = darkbg_color_map.copy()
 
     def get_color(self, color, intensity=0):
-        """ Returns a QColor for a given color code, or None if one cannot be
-            constructed.
+        """ Returns a QColor for a given color code or rgb list, or None if one
+            cannot be constructed.
         """
-        if color is None:
+
+        if isinstance(color, int):
+            # Adjust for intensity, if possible.
+            if color < 8 and intensity > 0:
+                color += 8
+            constructor = self.color_map.get(color, None)
+        elif isinstance(color, (tuple, list)):
+            constructor = color
+        else:
             return None
 
-        # Adjust for intensity, if possible.
-        if color < 8 and intensity > 0:
-            color += 8
-
-        constructor = self.color_map.get(color, None)
         if isinstance(constructor, string_types):
             # If this is an X11 color name, we just hope there is a close SVG
             # color name. We could use QColor's static method
