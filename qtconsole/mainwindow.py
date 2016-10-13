@@ -122,6 +122,16 @@ class MainWindow(QtGui.QMainWindow):
             name = '(%s) slave' % current_widget_name
         self.add_tab_with_frontend(widget,name=name)
 
+    def set_tab_title(self):
+        """Set the title of the current tab"""
+        old_title = self.tab_widget.tabText(self.tab_widget.currentIndex())
+        title, ok = QtGui.QInputDialog.getText(self,
+                                               "Rename Tab",
+                                               "New title:",
+                                               text=old_title)
+        if ok:
+            self.tab_widget.setTabText(self.tab_widget.currentIndex(), title)
+
     def close_tab(self,current_tab):
         """ Called when you need to try to close a tab.
 
@@ -615,6 +625,14 @@ class MainWindow(QtGui.QMainWindow):
                                                statusTip="Rename window",
                                                triggered=self.set_window_title)
         self.add_menu_action(self.window_menu, self.rename_window_act)
+
+
+        self.rename_current_tab_act = QtGui.QAction("&Rename Current Tab",
+                                                    self,
+                                                    shortcut="Ctrl+R",
+                                                    statusTip="Rename current tab",
+                                                    triggered=self.set_tab_title)
+        self.add_menu_action(self.window_menu, self.rename_current_tab_act)
 
     def init_help_menu(self):
         # please keep the Help menu in Mac Os even if empty. It will
