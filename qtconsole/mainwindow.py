@@ -53,6 +53,7 @@ class MainWindow(QtGui.QMainWindow):
 
         super(MainWindow, self).__init__()
         self._kernel_counter = 0
+        self._external_kernel_counter = 0
         self._app = app
         self.confirm_exit = confirm_exit
         self.new_frontend_factory = new_frontend_factory
@@ -95,6 +96,13 @@ class MainWindow(QtGui.QMainWindow):
         return c
 
     @property
+    def next_external_kernel_id(self):
+        """constantly increasing counter for external kernel IDs"""
+        c = self._external_kernel_counter
+        self._external_kernel_counter += 1
+        return c
+
+    @property
     def active_frontend(self):
         return self.tab_widget.currentWidget()
 
@@ -114,14 +122,15 @@ class MainWindow(QtGui.QMainWindow):
             self.setWindowTitle(title)
 
     def create_tab_with_existing_kernel(self):
-        name, ok = QtGui.QInputDialog.getText(self,
-                                               "Connect to Existing Kernel",
-                                               "Kernel name:")
-        if not ok:
+        """create a new frontend attached to an external kernel in a new tab"""
+        connection_file, file_type = QtGui.QFileDialog.getOpenFileName(self,
+                                                     "Connect to Existing Kernel",
+                                                     jupyter_runtime_dir(),
+                                                     "Connection file (*.json)")
+        if not connection_file:
             return
-        connection_file = os.path.join(jupyter_runtime_dir(), name)
         widget = self.connection_frontend_factory(connection_file)
-        name = 'bla'
+        name = "external {}".format(self.next_external_kernel_id)
         self.add_tab_with_frontend(widget, name=name)
 
     def create_tab_with_current_kernel(self):
