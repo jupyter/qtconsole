@@ -292,11 +292,13 @@ class JupyterWidget(IPythonWidget):
     def _process_execute_error(self, msg):
         """Handle an execute_error message"""
         content = msg['content']
+
         traceback = '\n'.join(content['traceback']) + '\n'
         if False:
-            # FIXME: For now, tracebacks come as plain text, so we can't use
-            # the html renderer yet.  Once we refactor ultratb to produce
-            # properly styled tracebacks, this branch should be the default
+            # FIXME: For now, tracebacks come as plain text, so we can't
+            # use the html renderer yet.  Once we refactor ultratb to
+            # produce properly styled tracebacks, this branch should be the
+            # default
             traceback = traceback.replace(' ', '&nbsp;')
             traceback = traceback.replace('\n', '<br/>')
 
@@ -306,7 +308,8 @@ class JupyterWidget(IPythonWidget):
 
             self._append_html(traceback)
         else:
-            # This is the fallback for now, using plain text with ansi escapes
+            # This is the fallback for now, using plain text with ansi
+            # escapes
             self._append_plain_text(traceback)
 
     def _process_execute_payload(self, item):
