@@ -209,11 +209,11 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     def new_frontend_connection(self, connection_file):
         """Create and return a new frontend attached to an existing kernel.
 
-                Parameters
-                ----------
-                connection_file : str
-                    The connection_file path this frontend is to connect to
-                """
+        Parameters
+        ----------
+        connection_file : str
+            The connection_file path this frontend is to connect to
+        """
         kernel_client = self.kernel_client_class(
             connection_file=connection_file,
             config=self.config,
