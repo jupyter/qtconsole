@@ -206,6 +206,31 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         widget._display_banner = self.display_banner
         return widget
 
+    def new_frontend_connection(self, connection_file):
+        """Create and return a new frontend attached to an existing kernel.
+
+        Parameters
+        ----------
+        connection_file : str
+            The connection_file path this frontend is to connect to
+        """
+        kernel_client = self.kernel_client_class(
+            connection_file=connection_file,
+            config=self.config,
+        )
+        kernel_client.load_connection_file()
+        kernel_client.start_channels()
+        widget = self.widget_factory(config=self.config,
+                                     local_kernel=False)
+        self.init_colors(widget)
+        widget._existing = True
+        widget._may_close = False
+        widget._confirm_exit = False
+        widget._display_banner = self.display_banner
+        widget.kernel_client = kernel_client
+        widget.kernel_manager = None
+        return widget
+
     def new_frontend_slave(self, current_widget):
         """Create and return a new frontend attached to an existing kernel.
         
@@ -260,6 +285,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
                                 confirm_exit=self.confirm_exit,
                                 new_frontend_factory=self.new_frontend_master,
                                 slave_frontend_factory=self.new_frontend_slave,
+                                connection_frontend_factory=self.new_frontend_connection,
                                 )
         self.window.log = self.log
         self.window.add_tab_with_frontend(self.widget)

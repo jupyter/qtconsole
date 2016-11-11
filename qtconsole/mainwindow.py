@@ -6,10 +6,11 @@ common actions.
 
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-
 import sys
 import webbrowser
 from threading import Thread
+
+from jupyter_core.paths import jupyter_runtime_dir
 
 from qtconsole.qt import QtGui,QtCore
 from qtconsole.usage import gui_reference
@@ -31,6 +32,7 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, app,
                     confirm_exit=True,
                     new_frontend_factory=None, slave_frontend_factory=None,
+                    connection_frontend_factory=None,
                 ):
         """ Create a tabbed MainWindow for managing FrontendWidgets
         
@@ -50,10 +52,12 @@ class MainWindow(QtGui.QMainWindow):
 
         super(MainWindow, self).__init__()
         self._kernel_counter = 0
+        self._external_kernel_counter = 0
         self._app = app
         self.confirm_exit = confirm_exit
         self.new_frontend_factory = new_frontend_factory
         self.slave_frontend_factory = slave_frontend_factory
+        self.connection_frontend_factory = connection_frontend_factory
 
         self.tab_widget = QtGui.QTabWidget(self)
         self.tab_widget.setDocumentMode(True)
@@ -91,6 +95,13 @@ class MainWindow(QtGui.QMainWindow):
         return c
 
     @property
+    def next_external_kernel_id(self):
+        """constantly increasing counter for external kernel IDs"""
+        c = self._external_kernel_counter
+        self._external_kernel_counter += 1
+        return c
+
+    @property
     def active_frontend(self):
         return self.tab_widget.currentWidget()
 
@@ -108,6 +119,18 @@ class MainWindow(QtGui.QMainWindow):
                                                text=old_title)
         if ok:
             self.setWindowTitle(title)
+
+    def create_tab_with_existing_kernel(self):
+        """create a new frontend attached to an external kernel in a new tab"""
+        connection_file, file_type = QtGui.QFileDialog.getOpenFileName(self,
+                                                     "Connect to Existing Kernel",
+                                                     jupyter_runtime_dir(),
+                                                     "Connection file (*.json)")
+        if not connection_file:
+            return
+        widget = self.connection_frontend_factory(connection_file)
+        name = "external {}".format(self.next_external_kernel_id)
+        self.add_tab_with_frontend(widget, name=name)
 
     def create_tab_with_current_kernel(self):
         """create a new frontend attached to the same kernel as the current tab"""
@@ -372,6 +395,12 @@ class MainWindow(QtGui.QMainWindow):
             shortcut="Ctrl+Shift+T",
             triggered=self.create_tab_with_current_kernel)
         self.add_menu_action(self.file_menu, self.slave_kernel_tab_act)
+
+        self.existing_kernel_tab_act = QtGui.QAction("New Tab with &Existing kernel",
+                                                     self,
+                                                     shortcut="Alt+T",
+                                                     triggered=self.create_tab_with_existing_kernel)
+        self.add_menu_action(self.file_menu, self.existing_kernel_tab_act)
 
         self.file_menu.addSeparator()
 
