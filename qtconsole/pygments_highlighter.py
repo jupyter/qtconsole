@@ -1,12 +1,14 @@
-# System library imports.
+# Copyright (c) Jupyter Development Team.
+# Distributed under the terms of the Modified BSD License.
+
 from qtconsole.qt import QtGui
+
+from ipython_genutils.py3compat import PY3, string_types
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer, _TokenType, Text, Error
-from pygments.lexers import PythonLexer
+from pygments.lexers import PythonLexer, Python3Lexer
 from pygments.styles import get_style_by_name
 
-# Local imports
-from ipython_genutils.py3compat import string_types
 
 def get_tokens_unprocessed(self, text, stack=('root',)):
     """ Split ``text`` into (tokentype, text) pairs.
@@ -70,6 +72,7 @@ def get_tokens_unprocessed(self, text, stack=('root',)):
                 break
     self._saved_state_stack = list(statestack)
 
+
 # Monkeypatch!
 RegexLexer.get_tokens_unprocessed = get_tokens_unprocessed
 
@@ -104,8 +107,14 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
 
         self._document = self.document()
         self._formatter = HtmlFormatter(nowrap=True)
-        self._lexer = lexer if lexer else PythonLexer()
         self.set_style('default')
+        if lexer is not None:
+            self._lexer = lexer
+        else:
+            if PY3:
+                self._lexer = Python3Lexer()
+            else:
+                self._lexer = PythonLexer()
 
     def highlightBlock(self, string):
         """ Highlight a block of text.
