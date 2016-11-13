@@ -82,3 +82,45 @@ class TestConsoleWidget(unittest.TestCase):
         w = ConsoleWidget()
         self.assertEqual(w.width(), QtGui.QWidget.width(w))
         self.assertEqual(w.height(), QtGui.QWidget.height(w))
+
+    def test_prompt_cursors(self):
+        """Test the cursors that keep track of where the prompt begins and
+        ends"""
+        w = ConsoleWidget()
+        w._prompt = 'prompt>'
+        doc = w._control.document()
+
+        # Fill up the QTextEdit area with the maximum number of blocks
+        doc.setMaximumBlockCount(10)
+        for _ in range(9):
+            w._append_plain_text('line\n')
+
+        # Draw the prompt, this should cause the first lines to be deleted
+        w._show_prompt()
+        self.assertEqual(doc.blockCount(), 10)
+
+        # _prompt_pos should be at the end of the document
+        self.assertEqual(w._prompt_pos, w._get_end_pos())
+
+        # _append_before_prompt_pos should be at the beginning of the prompt
+        self.assertEqual(w._append_before_prompt_pos,
+                         w._prompt_pos - len(w._prompt))
+
+        # insert some more text without drawing a new prompt
+        w._append_plain_text('line\n')
+        self.assertEqual(w._prompt_pos,
+                         w._get_end_pos() - len('line\n'))
+        self.assertEqual(w._append_before_prompt_pos,
+                         w._prompt_pos - len(w._prompt))
+
+        # redraw the prompt
+        w._show_prompt()
+        self.assertEqual(w._prompt_pos, w._get_end_pos())
+        self.assertEqual(w._append_before_prompt_pos,
+                         w._prompt_pos - len(w._prompt))
+
+        # insert some text before the prompt
+        w._append_plain_text('line', before_prompt=True)
+        self.assertEqual(w._prompt_pos, w._get_end_pos())
+        self.assertEqual(w._append_before_prompt_pos,
+                         w._prompt_pos - len(w._prompt))
