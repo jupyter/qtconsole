@@ -16,6 +16,9 @@ from textwrap import dedent
 
 from qtconsole.qt import QtCore, QtGui
 
+from IPython.lib.lexers import IPythonLexer, IPython3Lexer
+from pygments.lexers import get_lexer_by_name
+from pygments.util import ClassNotFound
 from qtconsole import __version__
 from traitlets import Bool, Unicode
 from .frontend_widget import FrontendWidget
@@ -270,6 +273,21 @@ class JupyterWidget(IPythonWidget):
     def _handle_kernel_info_reply(self, rep):
         """Handle kernel info replies."""
         content = rep['content']
+        language_name = content['language_info']['name']
+        pygments_lexer = content['language_info'].get('pygments_lexer', '')
+
+        try:
+            # Other kernels with pygments_lexer info will have to be
+            # added here by hand.
+            if pygments_lexer == 'ipython3':
+                lexer = IPython3Lexer()
+            elif pygments_lexer == 'ipython2':
+                lexer = IPythonLexer()
+            else:
+                lexer = get_lexer_by_name(language_name)
+            self._highlighter._lexer = lexer
+        except ClassNotFound:
+            pass
 
         self.kernel_banner = content.get('banner', '')
         if self._starting:
@@ -521,8 +539,6 @@ class JupyterWidget(IPythonWidget):
         
         if self._page_control is not None:
             self._page_control.document().setDefaultStyleSheet(self.style_sheet)
-
-
 
     def _syntax_style_changed(self):
         """ Set the style for the syntax highlighter.
