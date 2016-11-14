@@ -224,7 +224,7 @@ def import_pyqt5():
     """
     import sip
 
-    from PyQt5 import QtCore, QtSvg, QtWidgets, QtGui
+    from PyQt5 import QtCore, QtSvg, QtWidgets, QtGui, QtPrintSupport
 
     # Alias PyQt-specific functions for PySide compatibility.
     QtCore.Signal = QtCore.pyqtSignal
@@ -234,6 +234,7 @@ def import_pyqt5():
     QtGuiCompat = types.ModuleType('QtGuiCompat')
     QtGuiCompat.__dict__.update(QtGui.__dict__)
     QtGuiCompat.__dict__.update(QtWidgets.__dict__)
+    QtGuiCompat.__dict__.update(QtPrintSupport.__dict__)
 
     api = QT_API_PYQT5
     return QtCore, QtGuiCompat, QtSvg, api
@@ -255,12 +256,13 @@ def import_pyside2():
 
     ImportErrors raised within this function are non-recoverable
     """
-    from PySide2 import QtGui, QtCore, QtSvg, QtWidgets
+    from PySide2 import QtGui, QtCore, QtSvg, QtWidgets, QtPrintSupport
 
     # Join QtGui and QtWidgets for Qt4 compatibility.
     QtGuiCompat = types.ModuleType('QtGuiCompat')
     QtGuiCompat.__dict__.update(QtGui.__dict__)
     QtGuiCompat.__dict__.update(QtWidgets.__dict__)
+    QtGuiCompat.__dict__.update(QtPrintSupport.__dict__)
 
     return QtCore, QtGuiCompat, QtSvg, QT_API_PYSIDE2
 
