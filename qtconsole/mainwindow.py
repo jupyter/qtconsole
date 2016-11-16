@@ -632,7 +632,7 @@ class MainWindow(QtGui.QMainWindow):
             self.add_menu_action(self.window_menu, self.maximizeAct)
             self.window_menu.addSeparator()
 
-        prev_key = "Ctrl+Shift+Left" if sys.platform == 'darwin' else "Ctrl+PgUp"
+        prev_key = "Ctrl+Alt+Left" if sys.platform == 'darwin' else "Ctrl+PgUp"
         self.prev_tab_act = QtGui.QAction("Pre&vious Tab",
             self,
             shortcut=prev_key,
@@ -640,7 +640,7 @@ class MainWindow(QtGui.QMainWindow):
             triggered=self.prev_tab)
         self.add_menu_action(self.window_menu, self.prev_tab_act)
 
-        next_key = "Ctrl+Shift+Right" if sys.platform == 'darwin' else "Ctrl+PgDown"
+        next_key = "Ctrl+Alt+Right" if sys.platform == 'darwin' else "Ctrl+PgDown"
         self.next_tab_act = QtGui.QAction("Ne&xt Tab",
             self,
             shortcut=next_key,
