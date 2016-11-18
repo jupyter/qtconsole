@@ -1116,23 +1116,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         alt_down = event.modifiers() & QtCore.Qt.AltModifier
         shift_down = event.modifiers() & QtCore.Qt.ShiftModifier
 
-        #------ Special sequences ----------------------------------------------
-
-        if event.matches(QtGui.QKeySequence.Copy):
-            self.copy()
-            intercepted = True
-
-        elif event.matches(QtGui.QKeySequence.Cut):
-            self.cut()
-            intercepted = True
-
-        elif event.matches(QtGui.QKeySequence.Paste):
-            self.paste()
-            intercepted = True
-
         #------ Special modifier logic -----------------------------------------
 
-        elif key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
+        if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
             intercepted = True
 
             # Special handling when tab completing in text mode.
@@ -1285,6 +1271,20 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             elif key == QtCore.Qt.Key_Less:
                 self._control.setTextCursor(self._get_prompt_cursor())
                 intercepted = True
+
+        #------ Special sequences ----------------------------------------------
+
+        elif event.matches(QtGui.QKeySequence.Copy):
+            self.copy()
+            intercepted = True
+
+        elif event.matches(QtGui.QKeySequence.Cut):
+            self.cut()
+            intercepted = True
+
+        elif event.matches(QtGui.QKeySequence.Paste):
+            self.paste()
+            intercepted = True
 
         #------ No modifiers ---------------------------------------------------
 
