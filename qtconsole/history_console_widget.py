@@ -94,14 +94,9 @@ class HistoryConsoleWidget(ConsoleWidget):
             # check if we are at the end of the first line
             c = self._get_cursor()
             current_pos = c.position()
-            if self.console_width > pos:
-                c.movePosition(QtGui.QTextCursor.EndOfBlock)
-                at_eol = (c.position() == current_pos)
-            else:
-                c.movePosition(QtGui.QTextCursor.EndOfBlock)
-                col = c.columnNumber()
-                at_eol = (c.position() == current_pos + col)
-                
+            c.movePosition(QtGui.QTextCursor.EndOfBlock)
+            at_eol = (c.position() == current_pos)
+    
             if self._history_index == len(self._history) or \
                 not (self._history_prefix == '' and at_eol) or \
                 not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):
