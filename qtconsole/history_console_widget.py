@@ -76,7 +76,7 @@ class HistoryConsoleWidget(ConsoleWidget):
                 return False
 
             # Set a search prefix based on the cursor position.
-            pos = self._get_input_buffer_cursor_position_in_block()
+            pos = self._get_input_buffer_cursor_pos()
             input_buffer = self.input_buffer
             # use the *shortest* of the cursor column and the history prefix
             # to determine if the prefix has changed
@@ -114,7 +114,7 @@ class HistoryConsoleWidget(ConsoleWidget):
                 cursor.movePosition(QtGui.QTextCursor.Right,
                                     n=len(self._history_prefix))
             else:
-                cursor.movePosition(QtGui.QTextCursor.EndOfLine)
+                cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
             self._set_cursor(cursor)
 
             return False

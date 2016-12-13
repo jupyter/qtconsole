@@ -1591,17 +1591,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor = self._control.textCursor()
             return cursor.columnNumber() - len(prompt)
 
-    def _get_input_buffer_cursor_position_in_block(self):
-        """ Returns the position of the cursor in the block. Returns -1 if 
-            there is no prompt.
-        """
-        prompt = self._get_input_buffer_cursor_prompt()
-        if prompt is None:
-            return -1
-        else:
-            cursor = self._control.textCursor()
-            return cursor.positionInBlock()
-
     def _get_prompt_position(self):
         """ Returns the position of the prompt.
         """
