@@ -76,31 +76,31 @@ class HistoryConsoleWidget(ConsoleWidget):
                 return False
 
             # Set a search prefix based on the cursor position.
-            col = self._get_input_buffer_cursor_column()
+            pos = self._get_input_buffer_cursor_pos()
             input_buffer = self.input_buffer
             # use the *shortest* of the cursor column and the history prefix
             # to determine if the prefix has changed
-            n = min(col, len(self._history_prefix))
-            
+            n = min(pos, len(self._history_prefix))
+
             # prefix changed, restart search from the beginning
             if (self._history_prefix[:n] != input_buffer[:n]):
                 self._history_index = len(self._history)
-            
+
             # the only time we shouldn't set the history prefix
             # to the line up to the cursor is if we are already
             # in a simple scroll (no prefix),
             # and the cursor is at the end of the first line
-            
+
             # check if we are at the end of the first line
             c = self._get_cursor()
             current_pos = c.position()
-            c.movePosition(QtGui.QTextCursor.EndOfLine)
+            c.movePosition(QtGui.QTextCursor.EndOfBlock)
             at_eol = (c.position() == current_pos)
-            
+    
             if self._history_index == len(self._history) or \
                 not (self._history_prefix == '' and at_eol) or \
-                not (self._get_edited_history(self._history_index)[:col] == input_buffer[:col]):
-                self._history_prefix = input_buffer[:col]
+                not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):
+                self._history_prefix = input_buffer[:pos]
 
             # Perform the search.
             self.history_previous(self._history_prefix,
@@ -114,7 +114,7 @@ class HistoryConsoleWidget(ConsoleWidget):
                 cursor.movePosition(QtGui.QTextCursor.Right,
                                     n=len(self._history_prefix))
             else:
-                cursor.movePosition(QtGui.QTextCursor.EndOfLine)
+                cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
             self._set_cursor(cursor)
 
             return False
