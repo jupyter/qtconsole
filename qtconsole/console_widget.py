@@ -269,6 +269,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self._reading = False
         self._reading_callback = None
         self._tab_width = 8
+        self._is_complete_msg_id = None
 
         # List of strings pending to be appended as plain text in the widget.
         # The text is not immediately inserted when available to not
@@ -552,6 +553,17 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.can_cut():
             self._control.textCursor().removeSelectedText()
 
+    def _handle_is_complete_reply(self, msg):
+        if msg['parent_header'].get('msg_id', 0) != self._is_complete_msg_id:
+            return
+        status = msg['content'].get('status', u'complete')
+        indent = msg['content'].get('indent', u'')
+        if status == 'incomplete':
+            self._indent_prompt(indent)
+        else:
+            self._do_execute(self._is_complete_source)
+        self._is_complete_msg_id = None
+
     def execute(self, source=None, hidden=False, interactive=False):
         """ Executes source or the input buffer, possibly prompting for more
         input.
@@ -602,7 +614,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         # Execute the source or show a continuation prompt if it is incomplete.
         if interactive and self.execute_on_complete_input:
-            complete, indent = self._is_complete(source, interactive)
+            if self._is_complete_msg_id is not None:
+                self._indent_prompt(u'')
+            self._is_complete_msg_id = self.kernel_client.is_complete(source)
+            self._is_complete_source = source
+            return
         else:
             complete = True
             indent = ''
@@ -612,40 +628,44 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             else:
                 error = 'Incomplete noninteractive input: "%s"'
                 raise RuntimeError(error % source)
+        elif complete:
+            self._do_execute(source)
         else:
-            if complete:
-                self._append_plain_text('\n')
-                self._input_buffer_executing = self.input_buffer
-                self._executing = True
-                self._prompt_finished()
+            self._indent_prompt(indent)
 
-                # The maximum block count is only in effect during execution.
-                # This ensures that _prompt_pos does not become invalid due to
-                # text truncation.
-                self._control.document().setMaximumBlockCount(self.buffer_size)
+    def _do_execute(self, source):
+        self._append_plain_text('\n')
+        self._input_buffer_executing = self.input_buffer
+        self._executing = True
+        self._prompt_finished()
 
-                # Setting a positive maximum block count will automatically
-                # disable the undo/redo history, but just to be safe:
-                self._control.setUndoRedoEnabled(False)
+        # The maximum block count is only in effect during execution.
+        # This ensures that _prompt_pos does not become invalid due to
+        # text truncation.
+        self._control.document().setMaximumBlockCount(self.buffer_size)
 
-                # Perform actual execution.
-                self._execute(source, hidden)
+        # Setting a positive maximum block count will automatically
+        # disable the undo/redo history, but just to be safe:
+        self._control.setUndoRedoEnabled(False)
 
-            else:
-                # Do this inside an edit block so continuation prompts are
-                # removed seamlessly via undo/redo.
-                cursor = self._get_end_cursor()
-                cursor.beginEditBlock()
-                cursor.insertText('\n')
-                self._insert_continuation_prompt(cursor, indent)
-                cursor.endEditBlock()
+        # Perform actual execution.
+        self._execute(source, False)
 
-                # Do not do this inside the edit block. It works as expected
-                # when using a QPlainTextEdit control, but does not have an
-                # effect when using a QTextEdit. I believe this is a Qt bug.
-                self._control.moveCursor(QtGui.QTextCursor.End)
+    def _indent_prompt(self, indent):
+        # Do this inside an edit block so continuation prompts are
+        # removed seamlessly via undo/redo.
+        cursor = self._get_end_cursor()
+        cursor.beginEditBlock()
+        try:
+            cursor.insertText('\n')
+            self._insert_continuation_prompt(cursor, indent)
+        finally:
+            cursor.endEditBlock()
 
-        return complete
+        # Do not do this inside the edit block. It works as expected
+        # when using a QPlainTextEdit control, but does not have an
+        # effect when using a QTextEdit. I believe this is a Qt bug.
+        self._control.moveCursor(QtGui.QTextCursor.End)
 
     def export_html(self):
         """ Shows a dialog to export HTML/XML in various formats.
