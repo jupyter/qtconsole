@@ -8,10 +8,6 @@ from __future__ import print_function
 from collections import namedtuple
 import sys
 import uuid
-try:
-    from queue import Empty
-except ImportError:
-    from Queue import Empty
 import re
 
 from qtconsole import qt
@@ -20,7 +16,7 @@ from ipython_genutils import py3compat
 from ipython_genutils.importstring import import_item
 
 from qtconsole.base_frontend_mixin import BaseFrontendMixin
-from traitlets import Any, Bool, Float, Instance, Unicode, DottedObjectName
+from traitlets import Any, Bool, Instance, Unicode, DottedObjectName
 from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
@@ -138,9 +134,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     lexer_class = DottedObjectName(config=True,
         help="The pygments lexer class to use."
     )
-    is_complete_timeout = Float(0.25, config=True,
-        help="Seconds to wait for is_complete replies from the kernel."
-    )
     def _lexer_class_changed(self, name, old, new):
         lexer_class = import_item(new)
         self.lexer = lexer_class()
@@ -256,35 +249,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' abstract interface
     #---------------------------------------------------------------------------
-
-    def _is_complete(self, source, interactive):
-        """ Returns whether 'source' can be completely processed and a new
-            prompt created. When triggered by an Enter/Return key press,
-            'interactive' is True; otherwise, it is False.
-            
-            Returns
-            -------
-            
-            (complete, indent): (bool, str)
-            complete is a bool, indicating whether the input is complete or not.
-            indent is the current indentation string for autoindent.
-            If complete is True, indent will be '', and should be ignored.
-        """
-        kc = self.blocking_client
-        if kc is None:
-            self.log.warn("No blocking client to make is_complete requests")
-            return False, u''
-        msg_id = kc.is_complete(source)
-        while True:
-            try:
-                reply = kc.shell_channel.get_msg(block=True, timeout=self.is_complete_timeout)
-            except Empty:
-                # assume incomplete output if we get no reply in time
-                return False, u''
-            if reply['parent_header'].get('msg_id', None) == msg_id:
-                status = reply['content'].get('status', u'complete')
-                indent = reply['content'].get('indent', u'')
-                return status != 'incomplete', indent
 
     def _execute(self, source, hidden):
         """ Execute 'source'. If 'hidden', do not show any output.
