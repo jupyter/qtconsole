@@ -30,6 +30,13 @@ QT_API_PYQT_DEFAULT = 'pyqtdefault' # don't set SIP explicitly
 QT_API_PYSIDE = 'pyside'
 QT_API_PYSIDE2 = 'pyside2'
 
+api_to_module = {QT_API_PYSIDE2: 'PySide2',
+                 QT_API_PYSIDE: 'PySide',
+                 QT_API_PYQT: 'PyQt4',
+                 QT_API_PYQTv1: 'PyQt4',
+                 QT_API_PYQT5: 'PyQt5',
+                 QT_API_PYQT_DEFAULT: 'PyQt4',
+                }
 
 class ImportDenier(object):
     """Import Hook that will guard against bad Qt imports
@@ -109,6 +116,8 @@ def has_binding(api):
     """Safely check for PyQt4/5, PySide or PySide2, without importing
        submodules
 
+    Supports Python <= 3.3
+
        Parameters
        ----------
        api : str [ 'pyqtv1' | 'pyqt' | 'pyqt5' | 'pyside' | 'pyside2' | 'pyqtdefault']
@@ -121,13 +130,7 @@ def has_binding(api):
     # we can't import an incomplete pyside and pyqt4
     # this will cause a crash in sip (#1431)
     # check for complete presence before importing
-    module_name = {QT_API_PYSIDE2: 'PySide2',
-                   QT_API_PYSIDE: 'PySide',
-                   QT_API_PYQT: 'PyQt4',
-                   QT_API_PYQTv1: 'PyQt4',
-                   QT_API_PYQT5: 'PyQt5',
-                   QT_API_PYQT_DEFAULT: 'PyQt4'}
-    module_name = module_name[api]
+    module_name = api_to_module[api]
 
     import imp
     try:
@@ -149,6 +152,50 @@ def has_binding(api):
     except ImportError:
         return False
 
+def has_binding_new(api):
+    """Safely check for PyQt4/5 or PySide, without importing submodules
+
+    Supports Python >= 3.4
+
+        Parameters
+        ----------
+        api : str [ 'pyqtv1' | 'pyqt' | 'pyqt5' | 'pyside' | 'pyqtdefault']
+             Which module to check for
+
+        Returns
+        -------
+        True if the relevant module appears to be importable
+     """
+    module_name = api_to_module[api]
+    from importlib.util import find_spec
+
+    required = ['QtCore', 'QtGui', 'QtSvg']
+    if api in (QT_API_PYQT5, QT_API_PYSIDE2):
+        # QT5 requires QtWidgets too
+        required.append('QtWidgets')
+
+    for submod in required:
+        try:
+            spec = find_spec('%s.%s' % (module_name, submod))
+        except ImportError:
+            # Package (e.g. PyQt5) not found
+            return False
+        else:
+            if spec is None:
+                # Submodule (e.g. PyQt5.QtCore) not found
+                return False
+
+    print(module_name, 'has required submods')
+
+    if api == QT_API_PYSIDE:
+        # We can also safely check PySide version
+        import PySide
+        return check_version(PySide.__version__, '1.0.3')
+
+    return True
+
+if sys.version_info >= (3, 4):
+    has_binding = has_binding_new
 
 def qtapi_version():
     """Return which QString API has been set, if any
