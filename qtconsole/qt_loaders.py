@@ -185,8 +185,6 @@ def has_binding_new(api):
                 # Submodule (e.g. PyQt5.QtCore) not found
                 return False
 
-    print(module_name, 'has required submods')
-
     if api == QT_API_PYSIDE:
         # We can also safely check PySide version
         import PySide
