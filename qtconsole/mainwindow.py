@@ -578,6 +578,15 @@ class MainWindow(QtGui.QMainWindow):
         self.pager_menu.addAction(vsplit_action)
         self.pager_menu.addAction(inside_action)
 
+        available_syntax_styles = self.get_available_syntax_styles()
+        if len(available_syntax_styles) > 0:
+            self.syntax_style_menu = self.view_menu.addMenu("&Syntax Style")
+            for style in available_syntax_styles:
+                action = QtGui.QAction("{}".format(style), self,
+                                       triggered=lambda v, syntax_style=style: 
+                                           self.set_syntax_style(syntax_style=syntax_style))
+                self.syntax_style_menu.addAction(action)
+
     def init_kernel_menu(self):
         self.kernel_menu = self.menuBar().addMenu("&Kernel")
         # Qt on OSX maps Ctrl to Cmd, and Meta to Ctrl
@@ -729,6 +738,20 @@ class MainWindow(QtGui.QMainWindow):
 
     def set_paging_active_frontend(self, paging):
         self.active_frontend._set_paging(paging)
+
+    def get_available_syntax_styles(self):
+        import pygments, os
+        syntax_path = pygments.__file__.rpartition('/')[0] + '/styles/'
+        directory_elements = os.listdir(syntax_path)
+        available_syntax_styles = []
+        for de in directory_elements:
+            if os.path.isfile(syntax_path+de) and de != '__init__.py':
+                available_syntax_styles.append(de.split('.py')[0])
+        return sorted(available_syntax_styles)
+
+    def set_syntax_style(self, syntax_style):
+        widget = self.new_frontend_factory(syntax_style=syntax_style)
+        self.add_tab_with_frontend(widget)
 
     def close_active_frontend(self):
         self.close_tab(self.active_frontend)
