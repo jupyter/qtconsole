@@ -740,14 +740,9 @@ class MainWindow(QtGui.QMainWindow):
         self.active_frontend._set_paging(paging)
 
     def get_available_syntax_styles(self):
-        import pygments, os
-        syntax_path = pygments.__file__.rpartition('/')[0] + '/styles/'
-        directory_elements = os.listdir(syntax_path)
-        available_syntax_styles = []
-        for de in directory_elements:
-            if os.path.isfile(syntax_path+de) and de != '__init__.py':
-                available_syntax_styles.append(de.split('.py')[0])
-        return sorted(available_syntax_styles)
+        from pygments.styles import get_all_styles
+        styles = list(get_all_styles())
+        return sorted(styles)
 
     def set_syntax_style(self, syntax_style):
         widget = self.new_frontend_factory(syntax_style=syntax_style)
