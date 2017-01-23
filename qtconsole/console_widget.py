@@ -565,8 +565,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
     def _trigger_is_complete_callback(self, complete=False, indent=u''):
         if self._is_complete_msg_id is not None:
+            self._is_complete_msg_id = None
             self._is_complete_callback(complete, indent)
-            self._is_complete_msg_id = self._is_complete_callback = None
 
     def _register_is_complete_callback(self, source, callback):
         self._trigger_is_complete_callback()
