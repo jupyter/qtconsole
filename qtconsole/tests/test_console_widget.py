@@ -1,11 +1,13 @@
 import unittest
 
 from qtconsole.qt import QtCore, QtGui
+from qtconsole.qt_loaders import load_qtest
 
 from qtconsole.console_widget import ConsoleWidget
 import ipython_genutils.testing.decorators as dec
 
 setup = dec.skip_file_no_x11(__name__)
+QTest = load_qtest()
 
 class TestConsoleWidget(unittest.TestCase):
 
@@ -124,3 +126,50 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(w._prompt_pos, w._get_end_pos())
         self.assertEqual(w._append_before_prompt_pos,
                          w._prompt_pos - len(w._prompt))
+
+    def test_keypresses(self):
+        """Test the event handling code for keypresses."""
+        w = ConsoleWidget()
+        w._append_plain_text('Header\n')
+        w._prompt = 'prompt>'
+        w._show_prompt()
+        control = w._control
+
+        # Test setting the input buffer
+        w._set_input_buffer('test input')
+        self.assertEqual(w._get_input_buffer(), 'test input')
+
+        # Ctrl+K kills input until EOL
+        w._set_input_buffer('test input')
+        c = control.textCursor()
+        c.setPosition(c.position() - 3)
+        control.setTextCursor(c)
+        QTest.keyClick(control, QtCore.Qt.Key_K, QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(), 'test in')
+
+        # Ctrl+V pastes
+        w._set_input_buffer('test input ')
+        QtGui.qApp.clipboard().setText('pasted text')
+        QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(), 'test input pasted text')
+        self.assertEqual(control.document().blockCount(), 2)
+
+        # Paste should strip indentation
+        w._set_input_buffer('test input ')
+        QtGui.qApp.clipboard().setText('    pasted text')
+        QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(), 'test input pasted text')
+        self.assertEqual(control.document().blockCount(), 2)
+
+        # Multiline paste, should also show continuation marks
+        w._set_input_buffer('test input ')
+        QtGui.qApp.clipboard().setText('line1\nline2\nline3')
+        QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(), 'test input line1\nline2\nline3')
+        self.assertEqual(control.document().blockCount(), 4)
+        self.assertEqual(control.document().findBlockByNumber(1).text(), 'prompt>test input line1')
+        self.assertEqual(control.document().findBlockByNumber(2).text(), '> line2')
+        self.assertEqual(control.document().findBlockByNumber(3).text(), '> line3')
+
+        # TODO: many more keybindings
+        

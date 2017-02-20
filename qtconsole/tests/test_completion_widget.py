@@ -2,21 +2,13 @@
 import unittest
 
 from qtconsole.qt import QtCore, QtGui
-
-from qtconsole.qt_loaders import loaded_api, QT_API_PYQT5, QT_API_PYSIDE
+from qtconsole.qt_loaders import load_qtest
 
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.completion_widget import CompletionWidget
 import ipython_genutils.testing.decorators as dec
 
-
-api = loaded_api()
-if api == QT_API_PYQT5:
-    from PyQt5.QtTest import QTest
-elif api == QT_API_PYSIDE:
-    from PySide.QtTest import QTest
-else:
-    from PyQt4.QtTest import QTest
+QTest = load_qtest()
 
 setup = dec.skip_file_no_x11(__name__)
 
