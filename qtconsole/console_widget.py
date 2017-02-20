@@ -1272,20 +1272,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._control.setTextCursor(self._get_prompt_cursor())
                 intercepted = True
 
-        #------ Special sequences ----------------------------------------------
-
-        elif event.matches(QtGui.QKeySequence.Copy):
-            self.copy()
-            intercepted = True
-
-        elif event.matches(QtGui.QKeySequence.Cut):
-            self.cut()
-            intercepted = True
-
-        elif event.matches(QtGui.QKeySequence.Paste):
-            self.paste()
-            intercepted = True
-
         #------ No modifiers ---------------------------------------------------
 
         else:
@@ -1430,6 +1416,21 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     anchor = cursor.anchor()
                     intercepted = (not self._in_buffer(anchor) or
                                    not self._in_buffer(position))
+
+        #------ Special sequences ----------------------------------------------
+
+        if not intercepted:
+            if event.matches(QtGui.QKeySequence.Copy):
+                self.copy()
+                intercepted = True
+
+            elif event.matches(QtGui.QKeySequence.Cut):
+                self.cut()
+                intercepted = True
+
+            elif event.matches(QtGui.QKeySequence.Paste):
+                self.paste()
+                intercepted = True
 
         # Don't move the cursor if Control/Cmd is pressed to allow copy-paste
         # using the keyboard in any part of the buffer. Also, permit scrolling

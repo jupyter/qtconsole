@@ -384,3 +384,16 @@ def load_qt(api_options):
            has_binding(QT_API_PYSIDE),
            has_binding(QT_API_PYSIDE2),
            api_options))
+
+def load_qtest():
+    """Load QTest module from the loaded QT API."""
+    api = loaded_api()
+    if api == QT_API_PYQT5:
+        from PyQt5.QtTest import QTest
+    elif api == QT_API_PYSIDE:
+        from PySide.QtTest import QTest
+    elif api == QT_API_PYSIDE2:
+        from PySide2.QtTest import QTest
+    else:
+        from PyQt4.QtTest import QTest
+    return QTest
