@@ -40,7 +40,7 @@ def transform_classic_prompt(line):
         return line
 
 
-_ipy_prompt_re = re.compile(r'^([ \t]*In \[\d+\]: |^[ \t]*\ \ \ \.\.\.+: )')
+_ipy_prompt_re = re.compile(r'^([ \t]*In \[\d+\]: |[ \t]*\ \ \ \.\.\.+: )')
 
 def transform_ipy_prompt(line):
     """Handle inputs that start classic IPython prompt syntax."""
@@ -76,18 +76,14 @@ class FrontendHighlighter(PygmentsHighlighter):
         current_block = self.currentBlock()
         string = self._frontend._get_block_plain_text(current_block)
 
-        # Decide whether to check for the regular or continuation prompt.
-        if current_block.contains(self._frontend._prompt_pos):
-            prompt = self._frontend._prompt
-        else:
-            prompt = self._frontend._continuation_prompt
-
         # Only highlight if we can identify a prompt, but make sure not to
         # highlight the prompt.
-        if string.startswith(prompt):
-            self._current_offset = len(prompt)
-            string = string[len(prompt):]
-            super(FrontendHighlighter, self).highlightBlock(string)
+        without_prompt = transform_ipy_prompt(string)
+        diff = len(string) - len(without_prompt)
+        if diff > 0:
+            self._current_offset = diff
+            # string = string[len(prompt):]
+            super(FrontendHighlighter, self).highlightBlock(without_prompt)
 
     def rehighlightBlock(self, block):
         """ Reimplemented to temporarily enable highlighting if disabled.
@@ -458,7 +454,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _handle_execute_reply(self, msg):
         """ Handles replies for code execution.
         """
-        self.log.debug("execute: %s", msg.get('content', ''))
+        self.log.debug("execute_reply: %s", msg.get('content', ''))
         msg_id = msg['parent_header']['msg_id']
         info = self._request_info['execute'].get(msg_id)
         # unset reading flag, because if execute finished, raw_input can't

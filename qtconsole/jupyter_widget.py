@@ -218,18 +218,22 @@ class JupyterWidget(IPythonWidget):
                 items.append(cell)
                 last_cell = cell
         self._set_history(items)
-    
+
     def _insert_other_input(self, cursor, content):
         """Insert function for input from other frontends"""
         cursor.beginEditBlock()
-        start = cursor.position()
         n = content.get('execution_count', 0)
+        prompt = self._make_in_prompt(n)
+        cont_prompt = self._make_continuation_prompt(self._prompt)
         cursor.insertText('\n')
-        self._insert_html(cursor, self._make_in_prompt(n))
-        cursor.insertText(content['code'])
-        self._highlighter.rehighlightBlock(cursor.block())
+        for i, line in enumerate(content['code'].strip().split('\n')):
+            if i == 0:
+                self._insert_html(cursor, prompt)
+            else:
+                self._insert_html(cursor, cont_prompt)
+            cursor.insertText(line + '\n')
         cursor.endEditBlock()
-        
+
     def _handle_execute_input(self, msg):
         """Handle an execute_input message"""
         self.log.debug("execute_input: %s", msg.get('content', ''))
@@ -238,20 +242,24 @@ class JupyterWidget(IPythonWidget):
 
     def _handle_execute_result(self, msg):
         """Handle an execute_result message"""
+        self.log.debug("execute_result: %s", msg.get('content', ''))
         if self.include_output(msg):
             self.flush_clearoutput()
             content = msg['content']
             prompt_number = content.get('execution_count', 0)
             data = content['data']
             if 'text/plain' in data:
-                self._append_plain_text(self.output_sep, True)
-                self._append_html(self._make_out_prompt(prompt_number), True)
+                self._append_plain_text(self.output_sep, before_prompt=True)
+                self._append_html(self._make_out_prompt(prompt_number), before_prompt=True)
                 text = data['text/plain']
                 # If the repr is multiline, make sure we start on a new line,
                 # so that its lines are aligned.
                 if "\n" in text and not self.output_sep.endswith("\n"):
-                    self._append_plain_text('\n', True)
-                self._append_plain_text(text + self.output_sep2, True)
+                    self._append_plain_text('\n', before_prompt=True)
+                self._append_plain_text(text + self.output_sep2, before_prompt=True)
+
+                if not self.from_here(msg):
+                    self._append_plain_text('\n', before_prompt=True)
 
     def _handle_display_data(self, msg):
         """The base handler for the ``display_data`` message."""
@@ -308,6 +316,8 @@ class JupyterWidget(IPythonWidget):
 
     def _process_execute_error(self, msg):
         """Handle an execute_error message"""
+        self.log.debug("execute_error: %s", msg.get('content', ''))
+
         content = msg['content']
 
         traceback = '\n'.join(content['traceback']) + '\n'
@@ -327,7 +337,7 @@ class JupyterWidget(IPythonWidget):
         else:
             # This is the fallback for now, using plain text with ansi
             # escapes
-            self._append_plain_text(traceback)
+            self._append_plain_text(traceback, before_prompt=not self.from_here(msg))
 
     def _process_execute_payload(self, item):
         """ Reimplemented to dispatch payloads to handler methods.
