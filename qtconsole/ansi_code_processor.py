@@ -374,7 +374,7 @@ class QtAnsiCodeProcessor(AnsiCodeProcessor):
 
     def set_background_color(self, style):
         """
-        Given a syntex style, attempt to set a color map that will be
+        Given a syntax style, attempt to set a color map that will be
         aesthetically pleasing.
         """
         # Set a new default color map.
