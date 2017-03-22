@@ -304,7 +304,7 @@ class RichJupyterWidget(RichIPythonWidget):
                 image.save(buffer_, format.upper())
                 buffer_.close()
                 return '<img src="data:image/%s;base64,\n%s\n" />' % (
-                    format,re.sub(r'(.{60})',r'\1\n',str(ba.toBase64())))
+                    format,re.sub(r'(.{60})',r'\1\n', str(ba.toBase64().data().decode())))
 
         elif format == "svg":
             try:
