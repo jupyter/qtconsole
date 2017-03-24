@@ -1757,7 +1757,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor.setPosition(position)
         return cursor
 
-    def _insert_continuation_prompt(self, cursor):
+    def _insert_continuation_prompt(self, cursor, indent=''):
         """ Inserts new continuation prompt using the specified cursor.
         """
         if self._continuation_prompt_html is None:
@@ -1765,6 +1765,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         else:
             self._continuation_prompt = self._insert_html_fetching_plain_text(
                 cursor, self._continuation_prompt_html)
+        if indent:
+            cursor.insertText(indent)
 
     def _insert_block(self, cursor, block_format=None):
         """ Inserts an empty QTextBlock using the specified cursor.

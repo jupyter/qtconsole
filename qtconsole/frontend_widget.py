@@ -344,13 +344,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
         return super(FrontendWidget, self)._event_filter_console_keypress(event)
 
-    def _insert_continuation_prompt(self, cursor, indent=''):
-        """ Reimplemented for auto-indentation.
-        """
-        super(FrontendWidget, self)._insert_continuation_prompt(cursor)
-        if indent:
-            cursor.insertText(indent)
-
     #---------------------------------------------------------------------------
     # 'BaseFrontendMixin' abstract interface
     #---------------------------------------------------------------------------
