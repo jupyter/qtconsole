@@ -26,6 +26,11 @@ class TestConsoleWidget(unittest.TestCase):
         """
         QtGui.QApplication.quit()
 
+    def assert_text_equal(self, cursor, text):
+        cursor.select(cursor.Document)
+        selection = cursor.selectedText()
+        self.assertEqual(selection, text)
+
     def test_special_characters(self):
         """ Are special characters displayed correctly?
         """
@@ -36,9 +41,7 @@ class TestConsoleWidget(unittest.TestCase):
         expected_outputs = [u'x=z\u2029', u'foo\u2029bar\u2029', u'foo\u2029bar\u2029', 'x=z']
         for i, text in enumerate(test_inputs):
             w._insert_plain_text(cursor, text)
-            cursor.select(cursor.Document)
-            selection = cursor.selectedText()
-            self.assertEqual(expected_outputs[i], selection)
+            self.assert_text_equal(cursor, expected_outputs[i])
             # clear all the text
             cursor.insertText('')
 
@@ -172,4 +175,53 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(control.document().findBlockByNumber(3).text(), '> line3')
 
         # TODO: many more keybindings
-        
+
+    def test_complete(self):
+        class TestKernelClient(object):
+            def is_complete(self, source):
+                calls.append(source)
+                return msg_id
+        w = ConsoleWidget()
+        cursor = w._get_prompt_cursor()
+        w._execute = lambda *args: calls.append(args)
+        w.kernel_client = TestKernelClient()
+        msg_id = object()
+        calls = []
+
+        # test incomplete statement (no _execute called, but indent added)
+        w.execute("thing", interactive=True)
+        self.assertEqual(calls, ["thing"])
+        calls = []
+        w._handle_is_complete_reply(
+            dict(parent_header=dict(msg_id=msg_id),
+                 content=dict(status="incomplete", indent="!!!")))
+        self.assert_text_equal(cursor, "thing\u2029> !!!")
+        self.assertEqual(calls, [])
+
+        # test complete statement (_execute called)
+        msg_id = object()
+        w.execute("else", interactive=True)
+        self.assertEqual(calls, ["else"])
+        calls = []
+        w._handle_is_complete_reply(
+            dict(parent_header=dict(msg_id=msg_id),
+                 content=dict(status="complete", indent="###")))
+        self.assertEqual(calls, [("else", False)])
+        calls = []
+        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029")
+
+        # test missing answer from is_complete
+        msg_id = object()
+        w.execute("done", interactive=True)
+        self.assertEqual(calls, ["done"])
+        calls = []
+        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029")
+        event = QtCore.QEvent(QtCore.QEvent.User)
+        w.eventFilter(w, event)
+        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029\u2029> ")
+
+        # assert that late answer isn't destroying anything
+        w._handle_is_complete_reply(
+            dict(parent_header=dict(msg_id=msg_id),
+                 content=dict(status="complete", indent="###")))
+        self.assertEqual(calls, [])
