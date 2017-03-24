@@ -14,7 +14,29 @@ Changes in Jupyter Qt console
   to avoid a name clash with the `QWidget` properties. Note: the name change
   could be, in rare cases if a name collision exists, a code-breaking
   change.
-
+- Add Shift+Tab shortcut to unindent text
+- Add Ctrl+R shortcut to rename the current tab
+- Add Alt+R shortcut to set the main window title
+- Add Cmd+Alt+Left/Right shortcut to switch tabs on OSX
+- Change Tab key behavior to always indent to the next increment of 4 spaces
+- Change Home key behavior to alternate cursor between the beginning of text (ignoring leading spaces) and beginning of the line
+- Add option to create new tab connected to the existing kernel
+- Add support for PySide2
+- Add support for Python 3.5
+- Add support for 24bit ANSI color codes
+- Improve documentation of various options and carified the docs in some places
+- Move documentation to readthedocs
+- Fix automatic indentation of new lines that are inserted in the middle of a cell
+- Fix regression where prompt would never be shown for --existing consoles
+- Fix "python.exe -m qtconsole" on windows
+- Fix showing error messages when running a script using %run
+- Fix "invalid cursor position" error and subsequent freezing of user input
+- Fix syntax coloring when attaching to non-ipython kernels
+- Fix printing when using QT5
+- Fix Ctrl+K shortcut (delete until end of line) on OSX
+- Fix history browsing (Up/Down keys) when lines are longer than the terminal width
+- Fix saving HTML with inline PNG for Python 3 
+- Various internal bugfixes 
 
 .. _4.2:
 
