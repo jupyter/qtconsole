@@ -13,6 +13,7 @@ from qtconsole.qt import QtGui
 
 # Local imports
 from ipython_genutils.py3compat import string_types
+from qtconsole.styles import dark_style
 
 #-----------------------------------------------------------------------------
 # Constants and datatypes
@@ -371,14 +372,15 @@ class QtAnsiCodeProcessor(AnsiCodeProcessor):
 
         return format
 
-    def set_background_color(self, color):
-        """ Given a background color (a QColor), attempt to set a color map
-            that will be aesthetically pleasing.
+    def set_background_color(self, style):
+        """
+        Given a syntax style, attempt to set a color map that will be
+        aesthetically pleasing.
         """
         # Set a new default color map.
         self.default_color_map = self.darkbg_color_map.copy()
 
-        if color.value() >= 127:
+        if not dark_style(style):
             # Colors appropriate for a terminal with a light background. For
             # now, only use non-bright colors...
             for i in range(8):

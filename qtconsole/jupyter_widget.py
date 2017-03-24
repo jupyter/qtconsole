@@ -534,8 +534,6 @@ class JupyterWidget(IPythonWidget):
         self.setStyleSheet(self.style_sheet)
         if self._control is not None:
             self._control.document().setDefaultStyleSheet(self.style_sheet)
-            bg_color = self._control.palette().window().color()
-            self._ansi_processor.set_background_color(bg_color)
         
         if self._page_control is not None:
             self._page_control.document().setDefaultStyleSheet(self.style_sheet)
@@ -548,6 +546,7 @@ class JupyterWidget(IPythonWidget):
             return
         if self.syntax_style:
             self._highlighter.set_style(self.syntax_style)
+            self._ansi_processor.set_background_color(self.syntax_style)
         else:
             self._highlighter.set_style_sheet(self.style_sheet)
 
