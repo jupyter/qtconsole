@@ -221,7 +221,6 @@ class JupyterWidget(IPythonWidget):
 
     def _insert_other_input(self, cursor, content):
         """Insert function for input from other frontends"""
-        cursor.beginEditBlock()
         n = content.get('execution_count', 0)
         prompt = self._make_in_prompt(n)
         cont_prompt = self._make_continuation_prompt(self._prompt)
@@ -231,8 +230,10 @@ class JupyterWidget(IPythonWidget):
                 self._insert_html(cursor, prompt)
             else:
                 self._insert_html(cursor, cont_prompt)
-            cursor.insertText(line + '\n')
-        cursor.endEditBlock()
+            self._insert_plain_text(cursor, line + '\n')
+
+        # Update current prompt number
+        self._update_prompt(n + 1)
 
     def _handle_execute_input(self, msg):
         """Handle an execute_input message"""
@@ -372,6 +373,30 @@ class JupyterWidget(IPythonWidget):
         self._set_continuation_prompt(
             self._make_continuation_prompt(self._prompt), html=True)
 
+    def _update_prompt(self, new_prompt_number):
+        """Replace the last displayed prompt with a new one."""
+        block = self._previous_prompt_obj.block
+
+        # Make sure the prompt block has not been erased.
+        if block.isValid() and block.text():
+
+            # Remove the old prompt and insert a new prompt.
+            cursor = QtGui.QTextCursor(block)
+            cursor.movePosition(QtGui.QTextCursor.Right,
+                                QtGui.QTextCursor.KeepAnchor,
+                                self._previous_prompt_obj.length)
+            prompt = self._make_in_prompt(new_prompt_number)
+            self._prompt = self._insert_html_fetching_plain_text(
+                cursor, prompt)
+
+            # When the HTML is inserted, Qt blows away the syntax
+            # highlighting for the line, so we need to rehighlight it.
+            self._highlighter.rehighlightBlock(cursor.block())
+
+            # Update the prompt cursor
+            self._prompt_cursor.setPosition(cursor.position() - 1)
+
+
     def _show_interpreter_prompt_for_reply(self, msg):
         """ Reimplemented for IPython-style prompts.
         """
@@ -387,24 +412,7 @@ class JupyterWidget(IPythonWidget):
             previous_prompt_number = content['execution_count']
         if self._previous_prompt_obj and \
                 self._previous_prompt_obj.number != previous_prompt_number:
-            block = self._previous_prompt_obj.block
-
-            # Make sure the prompt block has not been erased.
-            if block.isValid() and block.text():
-
-                # Remove the old prompt and insert a new prompt.
-                cursor = QtGui.QTextCursor(block)
-                cursor.movePosition(QtGui.QTextCursor.Right,
-                                    QtGui.QTextCursor.KeepAnchor,
-                                    self._previous_prompt_obj.length)
-                prompt = self._make_in_prompt(previous_prompt_number)
-                self._prompt = self._insert_html_fetching_plain_text(
-                    cursor, prompt)
-
-                # When the HTML is inserted, Qt blows away the syntax
-                # highlighting for the line, so we need to rehighlight it.
-                self._highlighter.rehighlightBlock(cursor.block())
-
+            self._update_prompt(previous_prompt_number)
             self._previous_prompt_obj = None
 
         # Show a new prompt with the kernel's estimated prompt number.

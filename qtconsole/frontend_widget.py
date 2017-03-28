@@ -82,7 +82,6 @@ class FrontendHighlighter(PygmentsHighlighter):
         diff = len(string) - len(without_prompt)
         if diff > 0:
             self._current_offset = diff
-            # string = string[len(prompt):]
             super(FrontendHighlighter, self).highlightBlock(without_prompt)
 
     def rehighlightBlock(self, block):
