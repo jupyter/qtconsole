@@ -222,8 +222,8 @@ class JupyterWidget(IPythonWidget):
     def _insert_other_input(self, cursor, content):
         """Insert function for input from other frontends"""
         n = content.get('execution_count', 0)
-        prompt = self._make_in_prompt(n)
-        cont_prompt = self._make_continuation_prompt(self._prompt)
+        prompt = self._make_in_prompt(n, remote=True)
+        cont_prompt = self._make_continuation_prompt(self._prompt, remote=True)
         cursor.insertText('\n')
         for i, line in enumerate(content['code'].strip().split('\n')):
             if i == 0:
@@ -251,7 +251,10 @@ class JupyterWidget(IPythonWidget):
             data = content['data']
             if 'text/plain' in data:
                 self._append_plain_text(self.output_sep, before_prompt=True)
-                self._append_html(self._make_out_prompt(prompt_number), before_prompt=True)
+                self._append_html(
+                    self._make_out_prompt(prompt_number, remote=not self.from_here(msg)),
+                    before_prompt=True
+                )
                 text = data['text/plain']
                 # If the repr is multiline, make sure we start on a new line,
                 # so that its lines are aligned.
@@ -487,7 +490,7 @@ class JupyterWidget(IPythonWidget):
                     msg = 'Opening editor with command "%s" failed.\n'
                     self._append_plain_text(msg % command)
 
-    def _make_in_prompt(self, number):
+    def _make_in_prompt(self, number, remote=False):
         """ Given a prompt number, returns an HTML In prompt.
         """
         try:
@@ -496,18 +499,22 @@ class JupyterWidget(IPythonWidget):
             # allow in_prompt to leave out number, e.g. '>>> '
             from xml.sax.saxutils import escape
             body = escape(self.in_prompt)
+        if remote:
+            body = self.other_output_prefix + body
         return '<span class="in-prompt">%s</span>' % body
 
-    def _make_continuation_prompt(self, prompt):
+    def _make_continuation_prompt(self, prompt, remote=False):
         """ Given a plain text version of an In prompt, returns an HTML
             continuation prompt.
         """
         end_chars = '...: '
         space_count = len(prompt.lstrip('\n')) - len(end_chars)
+        if remote:
+            space_count += len(self.other_output_prefix.rsplit('\n')[-1])
         body = '&nbsp;' * space_count + end_chars
         return '<span class="in-prompt">%s</span>' % body
 
-    def _make_out_prompt(self, number):
+    def _make_out_prompt(self, number, remote=False):
         """ Given a prompt number, returns an HTML Out prompt.
         """
         try:
@@ -516,6 +523,8 @@ class JupyterWidget(IPythonWidget):
             # allow out_prompt to leave out number, e.g. '<<< '
             from xml.sax.saxutils import escape
             body = escape(self.out_prompt)
+        if remote:
+            body = self.other_output_prefix + body
         return '<span class="out-prompt">%s</span>' % body
 
     #------ Payload handlers --------------------------------------------------

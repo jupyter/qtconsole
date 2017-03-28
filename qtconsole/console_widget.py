@@ -495,6 +495,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         Outputs are not displayed until enter is pressed.
         """
     )
+
+    other_output_prefix = Unicode('[remote] ', config=True,
+        help="""Prefix to add to outputs coming from clients other than this one.
+
+        Only relevant if include_other_output is True.
+        """
+    )
     
     def can_copy(self):
         """ Returns whether text can be copied to the clipboard.

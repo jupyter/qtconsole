@@ -26,33 +26,6 @@ from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
 from .pygments_highlighter import PygmentsHighlighter
 
-_classic_prompt_re = re.compile(r'^([ \t]*>>> |^[ \t]*\.\.\. )')
-
-def transform_classic_prompt(line):
-    """Handle inputs that start with '>>> ' syntax."""
-
-    if not line or line.isspace():
-        return line
-    m = _classic_prompt_re.match(line)
-    if m:
-        return line[len(m.group(0)):]
-    else:
-        return line
-
-
-_ipy_prompt_re = re.compile(r'^([ \t]*In \[\d+\]: |[ \t]*\ \ \ \.\.\.+: )')
-
-def transform_ipy_prompt(line):
-    """Handle inputs that start classic IPython prompt syntax."""
-
-    if not line or line.isspace():
-        return line
-    m = _ipy_prompt_re.match(line)
-    if m:
-        return line[len(m.group(0)):]
-    else:
-        return line
-
 
 class FrontendHighlighter(PygmentsHighlighter):
     """ A PygmentsHighlighter that understands and ignores prompts.
@@ -63,6 +36,34 @@ class FrontendHighlighter(PygmentsHighlighter):
         self._current_offset = 0
         self._frontend = frontend
         self.highlighting_on = False
+        self._classic_prompt_re = re.compile(
+            r'^(%s)?([ \t]*>>> |^[ \t]*\.\.\. )' % re.escape(frontend.other_output_prefix)
+        )
+        self._ipy_prompt_re = re.compile(
+            r'^(%s)?([ \t]*In \[\d+\]: |[ \t]*\ \ \ \.\.\.+: )' % re.escape(frontend.other_output_prefix)
+        )
+
+    def transform_classic_prompt(self, line):
+        """Handle inputs that start with '>>> ' syntax."""
+
+        if not line or line.isspace():
+            return line
+        m = self._classic_prompt_re.match(line)
+        if m:
+            return line[len(m.group(0)):]
+        else:
+            return line
+
+    def transform_ipy_prompt(self, line):
+        """Handle inputs that start classic IPython prompt syntax."""
+
+        if not line or line.isspace():
+            return line
+        m = self._ipy_prompt_re.match(line)
+        if m:
+            return line[len(m.group(0)):]
+        else:
+            return line
 
     def highlightBlock(self, string):
         """ Highlight a block of text. Reimplemented to highlight selectively.
@@ -78,7 +79,7 @@ class FrontendHighlighter(PygmentsHighlighter):
 
         # Only highlight if we can identify a prompt, but make sure not to
         # highlight the prompt.
-        without_prompt = transform_ipy_prompt(string)
+        without_prompt = self.transform_ipy_prompt(string)
         diff = len(string) - len(without_prompt)
         if diff > 0:
             self._current_offset = diff
@@ -238,8 +239,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             if text:
                 # Remove prompts.
                 lines = text.splitlines()
-                lines = map(transform_classic_prompt, lines)
-                lines = map(transform_ipy_prompt, lines)
+                lines = map(self._highlighter.transform_classic_prompt, lines)
+                lines = map(self._highlighter.transform_ipy_prompt, lines)
                 text = '\n'.join(lines)
                 was_newline = text[-1] == '\n'
                 if was_newline:  # user doesn't need newline
