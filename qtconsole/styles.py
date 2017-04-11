@@ -12,48 +12,45 @@ from pygments.token import Token
 # Constants
 #-----------------------------------------------------------------------------
 
-# The default light style sheet: black text on a white background.
-default_light_style_template = '''
-    QPlainTextEdit, QTextEdit { background-color: %(bgcolor)s;
-            color: %(fgcolor)s ;
-            selection-background-color: %(select)s}
+default_template = '''\
+    QPlainTextEdit, QTextEdit {
+        background-color: %(bgcolor)s;
+        background-clip: padding;
+        color: %(fgcolor)s;
+        selection-background-color: %(select)s;
+    }
+    .inverted {
+        background-color: %(fgcolor)s;
+        color: %(bgcolor)s;
+    }
     .error { color: red; }
-    .in-prompt { color: navy; }
     .in-prompt-number { font-weight: bold; }
-    .out-prompt { color: darkred; }
     .out-prompt-number { font-weight: bold; }
-    .inverted { background-color: %(fgcolor)s ; color:%(bgcolor)s;}
+'''
+
+# The default light style sheet: black text on a white background.
+default_light_style_template = default_template + '''\
+    .in-prompt { color: navy; }
+    .out-prompt { color: darkred; }
 '''
 default_light_style_sheet = default_light_style_template%dict(
                 bgcolor='white', fgcolor='black', select="#ccc")
 default_light_syntax_style = 'default'
 
 # The default dark style sheet: white text on a black background.
-default_dark_style_template = '''
-    QPlainTextEdit, QTextEdit { background-color: %(bgcolor)s;
-            color: %(fgcolor)s ;
-            selection-background-color: %(select)s}
-    QFrame { border: 1px solid grey; }
-    .error { color: red; }
-    .in-prompt { color: lime; }
-    .in-prompt-number { color: lime; font-weight: bold; }
-    .out-prompt { color: red; }
-    .out-prompt-number { color: red; font-weight: bold; }
-    .inverted { background-color: %(fgcolor)s ; color:%(bgcolor)s;}
+default_dark_style_template = default_template + '''\
+    .in-prompt,
+    .in-prompt-number { color: lime; }
+    .out-prompt,
+    .out-prompt-number { color: red; }
 '''
 default_dark_style_sheet = default_dark_style_template%dict(
                 bgcolor='black', fgcolor='white', select="#555")
 default_dark_syntax_style = 'monokai'
 
 # The default monochrome
-default_bw_style_sheet = '''
-    QPlainTextEdit, QTextEdit { background-color: white;
-            color: black ;
-            selection-background-color: #cccccc}
-    .in-prompt-number { font-weight: bold; }
-    .out-prompt-number { font-weight: bold; }
-    .inverted { background-color: black ; color: white;}
-'''
+default_bw_style_sheet = default_template%dict(
+                bgcolor='white', fgcolor='black', select="#ccc")
 default_bw_syntax_style = 'bw'
 
 
