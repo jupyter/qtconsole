@@ -515,7 +515,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         if self._reading:
             self.log.debug("Got second input request, assuming first was interrupted.")
             self._reading = False
-        self._readline(msg['content']['prompt'], callback=callback, password=msg['content']['password'])
+        self._readline(str(msg['content']['prompt']), callback=callback, password=msg['content']['password'])
 
     def _kernel_restarted_message(self, died=True):
         msg = "Kernel died, restarting" if died else "Kernel restarting"
