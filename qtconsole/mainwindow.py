@@ -704,7 +704,7 @@ class MainWindow(QtGui.QMainWindow):
         self.active_frontend._page(gui_reference)
 
     def _open_online_help(self):
-        filename="http://ipython.org/ipython-doc/stable/index.html"
+        filename="http://ipython.readthedocs.io/en/stable/"
         webbrowser.open(filename, new=1, autoraise=True)
 
     def toggleMaximized(self):
