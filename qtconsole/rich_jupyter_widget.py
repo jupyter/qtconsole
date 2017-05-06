@@ -61,8 +61,7 @@ class RichJupyterWidget(RichIPythonWidget):
         # Do we support jpg ?
         # it seems that sometime jpg support is a plugin of QT, so try to assume
         # it is not always supported.
-        _supported_format = [bytes(f) for f in QtGui.QImageReader.supportedImageFormats()]
-        self._jpg_supported = b'jpeg' in _supported_format
+        self._jpg_supported = 'jpeg' in QtGui.QImageReader.supportedImageFormats()
 
 
     #---------------------------------------------------------------------------
