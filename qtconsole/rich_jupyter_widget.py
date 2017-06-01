@@ -163,6 +163,10 @@ class RichJupyterWidget(RichIPythonWidget):
             if 'image/svg+xml' in data:
                 svg = data['image/svg+xml']
                 self._append_svg(svg, True)
+            elif 'title' in data:
+                title = data['title']
+                tab = self.parentWidget().parentWidget()
+                tab.setTabText(tab.currentIndex(), title)
             elif 'image/png' in data:
                 # PNG data is base64 encoded as it passes over the network
                 # in a JSON structure so we decode it.
