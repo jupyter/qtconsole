@@ -178,7 +178,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         self.build_kernel_argv(self.extra_args)
 
 
-    def new_frontend_master(self, syntax_style=None):
+    def new_frontend_master(self):
         """ Create and return new frontend attached to new kernel, launched on localhost.
         """
         kernel_manager = self.kernel_manager_class(
@@ -195,8 +195,6 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         kernel_manager.client_factory = self.kernel_client_class
         kernel_client = kernel_manager.client()
         kernel_client.start_channels(shell=True, iopub=True)
-        if syntax_style is not None:
-            self.config.JupyterWidget.syntax_style = syntax_style
         widget = self.widget_factory(config=self.config,
                                      local_kernel=True)
         self.init_colors(widget)

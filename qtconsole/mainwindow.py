@@ -13,6 +13,8 @@ from threading import Thread
 from jupyter_core.paths import jupyter_runtime_dir
 
 from qtconsole.qt import QtGui,QtCore
+from qtconsole import styles
+from qtconsole.jupyter_widget import JupyterWidget
 from qtconsole.usage import gui_reference
 
 
@@ -581,11 +583,19 @@ class MainWindow(QtGui.QMainWindow):
         available_syntax_styles = self.get_available_syntax_styles()
         if len(available_syntax_styles) > 0:
             self.syntax_style_menu = self.view_menu.addMenu("&Syntax Style")
+            style_group = QtGui.QActionGroup(self)
             for style in available_syntax_styles:
                 action = QtGui.QAction("{}".format(style), self,
-                                       triggered=lambda v, syntax_style=style: 
-                                           self.set_syntax_style(syntax_style=syntax_style))
+                                       triggered=lambda v,
+                                       syntax_style=style:
+                                           self.set_syntax_style(
+                                                   syntax_style=syntax_style))
+                action.setCheckable(True)
+                style_group.addAction(action)
                 self.syntax_style_menu.addAction(action)
+                if style == 'default':
+                    action.setChecked(True)
+                    self.syntax_style_menu.setDefaultAction(action)
 
     def init_kernel_menu(self):
         self.kernel_menu = self.menuBar().addMenu("&Kernel")
@@ -745,8 +755,20 @@ class MainWindow(QtGui.QMainWindow):
         return sorted(styles)
 
     def set_syntax_style(self, syntax_style):
-        widget = self.new_frontend_factory(syntax_style=syntax_style)
-        self.add_tab_with_frontend(widget)
+        # Let you set up syntax style for the new consoles that could be created
+        # self.active_frontend.config.JupyterWidget.syntax_style = syntax_style
+        if syntax_style=='bw':
+            colors='nocolor'
+        elif styles.dark_style(syntax_style):
+            colors='linux'
+        else:
+            colors='lightbg'
+        self.active_frontend.syntax_style = syntax_style
+        self.active_frontend.style_sheet = \
+            styles.sheet_from_template(syntax_style, colors)
+        self.active_frontend._syntax_style_changed()
+        self.active_frontend._style_sheet_changed()
+        self.active_frontend.reset(clear=True)
 
     def close_active_frontend(self):
         self.close_tab(self.active_frontend)
