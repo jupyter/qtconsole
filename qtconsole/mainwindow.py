@@ -769,6 +769,7 @@ class MainWindow(QtGui.QMainWindow):
         self.active_frontend._syntax_style_changed()
         self.active_frontend._style_sheet_changed()
         self.active_frontend.reset(clear=True)
+        self.active_frontend._execute("%colors linux", True)
 
     def close_active_frontend(self):
         self.close_tab(self.active_frontend)
