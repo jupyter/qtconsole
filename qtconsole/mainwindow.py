@@ -11,6 +11,7 @@ import webbrowser
 from threading import Thread
 
 from jupyter_core.paths import jupyter_runtime_dir
+from pygments.styles import get_all_styles
 
 from qtconsole.qt import QtGui,QtCore
 from qtconsole import styles
@@ -750,13 +751,12 @@ class MainWindow(QtGui.QMainWindow):
         self.active_frontend._set_paging(paging)
 
     def get_available_syntax_styles(self):
-        from pygments.styles import get_all_styles
+        """Get a list with the syntax styles available."""
         styles = list(get_all_styles())
         return sorted(styles)
 
     def set_syntax_style(self, syntax_style):
-        # Let you set up syntax style for the new consoles that could be created
-        # self.active_frontend.config.JupyterWidget.syntax_style = syntax_style
+        """Set up syntax style for the current console."""
         if syntax_style=='bw':
             colors='nocolor'
         elif styles.dark_style(syntax_style):
@@ -764,8 +764,8 @@ class MainWindow(QtGui.QMainWindow):
         else:
             colors='lightbg'
         self.active_frontend.syntax_style = syntax_style
-        self.active_frontend.style_sheet = \
-            styles.sheet_from_template(syntax_style, colors)
+        style_sheet = styles.sheet_from_template(syntax_style, colors)
+        self.active_frontend.style_sheet = style_sheet
         self.active_frontend._syntax_style_changed()
         self.active_frontend._style_sheet_changed()
         self.active_frontend.reset(clear=True)
