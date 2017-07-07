@@ -3,6 +3,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
+import os
 import os.path
 import re
 import sys
@@ -1833,6 +1834,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         self._set_top_cursor(cursor)
                         cursor.joinPreviousEditBlock()
                         cursor.deletePreviousChar()
+
+                        if os.name == 'nt':
+                            cursor.select(QtGui.QTextCursor.Document)
+                            cursor.removeSelectedText()
 
                     elif act.action == 'carriage-return':
                         cursor.movePosition(

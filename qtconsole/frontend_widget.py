@@ -447,9 +447,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         of the value of corresponding `user_expressions` as argument.
         `callback` is then removed from the known list so that any message
         coming again with the same id won't trigger it.
-
         """
-
         user_exp = msg['content'].get('user_expressions')
         if not user_exp:
             return
