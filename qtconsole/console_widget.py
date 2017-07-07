@@ -1833,8 +1833,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         self._set_top_cursor(cursor)
                         cursor.joinPreviousEditBlock()
                         cursor.deletePreviousChar()
-                        cursor.select(QtGui.QTextCursor.Document)
-                        cursor.removeSelectedText()
+
+                        if os.name == 'nt':
+                            cursor.select(QtGui.QTextCursor.Document)
+                            cursor.removeSelectedText()
 
                     elif act.action == 'carriage-return':
                         cursor.movePosition(
