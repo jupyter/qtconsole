@@ -2134,7 +2134,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             move_forward = False
         else:
             move_forward = True
-            self._append_before_prompt_cursor.setPosition(cursor.position())
+            self._append_before_prompt_cursor.setPosition(cursor.position() - 1)
 
         # Insert a preliminary newline, if necessary.
         if newline and cursor.position() > 0:
