@@ -195,7 +195,7 @@ class TestConsoleWidget(unittest.TestCase):
         w._handle_is_complete_reply(
             dict(parent_header=dict(msg_id=msg_id),
                  content=dict(status="incomplete", indent="!!!")))
-        self.assert_text_equal(cursor, "thing\u2029> !!!")
+        self.assert_text_equal(cursor, u"thing\u2029> !!!")
         self.assertEqual(calls, [])
 
         # test complete statement (_execute called)
@@ -208,17 +208,17 @@ class TestConsoleWidget(unittest.TestCase):
                  content=dict(status="complete", indent="###")))
         self.assertEqual(calls, [("else", False)])
         calls = []
-        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029")
+        self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029")
 
         # test missing answer from is_complete
         msg_id = object()
         w.execute("done", interactive=True)
         self.assertEqual(calls, ["done"])
         calls = []
-        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029")
+        self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029")
         event = QtCore.QEvent(QtCore.QEvent.User)
         w.eventFilter(w, event)
-        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029\u2029> ")
+        self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029\u2029> ")
 
         # assert that late answer isn't destroying anything
         w._handle_is_complete_reply(
