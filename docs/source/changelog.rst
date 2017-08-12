@@ -3,6 +3,14 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.3.1:
+
+`4.3.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.3.1>`__
+
+- Make %clear to delete previous output on Windows.
+- Fix SVG rendering.
+
+
 .. _4.3:
 
 4.3
