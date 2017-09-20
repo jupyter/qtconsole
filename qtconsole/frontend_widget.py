@@ -22,33 +22,6 @@ from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
 from .pygments_highlighter import PygmentsHighlighter
 
-_classic_prompt_re = re.compile(r'^([ \t]*>>> |^[ \t]*\.\.\. )')
-
-def transform_classic_prompt(line):
-    """Handle inputs that start with '>>> ' syntax."""
-
-    if not line or line.isspace():
-        return line
-    m = _classic_prompt_re.match(line)
-    if m:
-        return line[len(m.group(0)):]
-    else:
-        return line
-
-
-_ipy_prompt_re = re.compile(r'^([ \t]*In \[\d+\]: |^[ \t]*\ \ \ \.\.\.+: )')
-
-def transform_ipy_prompt(line):
-    """Handle inputs that start classic IPython prompt syntax."""
-
-    if not line or line.isspace():
-        return line
-    m = _ipy_prompt_re.match(line)
-    if m:
-        return line[len(m.group(0)):]
-    else:
-        return line
-
 
 class FrontendHighlighter(PygmentsHighlighter):
     """ A PygmentsHighlighter that understands and ignores prompts.
@@ -59,6 +32,34 @@ class FrontendHighlighter(PygmentsHighlighter):
         self._current_offset = 0
         self._frontend = frontend
         self.highlighting_on = False
+        self._classic_prompt_re = re.compile(
+            r'^(%s)?([ \t]*>>> |^[ \t]*\.\.\. )' % re.escape(frontend.other_output_prefix)
+        )
+        self._ipy_prompt_re = re.compile(
+            r'^(%s)?([ \t]*In \[\d+\]: |[ \t]*\ \ \ \.\.\.+: )' % re.escape(frontend.other_output_prefix)
+        )
+
+    def transform_classic_prompt(self, line):
+        """Handle inputs that start with '>>> ' syntax."""
+
+        if not line or line.isspace():
+            return line
+        m = self._classic_prompt_re.match(line)
+        if m:
+            return line[len(m.group(0)):]
+        else:
+            return line
+
+    def transform_ipy_prompt(self, line):
+        """Handle inputs that start classic IPython prompt syntax."""
+
+        if not line or line.isspace():
+            return line
+        m = self._ipy_prompt_re.match(line)
+        if m:
+            return line[len(m.group(0)):]
+        else:
+            return line
 
     def highlightBlock(self, string):
         """ Highlight a block of text. Reimplemented to highlight selectively.
@@ -72,18 +73,13 @@ class FrontendHighlighter(PygmentsHighlighter):
         current_block = self.currentBlock()
         string = self._frontend._get_block_plain_text(current_block)
 
-        # Decide whether to check for the regular or continuation prompt.
-        if current_block.contains(self._frontend._prompt_pos):
-            prompt = self._frontend._prompt
-        else:
-            prompt = self._frontend._continuation_prompt
-
         # Only highlight if we can identify a prompt, but make sure not to
         # highlight the prompt.
-        if string.startswith(prompt):
-            self._current_offset = len(prompt)
-            string = string[len(prompt):]
-            super(FrontendHighlighter, self).highlightBlock(string)
+        without_prompt = self.transform_ipy_prompt(string)
+        diff = len(string) - len(without_prompt)
+        if diff > 0:
+            self._current_offset = diff
+            super(FrontendHighlighter, self).highlightBlock(without_prompt)
 
     def rehighlightBlock(self, block):
         """ Reimplemented to temporarily enable highlighting if disabled.
@@ -236,8 +232,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             if text:
                 # Remove prompts.
                 lines = text.splitlines()
-                lines = map(transform_classic_prompt, lines)
-                lines = map(transform_ipy_prompt, lines)
+                lines = map(self._highlighter.transform_classic_prompt, lines)
+                lines = map(self._highlighter.transform_ipy_prompt, lines)
                 text = '\n'.join(lines)
                 was_newline = text[-1] == '\n'
                 if was_newline:  # user doesn't need newline
@@ -415,7 +411,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _handle_execute_reply(self, msg):
         """ Handles replies for code execution.
         """
-        self.log.debug("execute: %s", msg.get('content', ''))
+        self.log.debug("execute_reply: %s", msg.get('content', ''))
         msg_id = msg['parent_header']['msg_id']
         info = self._request_info['execute'].get(msg_id)
         # unset reading flag, because if execute finished, raw_input can't
