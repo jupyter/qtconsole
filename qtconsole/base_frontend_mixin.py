@@ -1,6 +1,5 @@
 """Defines a convenient mix-in class for implementing Qt frontends."""
 
-from jupyter_client import BlockingKernelClient
 
 class BaseFrontendMixin(object):
     """ A mix-in class for implementing Qt frontends.
@@ -15,7 +14,6 @@ class BaseFrontendMixin(object):
     #---------------------------------------------------------------------------
     _kernel_client = None
     _kernel_manager = None
-    _blocking_client = None
 
     @property
     def kernel_client(self):
@@ -64,29 +62,6 @@ class BaseFrontendMixin(object):
         # we connected.
         if kernel_client.channels_running:
             self._started_channels()
-    
-    def _make_blocking_client(self):
-        kc = self.kernel_client
-        if kc is None:
-            return
-        
-        try:
-            blocking_client = kc.blocking_client
-        except AttributeError:
-            def blocking_client():
-                info = kc.get_connection_info()
-                bc = BlockingKernelClient(**info)
-                bc.session.key = kc.session.key
-                return bc
-
-        self._blocking_client = blocking_client()
-        self._blocking_client.shell_channel.start()
-    
-    @property
-    def blocking_client(self):
-        if self._blocking_client is None:
-            self._make_blocking_client()
-        return self._blocking_client
 
     @property
     def kernel_manager(self):

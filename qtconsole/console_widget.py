@@ -3,6 +3,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
+from functools import partial
 import os
 import os.path
 import re
@@ -212,6 +213,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if parent:
             self.setParent(parent)
 
+        self._is_complete_msg_id = None
+
         # While scrolling the pager on Mac OS X, it tears badly.  The
         # NativeGesture is platform and perhaps build-specific hence
         # we take adequate precautions here.
@@ -397,6 +400,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text widgets.
         """
         etype = event.type()
+        self._trigger_is_complete_callback()
         if etype == QtCore.QEvent.KeyPress:
 
             # Re-map keys for all filtered widgets.
@@ -552,6 +556,23 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.can_cut():
             self._control.textCursor().removeSelectedText()
 
+    def _handle_is_complete_reply(self, msg):
+        if msg['parent_header'].get('msg_id', 0) != self._is_complete_msg_id:
+            return
+        status = msg['content'].get('status', u'complete')
+        indent = msg['content'].get('indent', u'')
+        self._trigger_is_complete_callback(status != 'incomplete', indent)
+
+    def _trigger_is_complete_callback(self, complete=False, indent=u''):
+        if self._is_complete_msg_id is not None:
+            self._is_complete_msg_id = None
+            self._is_complete_callback(complete, indent)
+
+    def _register_is_complete_callback(self, source, callback):
+        self._trigger_is_complete_callback()
+        self._is_complete_msg_id = self.kernel_client.is_complete(source)
+        self._is_complete_callback = callback
+
     def execute(self, source=None, hidden=False, interactive=False):
         """ Executes source or the input buffer, possibly prompting for more
         input.
@@ -600,52 +621,49 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         elif not hidden:
             self.input_buffer = source
 
-        # Execute the source or show a continuation prompt if it is incomplete.
-        if interactive and self.execute_on_complete_input:
-            complete, indent = self._is_complete(source, interactive)
-        else:
-            complete = True
-            indent = ''
         if hidden:
-            if complete or not self.execute_on_complete_input:
-                self._execute(source, hidden)
-            else:
-                error = 'Incomplete noninteractive input: "%s"'
-                raise RuntimeError(error % source)
+            self._execute(source, hidden)
+        # Execute the source or show a continuation prompt if it is incomplete.
+        elif interactive and self.execute_on_complete_input:
+            self._register_is_complete_callback(
+                source, partial(self.do_execute, source))
         else:
-            if complete:
-                self._append_plain_text('\n')
-                self._input_buffer_executing = self.input_buffer
-                self._executing = True
-                self._prompt_finished()
+            self.do_execute(source, True, '')
 
-                # The maximum block count is only in effect during execution.
-                # This ensures that _prompt_pos does not become invalid due to
-                # text truncation.
-                self._control.document().setMaximumBlockCount(self.buffer_size)
+    def do_execute(self, source, complete, indent):
+        if complete:
+            self._append_plain_text('\n')
+            self._input_buffer_executing = self.input_buffer
+            self._executing = True
+            self._prompt_finished()
 
-                # Setting a positive maximum block count will automatically
-                # disable the undo/redo history, but just to be safe:
-                self._control.setUndoRedoEnabled(False)
+            # The maximum block count is only in effect during execution.
+            # This ensures that _prompt_pos does not become invalid due to
+            # text truncation.
+            self._control.document().setMaximumBlockCount(self.buffer_size)
 
-                # Perform actual execution.
-                self._execute(source, hidden)
+            # Setting a positive maximum block count will automatically
+            # disable the undo/redo history, but just to be safe:
+            self._control.setUndoRedoEnabled(False)
 
-            else:
-                # Do this inside an edit block so continuation prompts are
-                # removed seamlessly via undo/redo.
-                cursor = self._get_end_cursor()
-                cursor.beginEditBlock()
+            # Perform actual execution.
+            self._execute(source, False)
+
+        else:
+            # Do this inside an edit block so continuation prompts are
+            # removed seamlessly via undo/redo.
+            cursor = self._get_end_cursor()
+            cursor.beginEditBlock()
+            try:
                 cursor.insertText('\n')
                 self._insert_continuation_prompt(cursor, indent)
+            finally:
                 cursor.endEditBlock()
 
-                # Do not do this inside the edit block. It works as expected
-                # when using a QPlainTextEdit control, but does not have an
-                # effect when using a QTextEdit. I believe this is a Qt bug.
-                self._control.moveCursor(QtGui.QTextCursor.End)
-
-        return complete
+            # Do not do this inside the edit block. It works as expected
+            # when using a QPlainTextEdit control, but does not have an
+            # effect when using a QTextEdit. I believe this is a Qt bug.
+            self._control.moveCursor(QtGui.QTextCursor.End)
 
     def export_html(self):
         """ Shows a dialog to export HTML/XML in various formats.
@@ -1147,21 +1165,24 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     else:
                         # Do this inside an edit block for clean undo/redo.
                         pos = self._get_input_buffer_cursor_pos()
-                        complete, indent = self._is_complete(
-                            self._get_input_buffer()[:pos], True)
-                        cursor.beginEditBlock()
-                        cursor.setPosition(position)
-                        cursor.insertText('\n')
-                        self._insert_continuation_prompt(cursor)
-                        if indent:
-                            cursor.insertText(indent)
-                        cursor.endEditBlock()
+                        def callback(complete, indent):
+                            try:
+                                cursor.beginEditBlock()
+                                cursor.setPosition(position)
+                                cursor.insertText('\n')
+                                self._insert_continuation_prompt(cursor)
+                                if indent:
+                                    cursor.insertText(indent)
+                            finally:
+                                cursor.endEditBlock()
 
-                        # Ensure that the whole input buffer is visible.
-                        # FIXME: This will not be usable if the input buffer is
-                        # taller than the console widget.
-                        self._control.moveCursor(QtGui.QTextCursor.End)
-                        self._control.setTextCursor(cursor)
+                            # Ensure that the whole input buffer is visible.
+                            # FIXME: This will not be usable if the input buffer is
+                            # taller than the console widget.
+                            self._control.moveCursor(QtGui.QTextCursor.End)
+                            self._control.setTextCursor(cursor)
+                        self._register_is_complete_callback(
+                            self._get_input_buffer()[:pos], callback)
 
         #------ Control/Cmd modifier -------------------------------------------
 
@@ -1736,7 +1757,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor.setPosition(position)
         return cursor
 
-    def _insert_continuation_prompt(self, cursor):
+    def _insert_continuation_prompt(self, cursor, indent=''):
         """ Inserts new continuation prompt using the specified cursor.
         """
         if self._continuation_prompt_html is None:
@@ -1744,6 +1765,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         else:
             self._continuation_prompt = self._insert_html_fetching_plain_text(
                 cursor, self._continuation_prompt_html)
+        if indent:
+            cursor.insertText(indent)
 
     def _insert_block(self, cursor, block_format=None):
         """ Inserts an empty QTextBlock using the specified cursor.
