@@ -63,9 +63,11 @@ class JupyterWidget(IPythonWidget):
 
     editor = Unicode(default_editor, config=True,
         help="""
-        A command for invoking a system text editor. If the string contains a
+        A command for invoking a GUI text editor. If the string contains a
         {filename} format specifier, it will be used. Otherwise, the filename
-        will be appended to the end the command.
+        will be appended to the end the command. To use a terminal text editor,
+        the command should launch a new terminal, e.g.
+        ``"gnome-terminal -- vim"``.
         """)
 
     editor_line = Unicode(config=True,
