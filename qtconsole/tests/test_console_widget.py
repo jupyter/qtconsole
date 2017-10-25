@@ -37,8 +37,14 @@ class TestConsoleWidget(unittest.TestCase):
         w = ConsoleWidget()
         cursor = w._get_prompt_cursor()
 
-        test_inputs = ['xyz\b\b=\n', 'foo\b\nbar\n', 'foo\b\nbar\r\n', 'abc\rxyz\b\b=']
-        expected_outputs = [u'x=z\u2029', u'foo\u2029bar\u2029', u'foo\u2029bar\u2029', 'x=z']
+        test_inputs = ['xyz\b\b=\n',
+                       'foo\b\nbar\n',
+                       'foo\b\nbar\r\n',
+                       'abc\rxyz\b\b=']
+        expected_outputs = [u'x=z\u2029',
+                            u'foo\u2029bar\u2029',
+                            u'foo\u2029bar\u2029',
+                            'x=z']
         for i, text in enumerate(test_inputs):
             w._insert_plain_text(cursor, text)
             self.assert_text_equal(cursor, expected_outputs[i])
@@ -52,29 +58,27 @@ class TestConsoleWidget(unittest.TestCase):
         noModifiers = QtCore.Qt.KeyboardModifiers(0)
         MouseMove = QtCore.QEvent.MouseMove
         QMouseEvent = QtGui.QMouseEvent
-        
+
         w = ConsoleWidget()
         cursor = w._get_prompt_cursor()
         w._insert_html(cursor, '<a href="http://python.org">written in</a>')
         obj = w._control
         tip = QtGui.QToolTip
         self.assertEqual(tip.text(), u'')
-        
+
         # should be somewhere else
         elsewhereEvent = QMouseEvent(MouseMove, QtCore.QPoint(50,50),
                                      noButton, noButtons, noModifiers)
         w.eventFilter(obj, elsewhereEvent)
         self.assertEqual(tip.isVisible(), False)
         self.assertEqual(tip.text(), u'')
-        
-        #self.assertEqual(tip.text(), u'')
         # should be over text
         overTextEvent = QMouseEvent(MouseMove, QtCore.QPoint(1,5),
                                     noButton, noButtons, noModifiers)
         w.eventFilter(obj, overTextEvent)
         self.assertEqual(tip.isVisible(), True)
         self.assertEqual(tip.text(), "http://python.org")
-        
+
         # should still be over text
         stillOverTextEvent = QMouseEvent(MouseMove, QtCore.QPoint(1,5),
                                          noButton, noButtons, noModifiers)
@@ -138,6 +142,9 @@ class TestConsoleWidget(unittest.TestCase):
         w._show_prompt()
         control = w._control
 
+        print(w._continuation_prompt +'|')
+        print(w._continuation_prompt_html)
+
         # Test setting the input buffer
         w._set_input_buffer('test input')
         self.assertEqual(w._get_input_buffer(), 'test input')
@@ -168,12 +175,61 @@ class TestConsoleWidget(unittest.TestCase):
         w._set_input_buffer('test input ')
         QtGui.qApp.clipboard().setText('line1\nline2\nline3')
         QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
-        self.assertEqual(w._get_input_buffer(), 'test input line1\nline2\nline3')
+        self.assertEqual(w._get_input_buffer(),
+                         'test input line1\nline2\nline3')
         self.assertEqual(control.document().blockCount(), 4)
-        self.assertEqual(control.document().findBlockByNumber(1).text(), 'prompt>test input line1')
-        self.assertEqual(control.document().findBlockByNumber(2).text(), '> line2')
-        self.assertEqual(control.document().findBlockByNumber(3).text(), '> line3')
+        self.assertEqual(control.document().findBlockByNumber(1).text(),
+                         'prompt>test input line1')
+        self.assertEqual(control.document().findBlockByNumber(2).text(),
+                         '> line2')
+        self.assertEqual(control.document().findBlockByNumber(3).text(),
+                         '> line3')
 
+        # Ctrl+Backspace should intelligently remove the last word
+        w._set_input_buffer("foo = ['foo', 'foo', 'foo',    \n"
+                            "       'bar', 'bar', 'bar']")
+        QTest.keyClick(control, QtCore.Qt.Key_Backspace,
+                       QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         ("foo = ['foo', 'foo', 'foo',    \n"
+                            "       'bar', 'bar', '"))
+        QTest.keyClick(control, QtCore.Qt.Key_Backspace,
+                       QtCore.Qt.ControlModifier)
+        QTest.keyClick(control, QtCore.Qt.Key_Backspace,
+                       QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         ("foo = ['foo', 'foo', 'foo',    \n"
+                          "       '"))
+        QTest.keyClick(control, QtCore.Qt.Key_Backspace,
+                       QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         ("foo = ['foo', 'foo', 'foo',    \n"
+                          ""))
+        QTest.keyClick(control, QtCore.Qt.Key_Backspace,
+                       QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         "foo = ['foo', 'foo', 'foo',")
+
+        # Ctrl+Delete should intelligently remove the next word
+        w._set_input_buffer("foo = ['foo', 'foo', 'foo',    \n"
+                            "       'bar', 'bar', 'bar']")
+        c = control.textCursor()
+        c.setPosition(35)
+        control.setTextCursor(c)
+        QTest.keyClick(control, QtCore.Qt.Key_Delete,
+                       QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         ("foo = ['foo', 'foo', ',    \n"
+                            "       'bar', 'bar', 'bar']"))
+        QTest.keyClick(control, QtCore.Qt.Key_Delete,
+                       QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         ("foo = ['foo', 'foo', \n"
+                            "       'bar', 'bar', 'bar']"))
+        QTest.keyClick(control, QtCore.Qt.Key_Delete,
+                       QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         "foo = ['foo', 'foo', 'bar', 'bar', 'bar']")
         # TODO: many more keybindings
 
     def test_complete(self):
