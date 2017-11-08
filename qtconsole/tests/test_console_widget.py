@@ -142,9 +142,6 @@ class TestConsoleWidget(unittest.TestCase):
         w._show_prompt()
         control = w._control
 
-        print(w._continuation_prompt +'|')
-        print(w._continuation_prompt_html)
-
         # Test setting the input buffer
         w._set_input_buffer('test input')
         self.assertEqual(w._get_input_buffer(), 'test input')
@@ -154,7 +151,7 @@ class TestConsoleWidget(unittest.TestCase):
         c = control.textCursor()
         c.setPosition(c.position() - 3)
         control.setTextCursor(c)
-        QTest.keyClick(control, QtCore.Qt.Key_K, QtCore.Qt.ControlModifier)
+        QTest.keyClick(control, QtCore.Qt.Key_K, QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(), 'test in')
 
         # Ctrl+V pastes
@@ -189,24 +186,24 @@ class TestConsoleWidget(unittest.TestCase):
         w._set_input_buffer("foo = ['foo', 'foo', 'foo',    \n"
                             "       'bar', 'bar', 'bar']")
         QTest.keyClick(control, QtCore.Qt.Key_Backspace,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(),
                          ("foo = ['foo', 'foo', 'foo',    \n"
                             "       'bar', 'bar', '"))
         QTest.keyClick(control, QtCore.Qt.Key_Backspace,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         QTest.keyClick(control, QtCore.Qt.Key_Backspace,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(),
                          ("foo = ['foo', 'foo', 'foo',    \n"
                           "       '"))
         QTest.keyClick(control, QtCore.Qt.Key_Backspace,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(),
                          ("foo = ['foo', 'foo', 'foo',    \n"
                           ""))
         QTest.keyClick(control, QtCore.Qt.Key_Backspace,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(),
                          "foo = ['foo', 'foo', 'foo',")
 
@@ -217,19 +214,29 @@ class TestConsoleWidget(unittest.TestCase):
         c.setPosition(35)
         control.setTextCursor(c)
         QTest.keyClick(control, QtCore.Qt.Key_Delete,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(),
                          ("foo = ['foo', 'foo', ',    \n"
-                            "       'bar', 'bar', 'bar']"))
+                          "       'bar', 'bar', 'bar']"))
         QTest.keyClick(control, QtCore.Qt.Key_Delete,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(),
                          ("foo = ['foo', 'foo', \n"
-                            "       'bar', 'bar', 'bar']"))
+                          "       'bar', 'bar', 'bar']"))
         QTest.keyClick(control, QtCore.Qt.Key_Delete,
-                       QtCore.Qt.ControlModifier)
+                       QtCore.Qt.MetaModifier)
         self.assertEqual(w._get_input_buffer(),
                          "foo = ['foo', 'foo', 'bar', 'bar', 'bar']")
+        w._set_input_buffer("foo = ['foo', 'foo', 'foo',    \n"
+                            "       'bar', 'bar', 'bar']")
+        c = control.textCursor()
+        c.setPosition(48)
+        control.setTextCursor(c)
+        QTest.keyClick(control, QtCore.Qt.Key_Delete,
+                       QtCore.Qt.MetaModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         ("foo = ['foo', 'foo', 'foo',    \n"
+                          "'bar', 'bar', 'bar']"))
         # TODO: many more keybindings
 
     def test_complete(self):

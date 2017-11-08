@@ -33,6 +33,10 @@ def is_letter_or_number(char):
     cat = category(char)
     return cat.startswith('L') or cat.startswith('N')
 
+def is_whitespace(char):
+    """Check whether a given char counts as white space."""
+    return category(char).startswith('Z')
+
 #-----------------------------------------------------------------------------
 # Classes
 #-----------------------------------------------------------------------------
@@ -1774,7 +1778,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             position = cursor.position()
             while (
                 position >= self._prompt_pos and
-                category(document.characterAt(position)).startswith('Z')
+                is_whitespace(document.characterAt(position))
             ):
                 position -= 1
             cursor.setPosition(position + 1)
@@ -1812,6 +1816,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         line_end_pos = self._get_line_end_pos()
 
         if position == end_pos:
+            # Cursor is at the very end of the buffer
             return cursor
         elif position == line_end_pos:
             # Cursor is at the end of a line, move to the first
@@ -1822,11 +1827,33 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             position = cursor.position() + len(self._continuation_prompt)
             while (
                 position < end_pos and
-                category(document.characterAt(position)).startswith('Z')
+                is_whitespace(document.characterAt(position))
             ):
                 position += 1
             cursor.setPosition(position)
         else:
+            if is_whitespace(document.characterAt(position)):
+                # The next character is whitespace. If this is part of
+                # indentation whitespace, skip to the first non-whitespace
+                # character.
+                is_indentation_whitespace = True
+                back_pos = position - 1
+                line_start_pos = self._get_line_start_pos()
+                while back_pos >= line_start_pos:
+                    if not is_whitespace(document.characterAt(back_pos)):
+                        is_indentation_whitespace = False
+                        break
+                if is_indentation_whitespace:
+                    # Skip to the first non-whitespace character
+                    while (
+                        position < end_pos and
+                        position < line_end_pos and
+                        is_whitespace(document.characterAt(position))
+                    ):
+                        position += 1
+                    cursor.setPosition(position)
+                    return cursor
+
             while (
                 position < end_pos and
                 position < line_end_pos and
