@@ -151,7 +151,7 @@ class TestConsoleWidget(unittest.TestCase):
         c = control.textCursor()
         c.setPosition(c.position() - 3)
         control.setTextCursor(c)
-        QTest.keyClick(control, QtCore.Qt.Key_K, QtCore.Qt.MetaModifier)
+        QTest.keyClick(control, QtCore.Qt.Key_K, QtCore.Qt.ControlModifier)
         self.assertEqual(w._get_input_buffer(), 'test in')
 
         # Ctrl+V pastes

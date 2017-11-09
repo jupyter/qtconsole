@@ -1843,6 +1843,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     if not is_whitespace(document.characterAt(back_pos)):
                         is_indentation_whitespace = False
                         break
+                    back_pos -= 1
                 if is_indentation_whitespace:
                     # Skip to the first non-whitespace character
                     while (
