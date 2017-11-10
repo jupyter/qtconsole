@@ -33,6 +33,10 @@ def is_letter_or_number(char):
     cat = category(char)
     return cat.startswith('L') or cat.startswith('N')
 
+def is_whitespace(char):
+    """Check whether a given char counts as white space."""
+    return category(char).startswith('Z')
+
 #-----------------------------------------------------------------------------
 # Classes
 #-----------------------------------------------------------------------------
@@ -1377,15 +1381,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 intercepted = True
 
             elif key == QtCore.Qt.Key_Home:
-                start_line = cursor.blockNumber()
-                if start_line == self._get_prompt_cursor().blockNumber():
-                    start_pos = self._prompt_pos
-                else:
-                    cursor.movePosition(QtGui.QTextCursor.StartOfBlock,
-                                        QtGui.QTextCursor.KeepAnchor)
-                    start_pos = cursor.position()
-                    start_pos += len(self._continuation_prompt)
-                    cursor.setPosition(position)
+                start_pos = self._get_line_start_pos()
 
                 c = self._get_cursor()
                 spaces = self._get_leading_spaces()
@@ -1484,16 +1480,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if ctrl_down:
             if key == QtCore.Qt.Key_O:
                 self._control.setFocus()
-                intercept = True
+                return True
 
         elif alt_down:
             if key == QtCore.Qt.Key_Greater:
                 self._page_control.moveCursor(QtGui.QTextCursor.End)
-                intercepted = True
+                return True
 
             elif key == QtCore.Qt.Key_Less:
                 self._page_control.moveCursor(QtGui.QTextCursor.Start)
-                intercepted = True
+                return True
 
         elif key in (QtCore.Qt.Key_Q, QtCore.Qt.Key_Escape):
             if self._splitter:
@@ -1544,7 +1540,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """
         cursor = self._control.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
-        pos = cursor.position()
         self._flush_pending_stream()
         cursor.movePosition(QtGui.QTextCursor.End)
 
@@ -1594,24 +1589,54 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         return cursor.selection().toPlainText()
 
     def _get_cursor(self):
-        """ Convenience method that returns a cursor for the current position.
+        """ Get a cursor at the current insert position.
         """
         return self._control.textCursor()
 
     def _get_end_cursor(self):
-        """ Convenience method that returns a cursor for the last character.
+        """ Get a cursor at the last character of the current cell.
         """
         cursor = self._control.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         return cursor
 
     def _get_end_pos(self):
-        """ Convenience method that returns the position of the last character.
+        """ Get the position of the last character of the current cell.
         """
         return self._get_end_cursor().position()
 
+    def _get_line_start_cursor(self):
+        """ Get a cursor at the first character of the current line.
+        """
+        cursor = self._control.textCursor()
+        start_line = cursor.blockNumber()
+        if start_line == self._get_prompt_cursor().blockNumber():
+            cursor.setPosition(self._prompt_pos)
+        else:
+            cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+            cursor.setPosition(cursor.position() +
+                               len(self._continuation_prompt))
+        return cursor
+
+    def _get_line_start_pos(self):
+        """ Get the position of the first character of the current line.
+        """
+        return self._get_line_start_cursor().position()
+
+    def _get_line_end_cursor(self):
+        """ Get a cursor at the last character of the current line.
+        """
+        cursor = self._control.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.EndOfLine)
+        return cursor
+
+    def _get_line_end_pos(self):
+        """ Get the position of the last character of the current line.
+        """
+        return self._get_line_end_cursor().position()
+
     def _get_input_buffer_cursor_column(self):
-        """ Returns the column of the cursor in the input buffer, excluding the
+        """ Get the column of the cursor in the input buffer, excluding the
             contribution by the prompt, or -1 if there is no such column.
         """
         prompt = self._get_input_buffer_cursor_prompt()
@@ -1622,7 +1647,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return cursor.columnNumber() - len(prompt)
 
     def _get_input_buffer_cursor_line(self):
-        """ Returns the text of the line of the input buffer that contains the
+        """ Get the text of the line of the input buffer that contains the
             cursor, or None if there is no such line.
         """
         prompt = self._get_input_buffer_cursor_prompt()
@@ -1634,7 +1659,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return text[len(prompt):]
     
     def _get_input_buffer_cursor_pos(self):
-        """Return the cursor position within the input buffer."""
+        """Get the cursor position within the input buffer."""
         cursor = self._control.textCursor()
         cursor.setPosition(self._prompt_pos, QtGui.QTextCursor.KeepAnchor)
         input_buffer = cursor.selection().toPlainText()
@@ -1658,7 +1683,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return None
 
     def _get_last_lines(self, text, num_lines, return_count=False):
-        """ Return last specified number of lines of text (like `tail -n`).
+        """ Get the last specified number of lines of text (like `tail -n`).
         If return_count is True, returns a tuple of clipped text and the
         number of lines in the clipped text.
         """
@@ -1681,7 +1706,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return text[pos:]
 
     def _get_last_lines_from_list(self, text_list, num_lines):
-        """ Return the list of text clipped to last specified lines.
+        """ Get the list of text clipped to last specified lines.
         """
         ret = []
         lines_pending = num_lines
@@ -1695,7 +1720,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         return ret[::-1]
 
     def _get_leading_spaces(self):
-        """ Convenience method that returns the number of leading spaces.
+        """ Get the number of leading spaces of the current line.
         """
         cur = self._get_cursor()
         cur.select(QtGui.QTextCursor.LineUnderCursor)
@@ -1705,25 +1730,27 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
     @property
     def _prompt_pos(self):
-        """Find the position in the text right after the prompt"""
+        """ Find the position in the text right after the prompt.
+        """
         return min(self._prompt_cursor.position() + 1, self._get_end_pos())
 
     @property
     def _append_before_prompt_pos(self):
-        """Find the position in the text right before the prompt"""
+        """ Find the position in the text right before the prompt.
+        """
         return min(self._append_before_prompt_cursor.position(),
                    self._get_end_pos())
 
     def _get_prompt_cursor(self):
-        """ Convenience method that returns a cursor for the prompt position.
+        """ Get a cursor at the prompt position of the current cell.
         """
         cursor = self._control.textCursor()
         cursor.setPosition(self._prompt_pos)
         return cursor
 
     def _get_selection_cursor(self, start, end):
-        """ Convenience method that returns a cursor with text selected between
-            the positions 'start' and 'end'.
+        """ Get a cursor with text selected between the positions 'start' and
+            'end'.
         """
         cursor = self._control.textCursor()
         cursor.setPosition(start)
@@ -1736,15 +1763,46 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             them. (This emulates the behavior of bash, emacs, etc.)
         """
         document = self._control.document()
-        position -= 1
-        while position >= self._prompt_pos and \
-                  not is_letter_or_number(document.characterAt(position)):
-            position -= 1
-        while position >= self._prompt_pos and \
-                  is_letter_or_number(document.characterAt(position)):
-            position -= 1
         cursor = self._control.textCursor()
-        cursor.setPosition(position + 1)
+        line_start_pos = self._get_line_start_pos()
+
+        if position == self._prompt_pos:
+            return cursor
+        elif position == line_start_pos:
+            # Cursor is at the beginning of a line, move to the last
+            # non-whitespace character of the previous line
+            cursor = self._control.textCursor()
+            cursor.setPosition(position)
+            cursor.movePosition(QtGui.QTextCursor.PreviousBlock)
+            cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
+            position = cursor.position()
+            while (
+                position >= self._prompt_pos and
+                is_whitespace(document.characterAt(position))
+            ):
+                position -= 1
+            cursor.setPosition(position + 1)
+        else:
+            position -= 1
+
+            # Find the last alphanumeric char, but don't move across lines
+            while (
+                position >= self._prompt_pos and
+                position >= line_start_pos and
+                not is_letter_or_number(document.characterAt(position))
+            ):
+                position -= 1
+
+            # Find the first alphanumeric char, but don't move across lines
+            while (
+                position >= self._prompt_pos and
+                position >= line_start_pos and
+                is_letter_or_number(document.characterAt(position))
+            ):
+                position -= 1
+
+            cursor.setPosition(position + 1)
+
         return cursor
 
     def _get_word_end_cursor(self, position):
@@ -1753,15 +1811,65 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             them. (This emulates the behavior of bash, emacs, etc.)
         """
         document = self._control.document()
-        end = self._get_end_pos()
-        while position < end and \
-                  not is_letter_or_number(document.characterAt(position)):
-            position += 1
-        while position < end and \
-                  is_letter_or_number(document.characterAt(position)):
-            position += 1
         cursor = self._control.textCursor()
-        cursor.setPosition(position)
+        end_pos = self._get_end_pos()
+        line_end_pos = self._get_line_end_pos()
+
+        if position == end_pos:
+            # Cursor is at the very end of the buffer
+            return cursor
+        elif position == line_end_pos:
+            # Cursor is at the end of a line, move to the first
+            # non-whitespace character of the next line
+            cursor = self._control.textCursor()
+            cursor.setPosition(position)
+            cursor.movePosition(QtGui.QTextCursor.NextBlock)
+            position = cursor.position() + len(self._continuation_prompt)
+            while (
+                position < end_pos and
+                is_whitespace(document.characterAt(position))
+            ):
+                position += 1
+            cursor.setPosition(position)
+        else:
+            if is_whitespace(document.characterAt(position)):
+                # The next character is whitespace. If this is part of
+                # indentation whitespace, skip to the first non-whitespace
+                # character.
+                is_indentation_whitespace = True
+                back_pos = position - 1
+                line_start_pos = self._get_line_start_pos()
+                while back_pos >= line_start_pos:
+                    if not is_whitespace(document.characterAt(back_pos)):
+                        is_indentation_whitespace = False
+                        break
+                    back_pos -= 1
+                if is_indentation_whitespace:
+                    # Skip to the first non-whitespace character
+                    while (
+                        position < end_pos and
+                        position < line_end_pos and
+                        is_whitespace(document.characterAt(position))
+                    ):
+                        position += 1
+                    cursor.setPosition(position)
+                    return cursor
+
+            while (
+                position < end_pos and
+                position < line_end_pos and
+                not is_letter_or_number(document.characterAt(position))
+            ):
+                position += 1
+
+            while (
+                position < end_pos and
+                position < line_end_pos and
+                is_letter_or_number(document.characterAt(position))
+            ):
+                position += 1
+
+            cursor.setPosition(position)
         return cursor
 
     def _insert_continuation_prompt(self, cursor, indent=''):
