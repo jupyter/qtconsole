@@ -1,10 +1,12 @@
-"""
-An example of opening up an RichJupyterWidget in a PyQT Application, this can
-execute either stand-alone or by importing this file and calling
-inprocess_qtconsole.show().
+"""An example of embedding a RichJupyterWidget with an in-process kernel.
 
-Based on the earlier example in the IPython repository, this has
-been updated to use qtconsole.
+We recommend using a kernel in a separate process as the normal option - see
+embed_qtconsole.py for more information. In-process kernels are not well
+supported.
+
+To run this example:
+
+    python3 inprocess_qtconsole.py
 """
 
 
