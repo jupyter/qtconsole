@@ -1343,24 +1343,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             elif key == QtCore.Qt.Key_Tab:
                 if not self._reading:
                     if self._tab_pressed():
-                        # real tab-key, insert four spaces
-                        step = 4 - (self._get_cursor().columnNumber() -
-                                    len(self._continuation_prompt)) % 4
-                        cursor.insertText(' '*step)
+                        self._indent(dedent=False)
                     intercepted = True
 
             elif key == QtCore.Qt.Key_Backtab:
-                cur = self._get_cursor()
-                cur.movePosition(QtGui.QTextCursor.StartOfLine)
-                cur.movePosition(QtGui.QTextCursor.Right,
-                                 QtGui.QTextCursor.MoveAnchor,
-                                 self._get_prompt_cursor().columnNumber())
-                spaces = self._get_leading_spaces()
-                step = spaces % 4
-                cur.movePosition(QtGui.QTextCursor.Right,
-                                 QtGui.QTextCursor.KeepAnchor,
-                                 min(spaces, step if step != 0 else 4))
-                cur.removeSelectedText()
+                self._indent(dedent=True)
                 intercepted = True
 
             elif key == QtCore.Qt.Key_Left:
@@ -1887,6 +1874,44 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
             cursor.setPosition(position)
         return cursor
+
+    def _indent(self, dedent=True):
+        """ Indent/Dedent current line or current text selection.
+        """
+        num_newlines = self._get_cursor().selectedText().count("\u2029")
+        save_cur = self._get_cursor()
+        cur = self._get_cursor()
+
+        # move to first line of selection, if present
+        cur.setPosition(cur.selectionStart())
+        self._control.setTextCursor(cur)
+        spaces = self._get_leading_spaces()
+        # calculate number of spaces neded to align/indent to 4-space multiple
+        step = self._tab_width - (spaces % self._tab_width)
+
+        # insertText shouldn't replace if selection is active
+        cur.clearSelection()
+
+        # indent all lines in selection (ir just current) by `step`
+        for _ in range(num_newlines+1):
+            # update underlying cursor for _get_line_start_pos
+            self._control.setTextCursor(cur)
+            # move to first non-ws char on line
+            cur.setPosition(self._get_line_start_pos())
+            if dedent:
+                spaces = min(step, self._get_leading_spaces())
+                safe_step = spaces % self._tab_width
+                cur.movePosition(QtGui.QTextCursor.Right,
+                                 QtGui.QTextCursor.KeepAnchor,
+                                 min(spaces, safe_step if safe_step != 0
+                                    else self._tab_width))
+                cur.removeSelectedText()
+            else:
+                cur.insertText(' '*step)
+            cur.movePosition(QtGui.QTextCursor.Down)
+
+        # restore cursor
+        self._control.setTextCursor(save_cur)
 
     def _insert_continuation_prompt(self, cursor, indent=''):
         """ Inserts new continuation prompt using the specified cursor.

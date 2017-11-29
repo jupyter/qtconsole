@@ -277,10 +277,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         # Perform tab completion if:
         # 1) The cursor is in the input buffer.
         # 2) There is a non-whitespace character before the cursor.
+        # 3) There is no active selection.
         text = self._get_input_buffer_cursor_line()
         if text is None:
             return False
-        complete = bool(text[:self._get_input_buffer_cursor_column()].strip())
+        non_ws_before = bool(text[:self._get_input_buffer_cursor_column()].strip())
+        complete = non_ws_before and self._get_cursor().selectedText() == ''
         if complete:
             self._complete()
         return not complete
