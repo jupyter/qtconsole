@@ -182,6 +182,15 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(control.document().findBlockByNumber(3).text(),
                          '> line3')
 
+        # Multiline paste should strip indentation intelligently
+        # in the case where pasted text has leading whitespace on first line
+        # and we're pasting into indented position
+        w._set_input_buffer('    ')
+        QtGui.qApp.clipboard().setText('    If 1:\n        pass')
+        QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
+        self.assertEqual(w._get_input_buffer(),
+                         '    If 1:\n        pass')
+
         # Ctrl+Backspace should intelligently remove the last word
         w._set_input_buffer("foo = ['foo', 'foo', 'foo',    \n"
                             "       'bar', 'bar', 'bar']")

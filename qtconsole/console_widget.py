@@ -68,7 +68,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     )
     execute_on_complete_input = Bool(True, config=True,
         help="""Whether to automatically execute on syntactically complete input.
-        
+
         If False, Shift-Enter is required to submit each execution.
         Disabling this is mainly useful for non-Python kernels,
         where the completion check would be wrong.
@@ -152,9 +152,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     # widget (Ctrl+n, Ctrl+a, etc). Enable this if you want this widget to take
     # priority (when it has focus) over, e.g., window-level menu shortcuts.
     override_shortcuts = Bool(False)
-    
+
     # ------ Custom Qt Widgets -------------------------------------------------
-    
+
     # For other projects to easily override the Qt widgets used by the console
     # (e.g. Spyder)
     custom_control = None
@@ -495,11 +495,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
     #---------------------------------------------------------------------------
-    
+
     include_other_output = Bool(False, config=True,
         help="""Whether to include output from clients
         other than this one sharing the same kernel.
-        
+
         Outputs are not displayed until enter is pressed.
         """
     )
@@ -510,7 +510,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         Only relevant if include_other_output is True.
         """
     )
-    
+
     def can_copy(self):
         """ Returns whether text can be copied to the clipboard.
         """
@@ -768,6 +768,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             # Remove any trailing newline, which confuses the GUI and forces the
             # user to backspace.
             text = QtGui.QApplication.clipboard().text(mode).rstrip()
+
+            # dedent removes "common leading whitespace" but to preserve relative
+            # indent of multiline code, we have to compensate for any
+            # leading space on the first line, if we're pasting into
+            # an indented position.
+            cursor_offset = cursor.position() - self._get_line_start_pos()
+            if text.startswith(' ' * cursor_offset):
+                text = text[cursor_offset:]
+
             self._insert_plain_text_into_buffer(cursor, dedent(text))
 
     def print_(self, printer = None):
@@ -1657,16 +1666,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor = self._control.textCursor()
             text = self._get_block_plain_text(cursor.block())
             return text[len(prompt):]
-    
+
     def _get_input_buffer_cursor_pos(self):
         """Get the cursor position within the input buffer."""
         cursor = self._control.textCursor()
         cursor.setPosition(self._prompt_pos, QtGui.QTextCursor.KeepAnchor)
         input_buffer = cursor.selection().toPlainText()
-        
+
         # Don't count continuation prompts
         return len(input_buffer.replace('\n' + self._continuation_prompt, '\n'))
-    
+
     def _get_input_buffer_cursor_prompt(self):
         """ Returns the (plain text) prompt for line of the input buffer that
             contains the cursor, or None if there is no such line.
