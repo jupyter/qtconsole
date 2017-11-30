@@ -1731,11 +1731,18 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def _get_leading_spaces(self):
         """ Get the number of leading spaces of the current line.
         """
-        cur = self._get_cursor()
-        cur.select(QtGui.QTextCursor.LineUnderCursor)
-        text = cur.selectedText()[len(self._continuation_prompt):]
-        return len(text) - len(text.lstrip())
 
+        cursor = self._get_cursor()
+        start_line = cursor.blockNumber()
+        if start_line == self._get_prompt_cursor().blockNumber():
+            # first line
+            offset = len(self._prompt)
+        else:
+            # continuation
+            offset = len(self._continuation_prompt)
+        cursor.select(QtGui.QTextCursor.LineUnderCursor)
+        text = cursor.selectedText()[offset:]
+        return len(text) - len(text.lstrip())
 
     @property
     def _prompt_pos(self):
