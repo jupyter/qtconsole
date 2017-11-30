@@ -248,6 +248,45 @@ class TestConsoleWidget(unittest.TestCase):
                           "'bar', 'bar', 'bar']"))
         # TODO: many more keybindings
 
+    def test_indent(self):
+        """Test the event handling code for indent/dedent keypresses ."""
+        w = ConsoleWidget()
+        w._append_plain_text('Header\n')
+        w._prompt = 'prompt>'
+        w._show_prompt()
+        control = w._control
+
+        # TAB with multiline selection should block-indent
+        w._set_input_buffer("")
+        c = control.textCursor()
+        pos=c.position()
+        w._set_input_buffer("If 1:\n    pass")
+        c.setPosition(pos, QtGui.QTextCursor.KeepAnchor)
+        control.setTextCursor(c)
+        QTest.keyClick(control, QtCore.Qt.Key_Tab)
+        self.assertEqual(w._get_input_buffer(),"    If 1:\n        pass")
+
+        # TAB with multiline selection, should block-indent to next multiple
+        # of 4 spaces, if first line has 0 < indent < 4
+        w._set_input_buffer("")
+        c = control.textCursor()
+        pos=c.position()
+        w._set_input_buffer(" If 2:\n     pass")
+        c.setPosition(pos, QtGui.QTextCursor.KeepAnchor)
+        control.setTextCursor(c)
+        QTest.keyClick(control, QtCore.Qt.Key_Tab)
+        self.assertEqual(w._get_input_buffer(),"    If 2:\n        pass")
+
+        # Shift-TAB with multiline selection should block-dedent
+        w._set_input_buffer("")
+        c = control.textCursor()
+        pos=c.position()
+        w._set_input_buffer("    If 3:\n        pass")
+        c.setPosition(pos, QtGui.QTextCursor.KeepAnchor)
+        control.setTextCursor(c)
+        QTest.keyClick(control, QtCore.Qt.Key_Backtab)
+        self.assertEqual(w._get_input_buffer(),"If 3:\n    pass")
+
     def test_complete(self):
         class TestKernelClient(object):
             def is_complete(self, source):

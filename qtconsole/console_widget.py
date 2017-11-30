@@ -906,7 +906,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """ Called when the tab key is pressed. Returns whether to continue
             processing the event.
         """
-        return False
+        return True
 
     #--------------------------------------------------------------------------
     # 'ConsoleWidget' protected interface
