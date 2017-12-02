@@ -228,7 +228,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         if self._page_control is not None and self._page_control.hasFocus():
             self._page_control.copy()
         elif self._control.hasFocus():
-            text = self._control.textCursor().selection().toPlainText()
+            c = self._control.textCursor()
+            if c.selectionStart() == c.selectionEnd():
+                # if no selection is active, copy current cell content
+                text = self._control.toPlainText()[self._prompt_pos:]
+            else:
+                text = self._control.textCursor().selection().toPlainText()
             if text:
                 # Remove prompts.
                 lines = text.splitlines()
@@ -579,7 +584,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def interrupt_kernel(self):
         """ Attempts to interrupt the running kernel.
-        
+
         Also unsets _reading flag, to avoid runtime errors
         if raw_input is called again.
         """
@@ -696,7 +701,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def _auto_call_tip(self):
         """Trigger call tip automatically on open parenthesis
-        
+
         Call tips can be requested explcitly with `_call_tip`.
         """
         cursor = self._get_cursor()
