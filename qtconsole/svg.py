@@ -54,7 +54,7 @@ def svg_to_clipboard(string):
     mime_data = QtCore.QMimeData()
     mime_data.setData('image/svg+xml', string)
     QtGui.QApplication.clipboard().setMimeData(mime_data)
-        
+
 def svg_to_image(string, size=None):
     """ Convert a SVG document to a QImage.
 

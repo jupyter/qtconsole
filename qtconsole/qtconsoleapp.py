@@ -347,7 +347,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         if sheet:
             widget.style_sheet = sheet
             widget._style_sheet_changed()
-            
+
 
     def init_signal(self):
         """allow clean shutdown on sigint"""

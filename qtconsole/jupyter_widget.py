@@ -151,7 +151,7 @@ class JupyterWidget(IPythonWidget):
             matches = content['matches']
             start = content['cursor_start']
             end = content['cursor_end']
-            
+
             start = max(start, 0)
             end = max(end, start)
 
@@ -563,7 +563,7 @@ class JupyterWidget(IPythonWidget):
         self.setStyleSheet(self.style_sheet)
         if self._control is not None:
             self._control.document().setDefaultStyleSheet(self.style_sheet)
-        
+
         if self._page_control is not None:
             self._page_control.document().setDefaultStyleSheet(self.style_sheet)
 

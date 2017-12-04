@@ -90,7 +90,7 @@ class HistoryConsoleWidget(ConsoleWidget):
             current_pos = c.position()
             c.movePosition(QtGui.QTextCursor.EndOfBlock)
             at_eol = (c.position() == current_pos)
-    
+
             if self._history_index == len(self._history) or \
                 not (self._history_prefix == '' and at_eol) or \
                 not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):

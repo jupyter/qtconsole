@@ -601,7 +601,7 @@ class MainWindow(QtGui.QMainWindow):
     def init_kernel_menu(self):
         self.kernel_menu = self.menuBar().addMenu("&Kernel")
         # Qt on OSX maps Ctrl to Cmd, and Meta to Ctrl
-        # keep the signal shortcuts to ctrl, rather than 
+        # keep the signal shortcuts to ctrl, rather than
         # platform-default like we do elsewhere.
 
         ctrl = "Meta" if sys.platform == 'darwin' else "Ctrl"
@@ -700,8 +700,8 @@ class MainWindow(QtGui.QMainWindow):
         self.add_menu_action(self.help_menu, self.online_help_action)
 
     def _set_active_frontend_focus(self):
-        # this is a hack, self.active_frontend._control seems to be 
-        # a private member. Unfortunately this is the only method 
+        # this is a hack, self.active_frontend._control seems to be
+        # a private member. Unfortunately this is the only method
         # to set focus reliably
         QtCore.QTimer.singleShot(200, self.active_frontend._control.setFocus)
 

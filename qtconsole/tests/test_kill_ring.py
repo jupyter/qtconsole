@@ -70,7 +70,7 @@ class TestKillRing(unittest.TestCase):
         """
         text_edit = QtGui.QPlainTextEdit()
         ring = QtKillRing(text_edit)
-        
+
         ring.kill('foo')
         ring.kill('bar')
         ring.yank()

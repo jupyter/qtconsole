@@ -152,9 +152,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     # widget (Ctrl+n, Ctrl+a, etc). Enable this if you want this widget to take
     # priority (when it has focus) over, e.g., window-level menu shortcuts.
     override_shortcuts = Bool(False)
-    
+
     # ------ Custom Qt Widgets -------------------------------------------------
-    
+
     # For other projects to easily override the Qt widgets used by the console
     # (e.g. Spyder)
     custom_control = None
@@ -495,7 +495,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
     #---------------------------------------------------------------------------
-    
+
     include_other_output = Bool(False, config=True,
         help="""Whether to include output from clients
         other than this one sharing the same kernel.
@@ -510,7 +510,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         Only relevant if include_other_output is True.
         """
     )
-    
+
     def can_copy(self):
         """ Returns whether text can be copied to the clipboard.
         """
@@ -1657,16 +1657,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor = self._control.textCursor()
             text = self._get_block_plain_text(cursor.block())
             return text[len(prompt):]
-    
+
     def _get_input_buffer_cursor_pos(self):
         """Get the cursor position within the input buffer."""
         cursor = self._control.textCursor()
         cursor.setPosition(self._prompt_pos, QtGui.QTextCursor.KeepAnchor)
         input_buffer = cursor.selection().toPlainText()
-        
+
         # Don't count continuation prompts
         return len(input_buffer.replace('\n' + self._continuation_prompt, '\n'))
-    
+
     def _get_input_buffer_cursor_prompt(self):
         """ Returns the (plain text) prompt for line of the input buffer that
             contains the cursor, or None if there is no such line.

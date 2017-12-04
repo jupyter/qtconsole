@@ -136,12 +136,12 @@ class BaseFrontendMixin(object):
         handler = getattr(self, '_handle_' + msg_type, None)
         if handler:
             handler(msg)
-    
+
     def from_here(self, msg):
         """Return whether a message is from this session"""
         session_id = self._kernel_client.session.session
         return msg['parent_header'].get("session", session_id) == session_id
-    
+
     def include_output(self, msg):
         """Return whether we should include a given output message"""
         if self._hidden:
@@ -150,9 +150,9 @@ class BaseFrontendMixin(object):
         if msg['msg_type'] == 'execute_input':
             # only echo inputs not from here
             return self.include_other_output and not from_here
-        
+
         if self.include_other_output:
             return True
         else:
             return from_here
-    
+
