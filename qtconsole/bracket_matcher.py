@@ -29,6 +29,9 @@ class BracketMatcher(QtCore.QObject):
         self.format = QtGui.QTextCharFormat()
         self.format.setBackground(QtGui.QColor('silver'))
 
+        self.format_unmatched = QtGui.QTextCharFormat()
+        self.format_unmatched.setBackground(QtGui.QColor('red'))
+
         self._text_edit = text_edit
         text_edit.cursorPositionChanged.connect(self._cursor_position_changed)
 
@@ -74,11 +77,16 @@ class BracketMatcher(QtCore.QObject):
         """
         selection = QtGui.QTextEdit.ExtraSelection()
         cursor = self._text_edit.textCursor()
-        cursor.setPosition(position)
-        cursor.movePosition(QtGui.QTextCursor.NextCharacter,
-                            QtGui.QTextCursor.KeepAnchor)
-        selection.cursor = cursor
-        selection.format = self.format
+        if position == -1:
+            cursor.movePosition(QtGui.QTextCursor.PreviousCharacter,
+                                QtGui.QTextCursor.KeepAnchor)
+            selection.format = self.format_unmatched
+        else:            
+            cursor.setPosition(position)
+            cursor.movePosition(QtGui.QTextCursor.NextCharacter,
+                                QtGui.QTextCursor.KeepAnchor)
+            selection.format = self.format            
+        selection.cursor = cursor     
         return selection
 
     #------ Signal handlers ----------------------------------------------------
@@ -86,8 +94,8 @@ class BracketMatcher(QtCore.QObject):
     def _cursor_position_changed(self):
         """ Updates the document formatting based on the new cursor position.
         """
-        # Clear out the old formatting.
-        self._text_edit.setExtraSelections([])
+        # To clear out the old formatting.
+        extra_selections = []
 
         # Attempt to match a bracket for the new cursor position.
         cursor = self._text_edit.textCursor()
@@ -97,4 +105,10 @@ class BracketMatcher(QtCore.QObject):
             if match_position != -1:
                 extra_selections = [ self._selection_for_character(pos)
                                      for pos in (position, match_position) ]
-                self._text_edit.setExtraSelections(extra_selections)
+            else:
+                sel_char = self._selection_for_character(-1)
+                if (sel_char.cursor.selectedText() in self._opening_map or 
+                    sel_char.cursor.selectedText() in self._closing_map):
+                    extra_selections = [sel_char]
+
+        self._text_edit.setExtraSelections(extra_selections)
