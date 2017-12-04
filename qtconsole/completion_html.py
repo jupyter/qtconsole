@@ -33,7 +33,7 @@ def html_tableify(item_matrix, select=None, header=None , footer=None) :
             +''.join((u'<td>'+header+u'</td>')*len(item_matrix[0]))\
             +'</tr>')
 
-    if footer : 
+    if footer :
         foot = (u'<tr>'\
             +''.join((u'<td>'+footer+u'</td>')*len(item_matrix[0]))\
             +'</tr>')
@@ -42,13 +42,13 @@ def html_tableify(item_matrix, select=None, header=None , footer=None) :
             head + (u''.join(html_cols)) + foot + u'</table>')
     return html
 
-class SlidingInterval(object): 
+class SlidingInterval(object):
     """a bound interval that follows a cursor
     
     internally used to scoll the completion view when the cursor 
     try to go beyond the edges, and show '...' when rows are hidden
     """
-    
+
     _min = 0
     _max = 1
     _current = 0
@@ -59,18 +59,18 @@ class SlidingInterval(object):
         minimum. usual width will be 'width', and sticky_length 
         set when the return  interval should expand to max and min
         """
-        self._min = minimum 
+        self._min = minimum
         self._max = maximum
         self._start = 0
         self._width = width
         self._stop = self._start+self._width+1
         self._sticky_lenght = sticky_lenght
-        
+
     @property
     def current(self):
         """current cursor position"""
         return self._current
-    
+
     @current.setter
     def current(self, value):
         """set current cursor position"""
@@ -78,24 +78,24 @@ class SlidingInterval(object):
 
         self._current = current
 
-        if current > self._stop : 
+        if current > self._stop :
             self._stop = current
             self._start = current-self._width
-        elif current < self._start : 
+        elif current < self._start :
             self._start = current
             self._stop = current + self._width
 
         if abs(self._start - self._min) <= self._sticky_lenght :
             self._start = self._min
-        
+
         if abs(self._stop - self._max) <= self._sticky_lenght :
             self._stop = self._max
 
-    @property 
+    @property
     def start(self):
         """begiiing of interval to show"""
         return self._start
-        
+
     @property
     def stop(self):
         """end of interval to show"""
@@ -105,7 +105,7 @@ class SlidingInterval(object):
     def width(self):
         return self._stop - self._start
 
-    @property 
+    @property
     def nth(self):
         return self.current - self.start
 
@@ -328,7 +328,7 @@ class CompletionHtml(QtGui.QWidget):
         self._sliding_interval.current = self._index[0]
         head = None
         foot = None
-        if self._sliding_interval.start > 0 : 
+        if self._sliding_interval.start > 0 :
             head = '...'
 
         if self._sliding_interval.stop < self._sliding_interval._max:
