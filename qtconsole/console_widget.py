@@ -275,7 +275,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self._prompt_sep = ''
         self._reading = False
         self._reading_callback = None
-        self._tab_width = 8
+        self._tab_width = 4
 
         # List of strings pending to be appended as plain text in the widget.
         # The text is not immediately inserted when available to not
