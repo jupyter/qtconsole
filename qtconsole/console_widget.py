@@ -846,16 +846,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         c.clearSelection()
         c.setPosition(self._get_prompt_cursor().position())
         c.setPosition(self._get_end_pos(),
-                                 mode=QtGui.QTextCursor.KeepAnchor)
-        new_sel_Range = c.selectionStart(), c.selectionEnd()
-        if sel_range == new_sel_Range:
+                      mode=QtGui.QTextCursor.KeepAnchor)
+        new_sel_range = c.selectionStart(), c.selectionEnd()
+        if sel_range == new_sel_range:
             # cell already selected, expand selection to whole document
-            self.select_all()
+            self.select_document()
         else:
             # set cell selection as active selection
             self._control.setTextCursor(c)
 
-    def select_all(self):
+    def select_document(self):
         """ Selects all the text in the buffer.
         """
         self._control.selectAll()
