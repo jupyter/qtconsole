@@ -246,6 +246,21 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(w._get_input_buffer(),
                          ("foo = ['foo', 'foo', 'foo',    \n"
                           "'bar', 'bar', 'bar']"))
+
+        # Left and right keys should respect the continuation prompt
+        w._set_input_buffer("line 1\n"
+                            "line 2\n"
+                            "line 3")
+        c = control.textCursor()
+        c.setPosition(20)  # End of line 1
+        control.setTextCursor(c)
+        QTest.keyClick(control, QtCore.Qt.Key_Right)
+        # Cursor should have moved after the continuation prompt
+        self.assertEqual(control.textCursor().position(), 23)
+        QTest.keyClick(control, QtCore.Qt.Key_Left)
+        # Cursor should have moved to the end of the previous line
+        self.assertEqual(control.textCursor().position(), 20)
+
         # TODO: many more keybindings
 
     def test_indent(self):
