@@ -134,6 +134,31 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(w._append_before_prompt_pos,
                          w._prompt_pos - len(w._prompt))
 
+    def test_select_all(self):
+        w = ConsoleWidget()
+        w._append_plain_text('Header\n')
+        w._prompt = 'prompt>'
+        w._show_prompt()
+        control = w._control
+
+        cursor = w._get_cursor()
+        w._insert_plain_text_into_buffer(cursor, "if:\n    pass")
+
+        cursor.clearSelection()
+        control.setTextCursor(cursor)
+
+        # "select all" action selects cell first
+        w.select_all_smart()
+        QTest.keyClick(control, QtCore.Qt.Key_C, QtCore.Qt.ControlModifier)
+        copied = QtGui.qApp.clipboard().text()
+        self.assertEqual(copied,  'if:\n>     pass')
+
+        # # "select all" action triggered a second time selects whole document
+        w.select_all_smart()
+        QTest.keyClick(control, QtCore.Qt.Key_C, QtCore.Qt.ControlModifier)
+        copied = QtGui.qApp.clipboard().text()
+        self.assertEqual(copied,  'Header\nprompt>if:\n>     pass')
+
     def test_keypresses(self):
         """Test the event handling code for keypresses."""
         w = ConsoleWidget()

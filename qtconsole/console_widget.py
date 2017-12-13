@@ -325,7 +325,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             selectall = "Ctrl+Shift+A"
         action.setShortcut(selectall)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
-        action.triggered.connect(self.select_all)
+        action.triggered.connect(self.select_all_smart)
         self.addAction(action)
         self.select_all_action = action
 
@@ -837,7 +837,25 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def _decrease_font_size(self):
         self.change_font_size(-1)
 
-    def select_all(self):
+    def select_all_smart(self):
+        """ Select current cell, or, if already selected, the whole document.
+        """
+        c = self._get_cursor()
+        sel_range = c.selectionStart(), c.selectionEnd()
+
+        c.clearSelection()
+        c.setPosition(self._get_prompt_cursor().position())
+        c.setPosition(self._get_end_pos(),
+                      mode=QtGui.QTextCursor.KeepAnchor)
+        new_sel_range = c.selectionStart(), c.selectionEnd()
+        if sel_range == new_sel_range:
+            # cell already selected, expand selection to whole document
+            self.select_document()
+        else:
+            # set cell selection as active selection
+            self._control.setTextCursor(c)
+
+    def select_document(self):
         """ Selects all the text in the buffer.
         """
         self._control.selectAll()

@@ -503,7 +503,7 @@ class MainWindow(QtGui.QMainWindow):
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
             selectall = "Ctrl+Shift+A"
-        self.select_all_action = QtGui.QAction("Select &All",
+        self.select_all_action = QtGui.QAction("Select Cell/&All",
             self,
             shortcut=selectall,
             triggered=self.select_all_active_frontend
