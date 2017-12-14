@@ -1385,13 +1385,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     intercepted = not self._in_buffer(position - 1)
 
             elif key == QtCore.Qt.Key_Right:
-                original_block_number = cursor.blockNumber()
-                self._control.moveCursor(QtGui.QTextCursor.Right,
-                                mode=anchormode)
-                if cursor.blockNumber() != original_block_number:
+                #original_block_number = cursor.blockNumber()
+                if position == self._get_line_end_pos():
+                    cursor.movePosition(QtGui.QTextCursor.NextBlock, mode=anchormode)
+                    cursor.movePosition(QtGui.QTextCursor.Right,
+                                        mode=anchormode,
+                                        n=len(self._continuation_prompt))
+                    self._control.setTextCursor(cursor)
+                else:
                     self._control.moveCursor(QtGui.QTextCursor.Right,
-                                        n=len(self._continuation_prompt),
-                                        mode=anchormode)
+                                             mode=anchormode)
                 intercepted = True
 
             elif key == QtCore.Qt.Key_Home:
