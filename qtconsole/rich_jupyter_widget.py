@@ -125,6 +125,8 @@ class RichJupyterWidget(RichIPythonWidget):
             prompt_number = content.get('execution_count', 0)
             data = content['data']
             metadata = msg['content']['metadata']
+            if not self.from_here(msg):
+                self._append_plain_text('\n', True)
             if 'image/svg+xml' in data:
                 self._pre_image_append(msg, prompt_number)
                 self._append_svg(data['image/svg+xml'], True)
