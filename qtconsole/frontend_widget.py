@@ -235,7 +235,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                 lines = map(self._highlighter.transform_classic_prompt, lines)
                 lines = map(self._highlighter.transform_ipy_prompt, lines)
                 text = '\n'.join(lines)
-                was_newline = text[-1] == '\n'
+                # Needed to prevent errors when copying the prompt.
+                # See issue 264
+                try:
+                    was_newline = text[-1] == '\n'
+                except IndexError:
+                    was_newline = False
                 if was_newline:  # user doesn't need newline
                     text = text[:-1]
                 QtGui.QApplication.clipboard().setText(text)
