@@ -38,8 +38,7 @@ To install:
 
     pip install qtconsole
 
-**Note:** Make sure that Qt is installed. Unfortunately, Qt cannot be
-installed using pip. The next section gives instructions on installing Qt.
+**Note:** Make sure that Qt is installed. The next section gives instructions on installing Qt.
 
 ### Installing Qt (if needed)
 We recommend installing PyQt with [conda](http://conda.pydata.org/docs):
@@ -47,7 +46,13 @@ We recommend installing PyQt with [conda](http://conda.pydata.org/docs):
     conda install pyqt
 
 or with a system package manager. For Windows, PyQt binary packages may be
-used.
+used:
+
+    pip install pyqt5
+
+or
+
+    pip install http://download.qt.io/snapshots/ci/pyside/5.11/latest/pyside2/PySide2-5.11.0a1-5.11.0-cp36-cp36m-win_amd64.whl
 
 **Note:** Additional information about using a system package manager may be
 found in the [qtconsole documentation](https://qtconsole.readthedocs.io). For
