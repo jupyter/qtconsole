@@ -52,7 +52,7 @@ used:
 
 or
 
-    pip install http://download.qt.io/snapshots/ci/pyside/5.11/latest/pyside2/PySide2-5.11.0a1-5.11.0-cp36-cp36m-win_amd64.whl
+    pip install https://download.qt.io/snapshots/ci/pyside/5.11/latest/pyside2/PySide2-5.11.0a1-5.11.0-cp36-cp36m-win_amd64.whl
 
 **Note:** Additional information about using a system package manager may be
 found in the [qtconsole documentation](https://qtconsole.readthedocs.io). For
