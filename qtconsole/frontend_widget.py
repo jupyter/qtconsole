@@ -64,7 +64,7 @@ class FrontendHighlighter(PygmentsHighlighter):
     def highlightBlock(self, string):
         """ Highlight a block of text. Reimplemented to highlight selectively.
         """
-        if not self.highlighting_on:
+        if not hasattr(self, 'highlighting_on') or not self.highlighting_on:
             return
 
         # The input to this function is a unicode string that may contain
