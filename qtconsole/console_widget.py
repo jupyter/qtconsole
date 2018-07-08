@@ -1285,8 +1285,17 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 intercepted = True
 
             elif key == QtCore.Qt.Key_D:
-                if len(self.input_buffer) == 0:
+                if len(self.input_buffer) == 0 and not self._executing:
                     self.exit_requested.emit(self)
+                # if executing and input buffer empty
+                elif len(self._get_input_buffer(force=True)) == 0:
+                    # input a EOT ansi control character 
+                    self._control.textCursor().insertText(chr(4))
+                    new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
+                                                QtCore.Qt.Key_Return,
+                                                QtCore.Qt.NoModifier)
+                    QtGui.qApp.sendEvent(self._control, new_event)
+                    intercepted = True
                 else:
                     new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                                 QtCore.Qt.Key_Delete,
