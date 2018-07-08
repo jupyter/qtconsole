@@ -1289,7 +1289,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     self.exit_requested.emit(self)
                 # if executing and input buffer empty
                 elif len(self._get_input_buffer(force=True)) == 0:
-                    # input a EOT ansi control character 
+                    # input a EOT ansi control character
                     self._control.textCursor().insertText(chr(4))
                     new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                                 QtCore.Qt.Key_Return,
