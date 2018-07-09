@@ -177,7 +177,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                 self.enable_calltips = False
 
         # FrontendWidget protected variables.
-        self._bracket_matcher = BracketMatcher(self._control)
+        self._bracket_matcher = BracketMatcher(self)
         self._call_tip_widget = CallTipWidget(self._control)
         self._copy_raw_action = QtGui.QAction('Copy (Raw Text)', None)
         self._hidden = False

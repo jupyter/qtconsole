@@ -15,7 +15,7 @@ before_install:
     - source activate qtconsole
 install:
     - source activate qtconsole
-    - conda install --yes pyzmq sphinx pygments
+    - conda install --yes pyzmq sphinx pygments mock
     - pip install  --pre .[test] coveralls
     - python -c 'import ipykernel.kernelspec; ipykernel.kernelspec.install(user=True)'
 script:

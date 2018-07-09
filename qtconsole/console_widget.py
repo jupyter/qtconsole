@@ -2236,6 +2236,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self._input_buffer_pending = ''
 
         self._control.moveCursor(QtGui.QTextCursor.End)
+        # Make sure a cursorPositionChanged signal is emitted
+        # even if were already at End
+        self._control.moveCursor(QtGui.QTextCursor.NoMove)
 
     def _readline(self, prompt='', callback=None, password=False):
         """ Reads one line of input from the user.
