@@ -20,6 +20,8 @@ To release a new version of qtconsole you need to follow these steps:
 
 * Update version in `_version.py` (add 'dev0' and increment minor)
 
+* git add and git commit with `Back to work`
+
 * git push upstream master
 
 * git push upstream --tags
