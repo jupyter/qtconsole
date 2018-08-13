@@ -12,7 +12,7 @@ Additions
 - :kbd:`Control-D` enters an EOT character if kernel is executing and input is
   empty.
 - Implement block indent on multiline selection with :kbd:`Tab`.
-- Change the syntax highlighting style used in the console on the fly. It can
+- Change the syntax highlighting style used in the console at any time. It can
   be done in the menu ``View > Syntax Style``.
 
 Changes
