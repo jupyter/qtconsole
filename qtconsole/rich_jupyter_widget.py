@@ -364,11 +364,13 @@ class RichJupyterWidget(RichIPythonWidget):
             image = QtGui.QImage()
             image.loadFromData(img, fmt.upper())
             if width and height:
-                image = image.scaled(width, height, transformMode=QtCore.Qt.SmoothTransformation)
+                image = image.scaled(width, height,
+                                     QtCore.Qt.IgnoreAspectRatio,
+                                     QtCore.Qt.SmoothTransformation)
             elif width and not height:
-                image = image.scaledToWidth(width, transformMode=QtCore.Qt.SmoothTransformation)
+                image = image.scaledToWidth(width, QtCore.Qt.SmoothTransformation)
             elif height and not width:
-                image = image.scaledToHeight(height, transformMode=QtCore.Qt.SmoothTransformation)
+                image = image.scaledToHeight(height, QtCore.Qt.SmoothTransformation)
         except ValueError:
             self._insert_plain_text(cursor, 'Received invalid %s data.'%fmt)
         else:
