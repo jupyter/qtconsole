@@ -3,6 +3,14 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.4.1:
+
+`4.4.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.1>`__
+
+- Fix setting width and height when displaying images with IPython's Image.
+- Avoid displaying errors when using Matplotlib to generate pngs from Latex.
+
+
 .. _4.4:
 
 `4.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4>`__
