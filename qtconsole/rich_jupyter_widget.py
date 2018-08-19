@@ -213,11 +213,18 @@ class RichJupyterWidget(RichIPythonWidget):
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
         png = None
+
         if self._is_latex_math(latex):
             png = latex_to_png(latex, wrap=False, backend='dvipng')
+
+        # Matplotlib only supports strings enclosed in dollar signs
         if png is None and latex.startswith('$') and latex.endswith('$'):
-            # matplotlib only supports strings enclosed in dollar signs
-            png = latex_to_png(latex, wrap=False, backend='matplotlib')
+            # To avoid long and ugly errors, like the one reported in
+            # spyder-ide/spyder#7619
+            try:
+                png = latex_to_png(latex, wrap=False, backend='matplotlib')
+            except Exception:
+                pass
 
         if png:
             self._append_png(png, before_prompt, metadata)
