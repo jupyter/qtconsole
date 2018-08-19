@@ -1,10 +1,10 @@
 To release a new version of qtconsole you need to follow these steps:
 
-* Update docs/source/changelog.rst with a PR.
+* git pull or git fetch/merge
 
 * Close the current milestone on Github
 
-* git pull or git fetch/merge
+* Update docs/source/changelog.rst with a PR.
 
 * git clean -xfdi
 
