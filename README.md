@@ -53,7 +53,7 @@ used.
 **Note:** Additional information about using a system package manager may be
 found in the [qtconsole documentation](https://qtconsole.readthedocs.io).
 
-More installation instructions for PyQT can be found in the [PyQt5 documentation] (http://pyqt.sourceforge.net/Docs/PyQt5/installation.html) and [PyQt4 documentation](http://pyqt.sourceforge.net/Docs/PyQt4/installation.html)
+More installation instructions for PyQT can be found in the [PyQt5 documentation](http://pyqt.sourceforge.net/Docs/PyQt5/installation.html) and [PyQt4 documentation](http://pyqt.sourceforge.net/Docs/PyQt4/installation.html)
 
 Source packages for Windows/Linux/MacOS can be found here: [PyQt5](https://www.riverbankcomputing.com/software/pyqt/download5) and [PyQt4](https://riverbankcomputing.com/software/pyqt/download).
 
