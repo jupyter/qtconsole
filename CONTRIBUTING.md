@@ -15,6 +15,7 @@ conda install pyqt
 ```
 
 To run after the changes have been made to source (preferred):
+
 ```
 pip install -e .
 ```
@@ -25,7 +26,7 @@ pip install -e .
 python setup.py develop
 ```
 
-Running the tests:
+Finally, to run the tests:
 
 ```
 nosetests
