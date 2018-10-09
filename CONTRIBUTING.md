@@ -9,19 +9,20 @@ Fork the repository and clone the forked repository locally.
 Use Conda to install dependencies and activate the development environment.
 
 ```
-    conda create -n qtdev python=3
-    conda activate qtdev
-    conda install pyqt
-```
-Setup **qtconsole** to run on the development environment:
-
-```
-  python setup.py develop
+conda create -n qtdev python=3
+conda activate qtdev
+conda install pyqt
 ```
 
-To run after the changes have been made to source:
+To run after the changes have been made to source (preferred):
 ```
-  pip install -e .
+pip install -e .
+```
+
+**or,** for running immediate changes:
+
+```
+python setup.py develop
 ```
 
 Running the tests:
