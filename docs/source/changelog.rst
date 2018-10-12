@@ -3,6 +3,12 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.4.2:
+
+`4.4.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.2>`__
+
+- Fix incompatibility with PyQt5 5.11.
+
 .. _4.4.1:
 
 `4.4.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.1>`__
