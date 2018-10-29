@@ -36,17 +36,13 @@ class HistoryConsoleWidget(ConsoleWidget):
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
     #---------------------------------------------------------------------------
+    def do_execute(self, source, complete, indent):
+        """ Reimplemented to the store history. """
+        history = self.input_buffer if source is None else source
 
-    def execute(self, source=None, hidden=False, interactive=False):
-        """ Reimplemented to the store history.
-        """
-        if not hidden:
-            history = self.input_buffer if source is None else source
+        super(HistoryConsoleWidget, self).do_execute(source, complete, indent)
 
-        executed = super(HistoryConsoleWidget, self).execute(
-            source, hidden, interactive)
-
-        if executed and not hidden:
+        if complete:
             # Save the command unless it was an empty string or was identical
             # to the previous command.
             history = history.rstrip()
@@ -58,8 +54,6 @@ class HistoryConsoleWidget(ConsoleWidget):
 
             # Move the history index to the most recent item.
             self._history_index = len(self._history)
-
-        return executed
 
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' abstract interface
@@ -96,7 +90,7 @@ class HistoryConsoleWidget(ConsoleWidget):
             current_pos = c.position()
             c.movePosition(QtGui.QTextCursor.EndOfBlock)
             at_eol = (c.position() == current_pos)
-    
+
             if self._history_index == len(self._history) or \
                 not (self._history_prefix == '' and at_eol) or \
                 not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):

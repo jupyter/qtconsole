@@ -196,7 +196,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         kernel_client = kernel_manager.client()
         kernel_client.start_channels(shell=True, iopub=True)
         widget = self.widget_factory(config=self.config,
-                                   local_kernel=True)
+                                     local_kernel=True)
         self.init_colors(widget)
         widget.kernel_manager = kernel_manager
         widget.kernel_client = kernel_client
@@ -347,7 +347,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         if sheet:
             widget.style_sheet = sheet
             widget._style_sheet_changed()
-            
+
 
     def init_signal(self):
         """allow clean shutdown on sigint"""

@@ -11,8 +11,11 @@ import webbrowser
 from threading import Thread
 
 from jupyter_core.paths import jupyter_runtime_dir
+from pygments.styles import get_all_styles
 
 from qtconsole.qt import QtGui,QtCore
+from qtconsole import styles
+from qtconsole.jupyter_widget import JupyterWidget
 from qtconsole.usage import gui_reference
 
 
@@ -500,7 +503,7 @@ class MainWindow(QtGui.QMainWindow):
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
             selectall = "Ctrl+Shift+A"
-        self.select_all_action = QtGui.QAction("Select &All",
+        self.select_all_action = QtGui.QAction("Select Cell/&All",
             self,
             shortcut=selectall,
             triggered=self.select_all_active_frontend
@@ -578,10 +581,27 @@ class MainWindow(QtGui.QMainWindow):
         self.pager_menu.addAction(vsplit_action)
         self.pager_menu.addAction(inside_action)
 
+        available_syntax_styles = self.get_available_syntax_styles()
+        if len(available_syntax_styles) > 0:
+            self.syntax_style_menu = self.view_menu.addMenu("&Syntax Style")
+            style_group = QtGui.QActionGroup(self)
+            for style in available_syntax_styles:
+                action = QtGui.QAction("{}".format(style), self,
+                                       triggered=lambda v,
+                                       syntax_style=style:
+                                           self.set_syntax_style(
+                                                   syntax_style=syntax_style))
+                action.setCheckable(True)
+                style_group.addAction(action)
+                self.syntax_style_menu.addAction(action)
+                if style == 'default':
+                    action.setChecked(True)
+                    self.syntax_style_menu.setDefaultAction(action)
+
     def init_kernel_menu(self):
         self.kernel_menu = self.menuBar().addMenu("&Kernel")
         # Qt on OSX maps Ctrl to Cmd, and Meta to Ctrl
-        # keep the signal shortcuts to ctrl, rather than 
+        # keep the signal shortcuts to ctrl, rather than
         # platform-default like we do elsewhere.
 
         ctrl = "Meta" if sys.platform == 'darwin' else "Ctrl"
@@ -680,8 +700,8 @@ class MainWindow(QtGui.QMainWindow):
         self.add_menu_action(self.help_menu, self.online_help_action)
 
     def _set_active_frontend_focus(self):
-        # this is a hack, self.active_frontend._control seems to be 
-        # a private member. Unfortunately this is the only method 
+        # this is a hack, self.active_frontend._control seems to be
+        # a private member. Unfortunately this is the only method
         # to set focus reliably
         QtCore.QTimer.singleShot(200, self.active_frontend._control.setFocus)
 
@@ -728,6 +748,27 @@ class MainWindow(QtGui.QMainWindow):
 
     def set_paging_active_frontend(self, paging):
         self.active_frontend._set_paging(paging)
+
+    def get_available_syntax_styles(self):
+        """Get a list with the syntax styles available."""
+        styles = list(get_all_styles())
+        return sorted(styles)
+
+    def set_syntax_style(self, syntax_style):
+        """Set up syntax style for the current console."""
+        if syntax_style=='bw':
+            colors='nocolor'
+        elif styles.dark_style(syntax_style):
+            colors='linux'
+        else:
+            colors='lightbg'
+        self.active_frontend.syntax_style = syntax_style
+        style_sheet = styles.sheet_from_template(syntax_style, colors)
+        self.active_frontend.style_sheet = style_sheet
+        self.active_frontend._syntax_style_changed()
+        self.active_frontend._style_sheet_changed()
+        self.active_frontend.reset(clear=True)
+        self.active_frontend._execute("%colors linux", True)
 
     def close_active_frontend(self):
         self.close_tab(self.active_frontend)

@@ -1,6 +1,5 @@
 """Defines a convenient mix-in class for implementing Qt frontends."""
 
-from jupyter_client import BlockingKernelClient
 
 class BaseFrontendMixin(object):
     """ A mix-in class for implementing Qt frontends.
@@ -15,7 +14,6 @@ class BaseFrontendMixin(object):
     #---------------------------------------------------------------------------
     _kernel_client = None
     _kernel_manager = None
-    _blocking_client = None
 
     @property
     def kernel_client(self):
@@ -64,29 +62,6 @@ class BaseFrontendMixin(object):
         # we connected.
         if kernel_client.channels_running:
             self._started_channels()
-    
-    def _make_blocking_client(self):
-        kc = self.kernel_client
-        if kc is None:
-            return
-        
-        try:
-            blocking_client = kc.blocking_client
-        except AttributeError:
-            def blocking_client():
-                info = kc.get_connection_info()
-                bc = BlockingKernelClient(**info)
-                bc.session.key = kc.session.key
-                return bc
-
-        self._blocking_client = blocking_client()
-        self._blocking_client.shell_channel.start()
-    
-    @property
-    def blocking_client(self):
-        if self._blocking_client is None:
-            self._make_blocking_client()
-        return self._blocking_client
 
     @property
     def kernel_manager(self):
@@ -161,12 +136,12 @@ class BaseFrontendMixin(object):
         handler = getattr(self, '_handle_' + msg_type, None)
         if handler:
             handler(msg)
-    
+
     def from_here(self, msg):
         """Return whether a message is from this session"""
         session_id = self._kernel_client.session.session
         return msg['parent_header'].get("session", session_id) == session_id
-    
+
     def include_output(self, msg):
         """Return whether we should include a given output message"""
         if self._hidden:
@@ -175,9 +150,9 @@ class BaseFrontendMixin(object):
         if msg['msg_type'] == 'execute_input':
             # only echo inputs not from here
             return self.include_other_output and not from_here
-        
+
         if self.include_other_output:
             return True
         else:
             return from_here
-    
+

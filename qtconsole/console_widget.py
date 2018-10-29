@@ -3,6 +3,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
+from functools import partial
 import os
 import os.path
 import re
@@ -31,6 +32,10 @@ def is_letter_or_number(char):
     """
     cat = category(char)
     return cat.startswith('L') or cat.startswith('N')
+
+def is_whitespace(char):
+    """Check whether a given char counts as white space."""
+    return category(char).startswith('Z')
 
 #-----------------------------------------------------------------------------
 # Classes
@@ -63,7 +68,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     )
     execute_on_complete_input = Bool(True, config=True,
         help="""Whether to automatically execute on syntactically complete input.
-        
+
         If False, Shift-Enter is required to submit each execution.
         Disabling this is mainly useful for non-Python kernels,
         where the completion check would be wrong.
@@ -147,9 +152,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     # widget (Ctrl+n, Ctrl+a, etc). Enable this if you want this widget to take
     # priority (when it has focus) over, e.g., window-level menu shortcuts.
     override_shortcuts = Bool(False)
-    
+
     # ------ Custom Qt Widgets -------------------------------------------------
-    
+
     # For other projects to easily override the Qt widgets used by the console
     # (e.g. Spyder)
     custom_control = None
@@ -212,6 +217,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if parent:
             self.setParent(parent)
 
+        self._is_complete_msg_id = None
+
         # While scrolling the pager on Mac OS X, it tears badly.  The
         # NativeGesture is platform and perhaps build-specific hence
         # we take adequate precautions here.
@@ -268,7 +275,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self._prompt_sep = ''
         self._reading = False
         self._reading_callback = None
-        self._tab_width = 8
+        self._tab_width = 4
 
         # List of strings pending to be appended as plain text in the widget.
         # The text is not immediately inserted when available to not
@@ -318,7 +325,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             selectall = "Ctrl+Shift+A"
         action.setShortcut(selectall)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
-        action.triggered.connect(self.select_all)
+        action.triggered.connect(self.select_all_smart)
         self.addAction(action)
         self.select_all_action = action
 
@@ -397,6 +404,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text widgets.
         """
         etype = event.type()
+        self._trigger_is_complete_callback()
         if etype == QtCore.QEvent.KeyPress:
 
             # Re-map keys for all filtered widgets.
@@ -487,15 +495,22 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
     #---------------------------------------------------------------------------
-    
+
     include_other_output = Bool(False, config=True,
         help="""Whether to include output from clients
         other than this one sharing the same kernel.
-        
+
         Outputs are not displayed until enter is pressed.
         """
     )
-    
+
+    other_output_prefix = Unicode('[remote] ', config=True,
+        help="""Prefix to add to outputs coming from clients other than this one.
+
+        Only relevant if include_other_output is True.
+        """
+    )
+
     def can_copy(self):
         """ Returns whether text can be copied to the clipboard.
         """
@@ -552,6 +567,23 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.can_cut():
             self._control.textCursor().removeSelectedText()
 
+    def _handle_is_complete_reply(self, msg):
+        if msg['parent_header'].get('msg_id', 0) != self._is_complete_msg_id:
+            return
+        status = msg['content'].get('status', u'complete')
+        indent = msg['content'].get('indent', u'')
+        self._trigger_is_complete_callback(status != 'incomplete', indent)
+
+    def _trigger_is_complete_callback(self, complete=False, indent=u''):
+        if self._is_complete_msg_id is not None:
+            self._is_complete_msg_id = None
+            self._is_complete_callback(complete, indent)
+
+    def _register_is_complete_callback(self, source, callback):
+        self._trigger_is_complete_callback()
+        self._is_complete_msg_id = self.kernel_client.is_complete(source)
+        self._is_complete_callback = callback
+
     def execute(self, source=None, hidden=False, interactive=False):
         """ Executes source or the input buffer, possibly prompting for more
         input.
@@ -600,52 +632,49 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         elif not hidden:
             self.input_buffer = source
 
-        # Execute the source or show a continuation prompt if it is incomplete.
-        if interactive and self.execute_on_complete_input:
-            complete, indent = self._is_complete(source, interactive)
-        else:
-            complete = True
-            indent = ''
         if hidden:
-            if complete or not self.execute_on_complete_input:
-                self._execute(source, hidden)
-            else:
-                error = 'Incomplete noninteractive input: "%s"'
-                raise RuntimeError(error % source)
+            self._execute(source, hidden)
+        # Execute the source or show a continuation prompt if it is incomplete.
+        elif interactive and self.execute_on_complete_input:
+            self._register_is_complete_callback(
+                source, partial(self.do_execute, source))
         else:
-            if complete:
-                self._append_plain_text('\n')
-                self._input_buffer_executing = self.input_buffer
-                self._executing = True
-                self._prompt_finished()
+            self.do_execute(source, True, '')
 
-                # The maximum block count is only in effect during execution.
-                # This ensures that _prompt_pos does not become invalid due to
-                # text truncation.
-                self._control.document().setMaximumBlockCount(self.buffer_size)
+    def do_execute(self, source, complete, indent):
+        if complete:
+            self._append_plain_text('\n')
+            self._input_buffer_executing = self.input_buffer
+            self._executing = True
+            self._prompt_finished()
 
-                # Setting a positive maximum block count will automatically
-                # disable the undo/redo history, but just to be safe:
-                self._control.setUndoRedoEnabled(False)
+            # The maximum block count is only in effect during execution.
+            # This ensures that _prompt_pos does not become invalid due to
+            # text truncation.
+            self._control.document().setMaximumBlockCount(self.buffer_size)
 
-                # Perform actual execution.
-                self._execute(source, hidden)
+            # Setting a positive maximum block count will automatically
+            # disable the undo/redo history, but just to be safe:
+            self._control.setUndoRedoEnabled(False)
 
-            else:
-                # Do this inside an edit block so continuation prompts are
-                # removed seamlessly via undo/redo.
-                cursor = self._get_end_cursor()
-                cursor.beginEditBlock()
+            # Perform actual execution.
+            self._execute(source, False)
+
+        else:
+            # Do this inside an edit block so continuation prompts are
+            # removed seamlessly via undo/redo.
+            cursor = self._get_end_cursor()
+            cursor.beginEditBlock()
+            try:
                 cursor.insertText('\n')
                 self._insert_continuation_prompt(cursor, indent)
+            finally:
                 cursor.endEditBlock()
 
-                # Do not do this inside the edit block. It works as expected
-                # when using a QPlainTextEdit control, but does not have an
-                # effect when using a QTextEdit. I believe this is a Qt bug.
-                self._control.moveCursor(QtGui.QTextCursor.End)
-
-        return complete
+            # Do not do this inside the edit block. It works as expected
+            # when using a QPlainTextEdit control, but does not have an
+            # effect when using a QTextEdit. I believe this is a Qt bug.
+            self._control.moveCursor(QtGui.QTextCursor.End)
 
     def export_html(self):
         """ Shows a dialog to export HTML/XML in various formats.
@@ -739,6 +768,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             # Remove any trailing newline, which confuses the GUI and forces the
             # user to backspace.
             text = QtGui.QApplication.clipboard().text(mode).rstrip()
+
+            # dedent removes "common leading whitespace" but to preserve relative
+            # indent of multiline code, we have to compensate for any
+            # leading space on the first line, if we're pasting into
+            # an indented position.
+            cursor_offset = cursor.position() - self._get_line_start_pos()
+            if text.startswith(' ' * cursor_offset):
+                text = text[cursor_offset:]
+
             self._insert_plain_text_into_buffer(cursor, dedent(text))
 
     def print_(self, printer = None):
@@ -799,7 +837,25 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def _decrease_font_size(self):
         self.change_font_size(-1)
 
-    def select_all(self):
+    def select_all_smart(self):
+        """ Select current cell, or, if already selected, the whole document.
+        """
+        c = self._get_cursor()
+        sel_range = c.selectionStart(), c.selectionEnd()
+
+        c.clearSelection()
+        c.setPosition(self._get_prompt_cursor().position())
+        c.setPosition(self._get_end_pos(),
+                      mode=QtGui.QTextCursor.KeepAnchor)
+        new_sel_range = c.selectionStart(), c.selectionEnd()
+        if sel_range == new_sel_range:
+            # cell already selected, expand selection to whole document
+            self.select_document()
+        else:
+            # set cell selection as active selection
+            self._control.setTextCursor(c)
+
+    def select_document(self):
         """ Selects all the text in the buffer.
         """
         self._control.selectAll()
@@ -868,7 +924,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """ Called when the tab key is pressed. Returns whether to continue
             processing the event.
         """
-        return False
+        return True
 
     #--------------------------------------------------------------------------
     # 'ConsoleWidget' protected interface
@@ -1147,21 +1203,24 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     else:
                         # Do this inside an edit block for clean undo/redo.
                         pos = self._get_input_buffer_cursor_pos()
-                        complete, indent = self._is_complete(
-                            self._get_input_buffer()[:pos], True)
-                        cursor.beginEditBlock()
-                        cursor.setPosition(position)
-                        cursor.insertText('\n')
-                        self._insert_continuation_prompt(cursor)
-                        if indent:
-                            cursor.insertText(indent)
-                        cursor.endEditBlock()
+                        def callback(complete, indent):
+                            try:
+                                cursor.beginEditBlock()
+                                cursor.setPosition(position)
+                                cursor.insertText('\n')
+                                self._insert_continuation_prompt(cursor)
+                                if indent:
+                                    cursor.insertText(indent)
+                            finally:
+                                cursor.endEditBlock()
 
-                        # Ensure that the whole input buffer is visible.
-                        # FIXME: This will not be usable if the input buffer is
-                        # taller than the console widget.
-                        self._control.moveCursor(QtGui.QTextCursor.End)
-                        self._control.setTextCursor(cursor)
+                            # Ensure that the whole input buffer is visible.
+                            # FIXME: This will not be usable if the input buffer is
+                            # taller than the console widget.
+                            self._control.moveCursor(QtGui.QTextCursor.End)
+                            self._control.setTextCursor(cursor)
+                        self._register_is_complete_callback(
+                            self._get_input_buffer()[:pos], callback)
 
         #------ Control/Cmd modifier -------------------------------------------
 
@@ -1226,8 +1285,17 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 intercepted = True
 
             elif key == QtCore.Qt.Key_D:
-                if len(self.input_buffer) == 0:
+                if len(self.input_buffer) == 0 and not self._executing:
                     self.exit_requested.emit(self)
+                # if executing and input buffer empty
+                elif len(self._get_input_buffer(force=True)) == 0:
+                    # input a EOT ansi control character
+                    self._control.textCursor().insertText(chr(4))
+                    new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
+                                                QtCore.Qt.Key_Return,
+                                                QtCore.Qt.NoModifier)
+                    QtGui.qApp.sendEvent(self._control, new_event)
+                    intercepted = True
                 else:
                     new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                                 QtCore.Qt.Key_Delete,
@@ -1302,24 +1370,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             elif key == QtCore.Qt.Key_Tab:
                 if not self._reading:
                     if self._tab_pressed():
-                        # real tab-key, insert four spaces
-                        step = 4 - (self._get_cursor().columnNumber() -
-                                    len(self._continuation_prompt)) % 4
-                        cursor.insertText(' '*step)
+                        self._indent(dedent=False)
                     intercepted = True
 
             elif key == QtCore.Qt.Key_Backtab:
-                cur = self._get_cursor()
-                cur.movePosition(QtGui.QTextCursor.StartOfLine)
-                cur.movePosition(QtGui.QTextCursor.Right,
-                                 QtGui.QTextCursor.MoveAnchor,
-                                 self._get_prompt_cursor().columnNumber())
-                spaces = self._get_leading_spaces()
-                step = spaces % 4
-                cur.movePosition(QtGui.QTextCursor.Right,
-                                 QtGui.QTextCursor.KeepAnchor,
-                                 min(spaces, step if step != 0 else 4))
-                cur.removeSelectedText()
+                self._indent(dedent=True)
                 intercepted = True
 
             elif key == QtCore.Qt.Key_Left:
@@ -1339,25 +1394,20 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     intercepted = not self._in_buffer(position - 1)
 
             elif key == QtCore.Qt.Key_Right:
-                original_block_number = cursor.blockNumber()
-                self._control.moveCursor(QtGui.QTextCursor.Right,
-                                mode=anchormode)
-                if cursor.blockNumber() != original_block_number:
+                #original_block_number = cursor.blockNumber()
+                if position == self._get_line_end_pos():
+                    cursor.movePosition(QtGui.QTextCursor.NextBlock, mode=anchormode)
+                    cursor.movePosition(QtGui.QTextCursor.Right,
+                                        mode=anchormode,
+                                        n=len(self._continuation_prompt))
+                    self._control.setTextCursor(cursor)
+                else:
                     self._control.moveCursor(QtGui.QTextCursor.Right,
-                                        n=len(self._continuation_prompt),
-                                        mode=anchormode)
+                                             mode=anchormode)
                 intercepted = True
 
             elif key == QtCore.Qt.Key_Home:
-                start_line = cursor.blockNumber()
-                if start_line == self._get_prompt_cursor().blockNumber():
-                    start_pos = self._prompt_pos
-                else:
-                    cursor.movePosition(QtGui.QTextCursor.StartOfBlock,
-                                        QtGui.QTextCursor.KeepAnchor)
-                    start_pos = cursor.position()
-                    start_pos += len(self._continuation_prompt)
-                    cursor.setPosition(position)
+                start_pos = self._get_line_start_pos()
 
                 c = self._get_cursor()
                 spaces = self._get_leading_spaces()
@@ -1456,16 +1506,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if ctrl_down:
             if key == QtCore.Qt.Key_O:
                 self._control.setFocus()
-                intercept = True
+                return True
 
         elif alt_down:
             if key == QtCore.Qt.Key_Greater:
                 self._page_control.moveCursor(QtGui.QTextCursor.End)
-                intercepted = True
+                return True
 
             elif key == QtCore.Qt.Key_Less:
                 self._page_control.moveCursor(QtGui.QTextCursor.Start)
-                intercepted = True
+                return True
 
         elif key in (QtCore.Qt.Key_Q, QtCore.Qt.Key_Escape):
             if self._splitter:
@@ -1516,7 +1566,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """
         cursor = self._control.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
-        pos = cursor.position()
         self._flush_pending_stream()
         cursor.movePosition(QtGui.QTextCursor.End)
 
@@ -1566,24 +1615,54 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         return cursor.selection().toPlainText()
 
     def _get_cursor(self):
-        """ Convenience method that returns a cursor for the current position.
+        """ Get a cursor at the current insert position.
         """
         return self._control.textCursor()
 
     def _get_end_cursor(self):
-        """ Convenience method that returns a cursor for the last character.
+        """ Get a cursor at the last character of the current cell.
         """
         cursor = self._control.textCursor()
         cursor.movePosition(QtGui.QTextCursor.End)
         return cursor
 
     def _get_end_pos(self):
-        """ Convenience method that returns the position of the last character.
+        """ Get the position of the last character of the current cell.
         """
         return self._get_end_cursor().position()
 
+    def _get_line_start_cursor(self):
+        """ Get a cursor at the first character of the current line.
+        """
+        cursor = self._control.textCursor()
+        start_line = cursor.blockNumber()
+        if start_line == self._get_prompt_cursor().blockNumber():
+            cursor.setPosition(self._prompt_pos)
+        else:
+            cursor.movePosition(QtGui.QTextCursor.StartOfLine)
+            cursor.setPosition(cursor.position() +
+                               len(self._continuation_prompt))
+        return cursor
+
+    def _get_line_start_pos(self):
+        """ Get the position of the first character of the current line.
+        """
+        return self._get_line_start_cursor().position()
+
+    def _get_line_end_cursor(self):
+        """ Get a cursor at the last character of the current line.
+        """
+        cursor = self._control.textCursor()
+        cursor.movePosition(QtGui.QTextCursor.EndOfLine)
+        return cursor
+
+    def _get_line_end_pos(self):
+        """ Get the position of the last character of the current line.
+        """
+        return self._get_line_end_cursor().position()
+
     def _get_input_buffer_cursor_column(self):
-        """ Returns the column of the cursor in the input buffer, excluding the
+        """ Get the column of the cursor in the input buffer, excluding the
             contribution by the prompt, or -1 if there is no such column.
         """
         prompt = self._get_input_buffer_cursor_prompt()
@@ -1594,7 +1673,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return cursor.columnNumber() - len(prompt)
 
     def _get_input_buffer_cursor_line(self):
-        """ Returns the text of the line of the input buffer that contains the
+        """ Get the text of the line of the input buffer that contains the
             cursor, or None if there is no such line.
         """
         prompt = self._get_input_buffer_cursor_prompt()
@@ -1604,16 +1683,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor = self._control.textCursor()
             text = self._get_block_plain_text(cursor.block())
             return text[len(prompt):]
-    
+
     def _get_input_buffer_cursor_pos(self):
-        """Return the cursor position within the input buffer."""
+        """Get the cursor position within the input buffer."""
         cursor = self._control.textCursor()
         cursor.setPosition(self._prompt_pos, QtGui.QTextCursor.KeepAnchor)
         input_buffer = cursor.selection().toPlainText()
-        
+
         # Don't count continuation prompts
         return len(input_buffer.replace('\n' + self._continuation_prompt, '\n'))
-    
+
     def _get_input_buffer_cursor_prompt(self):
         """ Returns the (plain text) prompt for line of the input buffer that
             contains the cursor, or None if there is no such line.
@@ -1630,7 +1709,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return None
 
     def _get_last_lines(self, text, num_lines, return_count=False):
-        """ Return last specified number of lines of text (like `tail -n`).
+        """ Get the last specified number of lines of text (like `tail -n`).
         If return_count is True, returns a tuple of clipped text and the
         number of lines in the clipped text.
         """
@@ -1653,7 +1732,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return text[pos:]
 
     def _get_last_lines_from_list(self, text_list, num_lines):
-        """ Return the list of text clipped to last specified lines.
+        """ Get the list of text clipped to last specified lines.
         """
         ret = []
         lines_pending = num_lines
@@ -1667,35 +1746,44 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         return ret[::-1]
 
     def _get_leading_spaces(self):
-        """ Convenience method that returns the number of leading spaces.
+        """ Get the number of leading spaces of the current line.
         """
-        cur = self._get_cursor()
-        cur.select(QtGui.QTextCursor.LineUnderCursor)
-        text = cur.selectedText()[len(self._continuation_prompt):]
-        return len(text) - len(text.lstrip())
 
+        cursor = self._get_cursor()
+        start_line = cursor.blockNumber()
+        if start_line == self._get_prompt_cursor().blockNumber():
+            # first line
+            offset = len(self._prompt)
+        else:
+            # continuation
+            offset = len(self._continuation_prompt)
+        cursor.select(QtGui.QTextCursor.LineUnderCursor)
+        text = cursor.selectedText()[offset:]
+        return len(text) - len(text.lstrip())
 
     @property
     def _prompt_pos(self):
-        """Find the position in the text right after the prompt"""
+        """ Find the position in the text right after the prompt.
+        """
         return min(self._prompt_cursor.position() + 1, self._get_end_pos())
 
     @property
     def _append_before_prompt_pos(self):
-        """Find the position in the text right before the prompt"""
+        """ Find the position in the text right before the prompt.
+        """
         return min(self._append_before_prompt_cursor.position(),
                    self._get_end_pos())
 
     def _get_prompt_cursor(self):
-        """ Convenience method that returns a cursor for the prompt position.
+        """ Get a cursor at the prompt position of the current cell.
         """
         cursor = self._control.textCursor()
         cursor.setPosition(self._prompt_pos)
         return cursor
 
     def _get_selection_cursor(self, start, end):
-        """ Convenience method that returns a cursor with text selected between
-            the positions 'start' and 'end'.
+        """ Get a cursor with text selected between the positions 'start' and
+            'end'.
         """
         cursor = self._control.textCursor()
         cursor.setPosition(start)
@@ -1708,15 +1796,46 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             them. (This emulates the behavior of bash, emacs, etc.)
         """
         document = self._control.document()
-        position -= 1
-        while position >= self._prompt_pos and \
-                  not is_letter_or_number(document.characterAt(position)):
-            position -= 1
-        while position >= self._prompt_pos and \
-                  is_letter_or_number(document.characterAt(position)):
-            position -= 1
         cursor = self._control.textCursor()
-        cursor.setPosition(position + 1)
+        line_start_pos = self._get_line_start_pos()
+
+        if position == self._prompt_pos:
+            return cursor
+        elif position == line_start_pos:
+            # Cursor is at the beginning of a line, move to the last
+            # non-whitespace character of the previous line
+            cursor = self._control.textCursor()
+            cursor.setPosition(position)
+            cursor.movePosition(QtGui.QTextCursor.PreviousBlock)
+            cursor.movePosition(QtGui.QTextCursor.EndOfBlock)
+            position = cursor.position()
+            while (
+                position >= self._prompt_pos and
+                is_whitespace(document.characterAt(position))
+            ):
+                position -= 1
+            cursor.setPosition(position + 1)
+        else:
+            position -= 1
+
+            # Find the last alphanumeric char, but don't move across lines
+            while (
+                position >= self._prompt_pos and
+                position >= line_start_pos and
+                not is_letter_or_number(document.characterAt(position))
+            ):
+                position -= 1
+
+            # Find the first alphanumeric char, but don't move across lines
+            while (
+                position >= self._prompt_pos and
+                position >= line_start_pos and
+                is_letter_or_number(document.characterAt(position))
+            ):
+                position -= 1
+
+            cursor.setPosition(position + 1)
+
         return cursor
 
     def _get_word_end_cursor(self, position):
@@ -1725,18 +1844,106 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             them. (This emulates the behavior of bash, emacs, etc.)
         """
         document = self._control.document()
-        end = self._get_end_pos()
-        while position < end and \
-                  not is_letter_or_number(document.characterAt(position)):
-            position += 1
-        while position < end and \
-                  is_letter_or_number(document.characterAt(position)):
-            position += 1
         cursor = self._control.textCursor()
-        cursor.setPosition(position)
+        end_pos = self._get_end_pos()
+        line_end_pos = self._get_line_end_pos()
+
+        if position == end_pos:
+            # Cursor is at the very end of the buffer
+            return cursor
+        elif position == line_end_pos:
+            # Cursor is at the end of a line, move to the first
+            # non-whitespace character of the next line
+            cursor = self._control.textCursor()
+            cursor.setPosition(position)
+            cursor.movePosition(QtGui.QTextCursor.NextBlock)
+            position = cursor.position() + len(self._continuation_prompt)
+            while (
+                position < end_pos and
+                is_whitespace(document.characterAt(position))
+            ):
+                position += 1
+            cursor.setPosition(position)
+        else:
+            if is_whitespace(document.characterAt(position)):
+                # The next character is whitespace. If this is part of
+                # indentation whitespace, skip to the first non-whitespace
+                # character.
+                is_indentation_whitespace = True
+                back_pos = position - 1
+                line_start_pos = self._get_line_start_pos()
+                while back_pos >= line_start_pos:
+                    if not is_whitespace(document.characterAt(back_pos)):
+                        is_indentation_whitespace = False
+                        break
+                    back_pos -= 1
+                if is_indentation_whitespace:
+                    # Skip to the first non-whitespace character
+                    while (
+                        position < end_pos and
+                        position < line_end_pos and
+                        is_whitespace(document.characterAt(position))
+                    ):
+                        position += 1
+                    cursor.setPosition(position)
+                    return cursor
+
+            while (
+                position < end_pos and
+                position < line_end_pos and
+                not is_letter_or_number(document.characterAt(position))
+            ):
+                position += 1
+
+            while (
+                position < end_pos and
+                position < line_end_pos and
+                is_letter_or_number(document.characterAt(position))
+            ):
+                position += 1
+
+            cursor.setPosition(position)
         return cursor
 
-    def _insert_continuation_prompt(self, cursor):
+    def _indent(self, dedent=True):
+        """ Indent/Dedent current line or current text selection.
+        """
+        num_newlines = self._get_cursor().selectedText().count("\u2029")
+        save_cur = self._get_cursor()
+        cur = self._get_cursor()
+
+        # move to first line of selection, if present
+        cur.setPosition(cur.selectionStart())
+        self._control.setTextCursor(cur)
+        spaces = self._get_leading_spaces()
+        # calculate number of spaces neded to align/indent to 4-space multiple
+        step = self._tab_width - (spaces % self._tab_width)
+
+        # insertText shouldn't replace if selection is active
+        cur.clearSelection()
+
+        # indent all lines in selection (ir just current) by `step`
+        for _ in range(num_newlines+1):
+            # update underlying cursor for _get_line_start_pos
+            self._control.setTextCursor(cur)
+            # move to first non-ws char on line
+            cur.setPosition(self._get_line_start_pos())
+            if dedent:
+                spaces = min(step, self._get_leading_spaces())
+                safe_step = spaces % self._tab_width
+                cur.movePosition(QtGui.QTextCursor.Right,
+                                 QtGui.QTextCursor.KeepAnchor,
+                                 min(spaces, safe_step if safe_step != 0
+                                    else self._tab_width))
+                cur.removeSelectedText()
+            else:
+                cur.insertText(' '*step)
+            cur.movePosition(QtGui.QTextCursor.Down)
+
+        # restore cursor
+        self._control.setTextCursor(save_cur)
+
+    def _insert_continuation_prompt(self, cursor, indent=''):
         """ Inserts new continuation prompt using the specified cursor.
         """
         if self._continuation_prompt_html is None:
@@ -1744,6 +1951,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         else:
             self._continuation_prompt = self._insert_html_fetching_plain_text(
                 cursor, self._continuation_prompt_html)
+        if indent:
+            cursor.insertText(indent)
 
     def _insert_block(self, cursor, block_format=None):
         """ Inserts an empty QTextBlock using the specified cursor.
@@ -2144,7 +2353,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             move_forward = False
         else:
             move_forward = True
-            self._append_before_prompt_cursor.setPosition(cursor.position())
+            self._append_before_prompt_cursor.setPosition(cursor.position() - 1)
 
         # Insert a preliminary newline, if necessary.
         if newline and cursor.position() > 0:

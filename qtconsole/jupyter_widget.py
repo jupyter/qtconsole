@@ -63,9 +63,11 @@ class JupyterWidget(IPythonWidget):
 
     editor = Unicode(default_editor, config=True,
         help="""
-        A command for invoking a system text editor. If the string contains a
+        A command for invoking a GUI text editor. If the string contains a
         {filename} format specifier, it will be used. Otherwise, the filename
-        will be appended to the end the command.
+        will be appended to the end the command. To use a terminal text editor,
+        the command should launch a new terminal, e.g.
+        ``"gnome-terminal -- vim"``.
         """)
 
     editor_line = Unicode(config=True,
@@ -149,7 +151,7 @@ class JupyterWidget(IPythonWidget):
             matches = content['matches']
             start = content['cursor_start']
             end = content['cursor_end']
-            
+
             start = max(start, 0)
             end = max(end, start)
 
@@ -218,18 +220,23 @@ class JupyterWidget(IPythonWidget):
                 items.append(cell)
                 last_cell = cell
         self._set_history(items)
-    
+
     def _insert_other_input(self, cursor, content):
         """Insert function for input from other frontends"""
-        cursor.beginEditBlock()
-        start = cursor.position()
         n = content.get('execution_count', 0)
+        prompt = self._make_in_prompt(n, remote=True)
+        cont_prompt = self._make_continuation_prompt(self._prompt, remote=True)
         cursor.insertText('\n')
-        self._insert_html(cursor, self._make_in_prompt(n))
-        cursor.insertText(content['code'])
-        self._highlighter.rehighlightBlock(cursor.block())
-        cursor.endEditBlock()
-        
+        for i, line in enumerate(content['code'].strip().split('\n')):
+            if i == 0:
+                self._insert_html(cursor, prompt)
+            else:
+                self._insert_html(cursor, cont_prompt)
+            self._insert_plain_text(cursor, line + '\n')
+
+        # Update current prompt number
+        self._update_prompt(n + 1)
+
     def _handle_execute_input(self, msg):
         """Handle an execute_input message"""
         self.log.debug("execute_input: %s", msg.get('content', ''))
@@ -238,20 +245,27 @@ class JupyterWidget(IPythonWidget):
 
     def _handle_execute_result(self, msg):
         """Handle an execute_result message"""
+        self.log.debug("execute_result: %s", msg.get('content', ''))
         if self.include_output(msg):
             self.flush_clearoutput()
             content = msg['content']
             prompt_number = content.get('execution_count', 0)
             data = content['data']
             if 'text/plain' in data:
-                self._append_plain_text(self.output_sep, True)
-                self._append_html(self._make_out_prompt(prompt_number), True)
+                self._append_plain_text(self.output_sep, before_prompt=True)
+                self._append_html(
+                    self._make_out_prompt(prompt_number, remote=not self.from_here(msg)),
+                    before_prompt=True
+                )
                 text = data['text/plain']
                 # If the repr is multiline, make sure we start on a new line,
                 # so that its lines are aligned.
                 if "\n" in text and not self.output_sep.endswith("\n"):
-                    self._append_plain_text('\n', True)
-                self._append_plain_text(text + self.output_sep2, True)
+                    self._append_plain_text('\n', before_prompt=True)
+                self._append_plain_text(text + self.output_sep2, before_prompt=True)
+
+                if not self.from_here(msg):
+                    self._append_plain_text('\n', before_prompt=True)
 
     def _handle_display_data(self, msg):
         """The base handler for the ``display_data`` message."""
@@ -308,6 +322,8 @@ class JupyterWidget(IPythonWidget):
 
     def _process_execute_error(self, msg):
         """Handle an execute_error message"""
+        self.log.debug("execute_error: %s", msg.get('content', ''))
+
         content = msg['content']
 
         traceback = '\n'.join(content['traceback']) + '\n'
@@ -327,7 +343,7 @@ class JupyterWidget(IPythonWidget):
         else:
             # This is the fallback for now, using plain text with ansi
             # escapes
-            self._append_plain_text(traceback)
+            self._append_plain_text(traceback, before_prompt=not self.from_here(msg))
 
     def _process_execute_payload(self, item):
         """ Reimplemented to dispatch payloads to handler methods.
@@ -362,6 +378,30 @@ class JupyterWidget(IPythonWidget):
         self._set_continuation_prompt(
             self._make_continuation_prompt(self._prompt), html=True)
 
+    def _update_prompt(self, new_prompt_number):
+        """Replace the last displayed prompt with a new one."""
+        block = self._previous_prompt_obj.block
+
+        # Make sure the prompt block has not been erased.
+        if block.isValid() and block.text():
+
+            # Remove the old prompt and insert a new prompt.
+            cursor = QtGui.QTextCursor(block)
+            cursor.movePosition(QtGui.QTextCursor.Right,
+                                QtGui.QTextCursor.KeepAnchor,
+                                self._previous_prompt_obj.length)
+            prompt = self._make_in_prompt(new_prompt_number)
+            self._prompt = self._insert_html_fetching_plain_text(
+                cursor, prompt)
+
+            # When the HTML is inserted, Qt blows away the syntax
+            # highlighting for the line, so we need to rehighlight it.
+            self._highlighter.rehighlightBlock(cursor.block())
+
+            # Update the prompt cursor
+            self._prompt_cursor.setPosition(cursor.position() - 1)
+
+
     def _show_interpreter_prompt_for_reply(self, msg):
         """ Reimplemented for IPython-style prompts.
         """
@@ -377,24 +417,7 @@ class JupyterWidget(IPythonWidget):
             previous_prompt_number = content['execution_count']
         if self._previous_prompt_obj and \
                 self._previous_prompt_obj.number != previous_prompt_number:
-            block = self._previous_prompt_obj.block
-
-            # Make sure the prompt block has not been erased.
-            if block.isValid() and block.text():
-
-                # Remove the old prompt and insert a new prompt.
-                cursor = QtGui.QTextCursor(block)
-                cursor.movePosition(QtGui.QTextCursor.Right,
-                                    QtGui.QTextCursor.KeepAnchor,
-                                    self._previous_prompt_obj.length)
-                prompt = self._make_in_prompt(previous_prompt_number)
-                self._prompt = self._insert_html_fetching_plain_text(
-                    cursor, prompt)
-
-                # When the HTML is inserted, Qt blows away the syntax
-                # highlighting for the line, so we need to rehighlight it.
-                self._highlighter.rehighlightBlock(cursor.block())
-
+            self._update_prompt(previous_prompt_number)
             self._previous_prompt_obj = None
 
         # Show a new prompt with the kernel's estimated prompt number.
@@ -469,7 +492,7 @@ class JupyterWidget(IPythonWidget):
                     msg = 'Opening editor with command "%s" failed.\n'
                     self._append_plain_text(msg % command)
 
-    def _make_in_prompt(self, number):
+    def _make_in_prompt(self, number, remote=False):
         """ Given a prompt number, returns an HTML In prompt.
         """
         try:
@@ -478,18 +501,22 @@ class JupyterWidget(IPythonWidget):
             # allow in_prompt to leave out number, e.g. '>>> '
             from xml.sax.saxutils import escape
             body = escape(self.in_prompt)
+        if remote:
+            body = self.other_output_prefix + body
         return '<span class="in-prompt">%s</span>' % body
 
-    def _make_continuation_prompt(self, prompt):
+    def _make_continuation_prompt(self, prompt, remote=False):
         """ Given a plain text version of an In prompt, returns an HTML
             continuation prompt.
         """
         end_chars = '...: '
         space_count = len(prompt.lstrip('\n')) - len(end_chars)
+        if remote:
+            space_count += len(self.other_output_prefix.rsplit('\n')[-1])
         body = '&nbsp;' * space_count + end_chars
         return '<span class="in-prompt">%s</span>' % body
 
-    def _make_out_prompt(self, number):
+    def _make_out_prompt(self, number, remote=False):
         """ Given a prompt number, returns an HTML Out prompt.
         """
         try:
@@ -498,6 +525,8 @@ class JupyterWidget(IPythonWidget):
             # allow out_prompt to leave out number, e.g. '<<< '
             from xml.sax.saxutils import escape
             body = escape(self.out_prompt)
+        if remote:
+            body = self.other_output_prefix + body
         return '<span class="out-prompt">%s</span>' % body
 
     #------ Payload handlers --------------------------------------------------
@@ -534,7 +563,7 @@ class JupyterWidget(IPythonWidget):
         self.setStyleSheet(self.style_sheet)
         if self._control is not None:
             self._control.document().setDefaultStyleSheet(self.style_sheet)
-        
+
         if self._page_control is not None:
             self._page_control.document().setDefaultStyleSheet(self.style_sheet)
 

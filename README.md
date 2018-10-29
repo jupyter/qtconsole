@@ -2,6 +2,7 @@
 
 [![Google Group](https://img.shields.io/badge/-Google%20Group-lightgrey.svg)](https://groups.google.com/forum/#!forum/jupyter)
 [![Build Status](https://travis-ci.org/jupyter/qtconsole.svg?branch=master)](https://travis-ci.org/jupyter/qtconsole)
+[![Coverage Status](https://coveralls.io/repos/github/jupyter/qtconsole/badge.svg?branch=master)](https://coveralls.io/github/jupyter/qtconsole?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/qtconsole/badge/?version=stable)](https://qtconsole.readthedocs.io/en/stable/)
 
 A rich Qt-based console for working with Jupyter kernels,
@@ -50,10 +51,12 @@ or with a system package manager. For Windows, PyQt binary packages may be
 used.
 
 **Note:** Additional information about using a system package manager may be
-found in the [qtconsole documentation](https://qtconsole.readthedocs.io). For
-example, on Linux Debian/Ubuntu, use ``sudo apt-get install python3-pyqt5`` to
-install PyQt5, ``sudo apt-get install python-qt4`` or
-``sudo apt-get install python3-pyqt4`` to install PyQt4.
+found in the [qtconsole documentation](https://qtconsole.readthedocs.io).
+
+More installation instructions for PyQT can be found in the [PyQt5 documentation](http://pyqt.sourceforge.net/Docs/PyQt5/installation.html) and [PyQt4 documentation](http://pyqt.sourceforge.net/Docs/PyQt4/installation.html)
+
+Source packages for Windows/Linux/MacOS can be found here: [PyQt5](https://www.riverbankcomputing.com/software/pyqt/download5) and [PyQt4](https://riverbankcomputing.com/software/pyqt/download).
+
 
 ## Usage
 To run the Qt console:

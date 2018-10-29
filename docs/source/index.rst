@@ -445,31 +445,28 @@ garbage collected until the application itself is destroyed.
 Embedding the QtConsole in a Qt application
 -------------------------------------------
 
-In order to make the QtConsole available to an external Qt GUI application (just as
-:func:`IPython.embed` enables one to embed a terminal session of IPython in a
-command-line application), there are a few options:
-
-* First start IPython, and then start the external Qt application from IPython,
-  as described above.  Effectively, this embeds your application in IPython
-  rather than the other way round.
+There are a few options to integrate the Jupyter Qt console with your own
+application:
 
 * Use :class:`qtconsole.rich_jupyter_widget.RichJupyterWidget` in your
   Qt application. This will embed the console widget in your GUI and start the
   kernel in a separate process, so code typed into the console cannot access
-  objects in your application.
+  objects in your application. See :file:`examples/embed_qtconsole.py` for an
+  example.
 
-* Start a standard IPython kernel in the process of the external Qt
-  application. See :file:`examples/Embedding/ipkernel_qtapp.py` for an example. Due
-  to IPython's two-process model, the QtConsole itself will live in another
-  process with its own QApplication, and thus cannot be embedded in the main
-  GUI.
+* Start an IPython kernel inside a PyQt application (
+  `ipkernel_qtapp.py <https://github.com/ipython/ipykernel/blob/master/examples/embedding/ipkernel_qtapp.py>`_
+  in the ``ipykernel`` repository shows how to do this). Then launch the Qt
+  console in a separate process to connect to it. This means that the console
+  will be in a separate window from your application's UI, but the code entered
+  by the user runs in your application.
 
 * Start a special IPython kernel, the
-  :class:`IPython.kernel.inprocess.ipkernel.InProcessKernel`, that allows a
-  QtConsole in the same process. See :file:`examples/Embedding/inprocess_qtconsole.py`
-  for an example. While the QtConsole can now be embedded in the main GUI, one
-  cannot connect to the kernel from other consoles as there are no real ZMQ
-  sockets anymore.
+  :class:`ipykernel.inprocess.ipkernel.InProcessKernel`, which allows a
+  QtConsole in the same process. See :file:`examples/inprocess_qtconsole.py`
+  for an example. This allows both the kernel and the console interface to be
+  part of your application, but it is not well supported. We encourage you to
+  use one of the above options instead if you can.
 
 Regressions
 ===========

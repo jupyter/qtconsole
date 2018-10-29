@@ -8,10 +8,6 @@ from __future__ import print_function
 from collections import namedtuple
 import sys
 import uuid
-try:
-    from queue import Empty
-except ImportError:
-    from Queue import Empty
 import re
 
 from qtconsole import qt
@@ -20,38 +16,11 @@ from ipython_genutils import py3compat
 from ipython_genutils.importstring import import_item
 
 from qtconsole.base_frontend_mixin import BaseFrontendMixin
-from traitlets import Any, Bool, Float, Instance, Unicode, DottedObjectName
+from traitlets import Any, Bool, Instance, Unicode, DottedObjectName
 from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
 from .pygments_highlighter import PygmentsHighlighter
-
-_classic_prompt_re = re.compile(r'^([ \t]*>>> |^[ \t]*\.\.\. )')
-
-def transform_classic_prompt(line):
-    """Handle inputs that start with '>>> ' syntax."""
-
-    if not line or line.isspace():
-        return line
-    m = _classic_prompt_re.match(line)
-    if m:
-        return line[len(m.group(0)):]
-    else:
-        return line
-
-
-_ipy_prompt_re = re.compile(r'^([ \t]*In \[\d+\]: |^[ \t]*\ \ \ \.\.\.+: )')
-
-def transform_ipy_prompt(line):
-    """Handle inputs that start classic IPython prompt syntax."""
-
-    if not line or line.isspace():
-        return line
-    m = _ipy_prompt_re.match(line)
-    if m:
-        return line[len(m.group(0)):]
-    else:
-        return line
 
 
 class FrontendHighlighter(PygmentsHighlighter):
@@ -63,11 +32,39 @@ class FrontendHighlighter(PygmentsHighlighter):
         self._current_offset = 0
         self._frontend = frontend
         self.highlighting_on = False
+        self._classic_prompt_re = re.compile(
+            r'^(%s)?([ \t]*>>> |^[ \t]*\.\.\. )' % re.escape(frontend.other_output_prefix)
+        )
+        self._ipy_prompt_re = re.compile(
+            r'^(%s)?([ \t]*In \[\d+\]: |[ \t]*\ \ \ \.\.\.+: )' % re.escape(frontend.other_output_prefix)
+        )
+
+    def transform_classic_prompt(self, line):
+        """Handle inputs that start with '>>> ' syntax."""
+
+        if not line or line.isspace():
+            return line
+        m = self._classic_prompt_re.match(line)
+        if m:
+            return line[len(m.group(0)):]
+        else:
+            return line
+
+    def transform_ipy_prompt(self, line):
+        """Handle inputs that start classic IPython prompt syntax."""
+
+        if not line or line.isspace():
+            return line
+        m = self._ipy_prompt_re.match(line)
+        if m:
+            return line[len(m.group(0)):]
+        else:
+            return line
 
     def highlightBlock(self, string):
         """ Highlight a block of text. Reimplemented to highlight selectively.
         """
-        if not self.highlighting_on:
+        if not hasattr(self, 'highlighting_on') or not self.highlighting_on:
             return
 
         # The input to this function is a unicode string that may contain
@@ -76,18 +73,13 @@ class FrontendHighlighter(PygmentsHighlighter):
         current_block = self.currentBlock()
         string = self._frontend._get_block_plain_text(current_block)
 
-        # Decide whether to check for the regular or continuation prompt.
-        if current_block.contains(self._frontend._prompt_pos):
-            prompt = self._frontend._prompt
-        else:
-            prompt = self._frontend._continuation_prompt
-
         # Only highlight if we can identify a prompt, but make sure not to
         # highlight the prompt.
-        if string.startswith(prompt):
-            self._current_offset = len(prompt)
-            string = string[len(prompt):]
-            super(FrontendHighlighter, self).highlightBlock(string)
+        without_prompt = self.transform_ipy_prompt(string)
+        diff = len(string) - len(without_prompt)
+        if diff > 0:
+            self._current_offset = diff
+            super(FrontendHighlighter, self).highlightBlock(without_prompt)
 
     def rehighlightBlock(self, block):
         """ Reimplemented to temporarily enable highlighting if disabled.
@@ -134,23 +126,20 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     confirm_restart = Bool(True, config=True,
         help="Whether to ask for user confirmation when restarting kernel")
-    
+
     lexer_class = DottedObjectName(config=True,
         help="The pygments lexer class to use."
-    )
-    is_complete_timeout = Float(0.25, config=True,
-        help="Seconds to wait for is_complete replies from the kernel."
     )
     def _lexer_class_changed(self, name, old, new):
         lexer_class = import_item(new)
         self.lexer = lexer_class()
-    
+
     def _lexer_class_default(self):
         if py3compat.PY3:
             return 'pygments.lexers.Python3Lexer'
         else:
             return 'pygments.lexers.PythonLexer'
-    
+
     lexer = Any()
     def _lexer_default(self):
         lexer_class = import_item(self.lexer_class)
@@ -243,10 +232,15 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             if text:
                 # Remove prompts.
                 lines = text.splitlines()
-                lines = map(transform_classic_prompt, lines)
-                lines = map(transform_ipy_prompt, lines)
+                lines = map(self._highlighter.transform_classic_prompt, lines)
+                lines = map(self._highlighter.transform_ipy_prompt, lines)
                 text = '\n'.join(lines)
-                was_newline = text[-1] == '\n'
+                # Needed to prevent errors when copying the prompt.
+                # See issue 264
+                try:
+                    was_newline = text[-1] == '\n'
+                except IndexError:
+                    was_newline = False
                 if was_newline:  # user doesn't need newline
                     text = text[:-1]
                 QtGui.QApplication.clipboard().setText(text)
@@ -256,35 +250,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' abstract interface
     #---------------------------------------------------------------------------
-
-    def _is_complete(self, source, interactive):
-        """ Returns whether 'source' can be completely processed and a new
-            prompt created. When triggered by an Enter/Return key press,
-            'interactive' is True; otherwise, it is False.
-            
-            Returns
-            -------
-            
-            (complete, indent): (bool, str)
-            complete is a bool, indicating whether the input is complete or not.
-            indent is the current indentation string for autoindent.
-            If complete is True, indent will be '', and should be ignored.
-        """
-        kc = self.blocking_client
-        if kc is None:
-            self.log.warn("No blocking client to make is_complete requests")
-            return False, u''
-        msg_id = kc.is_complete(source)
-        while True:
-            try:
-                reply = kc.shell_channel.get_msg(block=True, timeout=self.is_complete_timeout)
-            except Empty:
-                # assume incomplete output if we get no reply in time
-                return False, u''
-            if reply['parent_header'].get('msg_id', None) == msg_id:
-                status = reply['content'].get('status', u'complete')
-                indent = reply['content'].get('indent', u'')
-                return status != 'incomplete', indent
 
     def _execute(self, source, hidden):
         """ Execute 'source'. If 'hidden', do not show any output.
@@ -317,10 +282,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         # Perform tab completion if:
         # 1) The cursor is in the input buffer.
         # 2) There is a non-whitespace character before the cursor.
+        # 3) There is no active selection.
         text = self._get_input_buffer_cursor_line()
         if text is None:
             return False
-        complete = bool(text[:self._get_input_buffer_cursor_column()].strip())
+        non_ws_before = bool(text[:self._get_input_buffer_cursor_column()].strip())
+        complete = non_ws_before and self._get_cursor().selectedText() == ''
         if complete:
             self._complete()
         return not complete
@@ -379,13 +346,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                         return True
 
         return super(FrontendWidget, self)._event_filter_console_keypress(event)
-
-    def _insert_continuation_prompt(self, cursor, indent=''):
-        """ Reimplemented for auto-indentation.
-        """
-        super(FrontendWidget, self)._insert_continuation_prompt(cursor)
-        if indent:
-            cursor.insertText(indent)
 
     #---------------------------------------------------------------------------
     # 'BaseFrontendMixin' abstract interface
@@ -458,7 +418,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _handle_execute_reply(self, msg):
         """ Handles replies for code execution.
         """
-        self.log.debug("execute: %s", msg.get('content', ''))
+        self.log.debug("execute_reply: %s", msg.get('content', ''))
         msg_id = msg['parent_header']['msg_id']
         info = self._request_info['execute'].get(msg_id)
         # unset reading flag, because if execute finished, raw_input can't
@@ -739,7 +699,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     #---------------------------------------------------------------------------
     # 'FrontendWidget' protected interface
     #---------------------------------------------------------------------------
-    
+
     def _auto_call_tip(self):
         """Trigger call tip automatically on open parenthesis
         
@@ -750,7 +710,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         if cursor.document().characterAt(cursor.position()) == '(':
             # trigger auto call tip on open paren
             self._call_tip()
-    
+
     def _call_tip(self):
         """Shows a call tip, if appropriate, at the current cursor location."""
         # Decide if it makes sense to show a call tip

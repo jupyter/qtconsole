@@ -3,6 +3,55 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.4.2:
+
+`4.4.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.2>`__
+
+- Fix incompatibility with PyQt5 5.11.
+
+.. _4.4.1:
+
+`4.4.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.1>`__
+
+- Fix setting width and height when displaying images with IPython's Image.
+- Avoid displaying errors when using Matplotlib to generate pngs from Latex.
+
+
+.. _4.4:
+
+`4.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4>`__
+
+Additions
+~~~~~~~~~
+- :kbd:`Control-D` enters an EOT character if kernel is executing and input is
+  empty.
+- Implement block indent on multiline selection with :kbd:`Tab`.
+- Change the syntax highlighting style used in the console at any time. It can
+  be done in the menu ``View > Syntax Style``.
+
+Changes
+~~~~~~~
+- Change :kbd:`Control-Shift-A` to select cell contents first.
+- Change default tab width to 4 spaces.
+- Enhance handling of input from other clients.
+- Don't block the console when the kernel is asked for completions.
+
+Fixes
+~~~~~
+- Fix bug that make PySide2 a forbidden binding.
+- Fix IndexError when copying prompts.
+- Fix behavior of right arrow key.
+- Fix behavior of :kbd:`Control-Backspace` and :kbd:`Control-Del`
+
+
+.. _4.3.1:
+
+`4.3.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.3.1>`__
+
+- Make %clear to delete previous output on Windows.
+- Fix SVG rendering.
+
+
 .. _4.3:
 
 4.3
