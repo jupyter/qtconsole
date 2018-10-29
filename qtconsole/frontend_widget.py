@@ -721,7 +721,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         # widget's tab width.
         text = text.expandtabs(8)
         self._append_plain_text(text, before_prompt=True)
-        self._control.moveCursor(QtGui.QTextCursor.End)
 
     def flush_clearoutput(self):
         """If a clearoutput is pending, execute it."""
