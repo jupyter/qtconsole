@@ -408,10 +408,11 @@ class RichJupyterWidget(RichIPythonWidget):
             image.save(filename, format)
 
 
-# clobber RichIPythonWidget above:
+# Clobber RichIPythonWidget above:
 
 class RichIPythonWidget(RichJupyterWidget):
-    """Deprecated class. Use RichJupyterWidget"""
+    """Deprecated class. Use RichJupyterWidget."""
     def __init__(self, *a, **kw):
-        warn("RichIPythonWidget is deprecated, use RichJupyterWidget")
+        warn("RichIPythonWidget is deprecated, use RichJupyterWidget",
+             DeprecationWarning)
         super(RichIPythonWidget, self).__init__(*a, **kw)

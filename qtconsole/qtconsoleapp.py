@@ -413,13 +413,14 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
 
 class IPythonQtConsoleApp(JupyterQtConsoleApp):
     def __init__(self, *a, **kw):
-        warn("IPythonQtConsoleApp is deprecated, use JupyterQtConsoleApp")
+        warn("IPythonQtConsoleApp is deprecated; use JupyterQtConsoleApp",
+             DeprecationWarning)
         super(IPythonQtConsoleApp, self).__init__(*a, **kw)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Main entry point
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def main():
     JupyterQtConsoleApp.launch_instance()
