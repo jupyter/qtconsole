@@ -1,7 +1,7 @@
 # Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-from base64 import decodestring
+from base64 import decodebytes
 import os
 import re
 from warnings import warn
@@ -131,13 +131,15 @@ class RichJupyterWidget(RichIPythonWidget):
                 self._append_html(self.output_sep2, True)
             elif 'image/png' in data:
                 self._pre_image_append(msg, prompt_number)
-                png = decodestring(data['image/png'].encode('ascii'))
-                self._append_png(png, True, metadata=metadata.get('image/png', None))
+                png = decodebytes(data['image/png'].encode('ascii'))
+                self._append_png(png, True, metadata=metadata.get('image/png',
+                                                                  None))
                 self._append_html(self.output_sep2, True)
             elif 'image/jpeg' in data and self._jpg_supported:
                 self._pre_image_append(msg, prompt_number)
-                jpg = decodestring(data['image/jpeg'].encode('ascii'))
-                self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
+                jpg = decodebytes(data['image/jpeg'].encode('ascii'))
+                self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg',
+                                                                  None))
                 self._append_html(self.output_sep2, True)
             elif 'text/latex' in data:
                 self._pre_image_append(msg, prompt_number)
@@ -166,10 +168,10 @@ class RichJupyterWidget(RichIPythonWidget):
             elif 'image/png' in data:
                 # PNG data is base64 encoded as it passes over the network
                 # in a JSON structure so we decode it.
-                png = decodestring(data['image/png'].encode('ascii'))
+                png = decodebytes(data['image/png'].encode('ascii'))
                 self._append_png(png, True, metadata=metadata.get('image/png', None))
             elif 'image/jpeg' in data and self._jpg_supported:
-                jpg = decodestring(data['image/jpeg'].encode('ascii'))
+                jpg = decodebytes(data['image/jpeg'].encode('ascii'))
                 self._append_jpg(jpg, True, metadata=metadata.get('image/jpeg', None))
             elif 'text/latex' in data and latex_to_png:
                 try:
