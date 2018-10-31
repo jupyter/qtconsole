@@ -162,11 +162,11 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     _local_kernel = False
     _highlighter = Instance(FrontendHighlighter, allow_none=True)
 
-    #---------------------------------------------------------------------------
-    # 'object' interface
-    #---------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # 'Object' interface
+    # -------------------------------------------------------------------------
 
-    def __init__(self, *args, **kw):
+    def __init__(self, *args, local_kernel=_local_kernel, **kw):
         super(FrontendWidget, self).__init__(*args, **kw)
         # FIXME: remove this when PySide min version is updated past 1.0.7
         # forcefully disable calltips if PySide is < 1.0.7, because they crash
@@ -212,8 +212,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         document.contentsChange.connect(self._document_contents_change)
 
         # Set flag for whether we are connected via localhost.
-        self._local_kernel = kw.get('local_kernel',
-                                    FrontendWidget._local_kernel)
+        self._local_kernel = local_kernel
 
         # Whether or not a clear_output call is pending new output.
         self._pending_clearoutput = False
