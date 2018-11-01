@@ -166,7 +166,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     # 'Object' interface
     # -------------------------------------------------------------------------
 
-    def __init__(self, *args, local_kernel=_local_kernel, **kw):
+    def __init__(self, local_kernel=_local_kernel, *args, **kw):
         super(FrontendWidget, self).__init__(*args, **kw)
         # FIXME: remove this when PySide min version is updated past 1.0.7
         # forcefully disable calltips if PySide is < 1.0.7, because they crash
