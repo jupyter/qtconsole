@@ -162,18 +162,19 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     _local_kernel = False
     _highlighter = Instance(FrontendHighlighter, allow_none=True)
 
-    #---------------------------------------------------------------------------
-    # 'object' interface
-    #---------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
+    # 'Object' interface
+    # -------------------------------------------------------------------------
 
-    def __init__(self, *args, **kw):
+    def __init__(self, local_kernel=_local_kernel, *args, **kw):
         super(FrontendWidget, self).__init__(*args, **kw)
         # FIXME: remove this when PySide min version is updated past 1.0.7
         # forcefully disable calltips if PySide is < 1.0.7, because they crash
         if qt.QT_API == qt.QT_API_PYSIDE:
             import PySide
-            if PySide.__version_info__ < (1,0,7):
-                self.log.warn("PySide %s < 1.0.7 detected, disabling calltips" % PySide.__version__)
+            if PySide.__version_info__ < (1, 0, 7):
+                self.log.warning("PySide %s < 1.0.7 found; disabling calltips",
+                                 PySide.__version__)
                 self.enable_calltips = False
 
         # FrontendWidget protected variables.
@@ -212,8 +213,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         document.contentsChange.connect(self._document_contents_change)
 
         # Set flag for whether we are connected via localhost.
-        self._local_kernel = kw.get('local_kernel',
-                                    FrontendWidget._local_kernel)
+        self._local_kernel = local_kernel
 
         # Whether or not a clear_output call is pending new output.
         self._pending_clearoutput = False
@@ -484,7 +484,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _handle_kernel_died(self, since_last_heartbeat):
         """Handle the kernel's death (if we do not own the kernel).
         """
-        self.log.warn("kernel died: %s", since_last_heartbeat)
+        self.log.warning("kernel died: %s", since_last_heartbeat)
         if self.custom_restart:
             self.custom_restart_kernel_died.emit(since_last_heartbeat)
         else:
@@ -496,7 +496,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
         There's nothing to do but show a message.
         """
-        self.log.warn("kernel restarted")
+        self.log.warning("kernel restarted")
         self._kernel_restarted_message(died=died)
         self.reset()
 

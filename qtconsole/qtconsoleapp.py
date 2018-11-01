@@ -363,11 +363,14 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         self._sigint_timer = timer
 
     def _deprecate_config(self, cfg, old_name, new_name):
-        """Warn about deprecated config"""
+        """Warn about deprecated config."""
         if old_name in cfg:
-            self.log.warn("Use %s in config, not %s. Outdated config:\n    %s",
+            self.log.warning(
+                "Use %s in config, not %s. Outdated config:\n    %s",
                 new_name, old_name,
-                '\n    '.join('{name}.{key} = {value!r}'.format(key=key, value=value, name=old_name)
+                '\n    '.join(
+                    '{name}.{key} = {value!r}'.format(key=key, value=value,
+                                                      name=old_name)
                     for key, value in self.config[old_name].items()
                 )
             )
@@ -410,13 +413,14 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
 
 class IPythonQtConsoleApp(JupyterQtConsoleApp):
     def __init__(self, *a, **kw):
-        warn("IPythonQtConsoleApp is deprecated, use JupyterQtConsoleApp")
+        warn("IPythonQtConsoleApp is deprecated; use JupyterQtConsoleApp",
+             DeprecationWarning)
         super(IPythonQtConsoleApp, self).__init__(*a, **kw)
 
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Main entry point
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 def main():
     JupyterQtConsoleApp.launch_instance()

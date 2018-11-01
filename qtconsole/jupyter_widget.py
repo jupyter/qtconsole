@@ -13,6 +13,7 @@ from subprocess import Popen
 import sys
 import time
 from textwrap import dedent
+from warnings import warn
 
 from qtconsole.qt import QtCore, QtGui
 
@@ -585,11 +586,11 @@ class JupyterWidget(IPythonWidget):
         return "Jupyter QtConsole {version}\n".format(version=__version__)
 
 
-# clobber IPythonWidget above:
+# Clobber IPythonWidget above:
 
 class IPythonWidget(JupyterWidget):
-    """Deprecated class. Use JupyterWidget"""
+    """Deprecated class; use JupyterWidget."""
     def __init__(self, *a, **kw):
-        warn("IPythonWidget is deprecated, use JupyterWidget")
+        warn("IPythonWidget is deprecated; use JupyterWidget",
+             DeprecationWarning)
         super(IPythonWidget, self).__init__(*a, **kw)
-
