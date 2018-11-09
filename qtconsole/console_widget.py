@@ -2024,6 +2024,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if buffer_size > 0:
             text = self._get_last_lines(text, buffer_size)
 
+        if self._executing:
+            viewport = self._control.viewport()
+            end_scroll_pos = self._control.cursorForPosition(
+                QtCore.QPoint(viewport.width()-1, viewport.height()-1)
+                ).position()
+            end_doc_pos = self._get_end_pos()
+
         cursor.beginEditBlock()
         if self.ansi_codes:
             for substring in self._ansi_processor.split_string(text):
@@ -2083,6 +2090,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         else:
             cursor.insertText(text)
         cursor.endEditBlock()
+
+        if self._executing and end_doc_pos - end_scroll_pos <= 1:
+            self._control.moveCursor(QtGui.QTextCursor.End)
 
     def _insert_plain_text_into_buffer(self, cursor, text):
         """ Inserts text into the input buffer using the specified cursor (which
