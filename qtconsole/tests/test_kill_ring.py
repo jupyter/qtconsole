@@ -1,12 +1,13 @@
 import unittest
 
+import pytest
+
 from qtconsole.qt import QtGui
-
 from qtconsole.kill_ring import KillRing, QtKillRing
-import ipython_genutils.testing.decorators as dec
+from . import no_display
 
-setup = dec.skip_file_no_x11(__name__)
 
+@pytest.mark.skipif(no_display, reason="Doesn't work without a display")
 class TestKillRing(unittest.TestCase):
 
     @classmethod
@@ -80,5 +81,5 @@ class TestKillRing(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    import nose
-    nose.main()
+    import pytest
+    pytest.main()

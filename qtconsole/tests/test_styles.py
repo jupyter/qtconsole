@@ -1,4 +1,5 @@
 import unittest
+
 from qtconsole.styles import dark_color, dark_style
 
 

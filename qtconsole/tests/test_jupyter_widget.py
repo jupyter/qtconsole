@@ -1,15 +1,18 @@
 import unittest
 
+import pytest
+
 from qtconsole.qt import QtGui
 from qtconsole.qt_loaders import load_qtest
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
-import ipython_genutils.testing.decorators as dec
+from . import no_display
 
-setup = dec.skip_file_no_x11(__name__)
+
 QTest = load_qtest()
 
 
+@pytest.mark.skipif(no_display, reason="Doesn't work without a display")
 class TestJupyterWidget(unittest.TestCase):
 
     @classmethod

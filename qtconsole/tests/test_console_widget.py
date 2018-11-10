@@ -1,14 +1,17 @@
 import unittest
 
+import pytest
+
 from qtconsole.qt import QtCore, QtGui
 from qtconsole.qt_loaders import load_qtest
-
 from qtconsole.console_widget import ConsoleWidget
-import ipython_genutils.testing.decorators as dec
+from . import no_display
 
-setup = dec.skip_file_no_x11(__name__)
+
 QTest = load_qtest()
 
+
+@pytest.mark.skipif(no_display, reason="Doesn't work without a display")
 class TestConsoleWidget(unittest.TestCase):
 
     @classmethod
