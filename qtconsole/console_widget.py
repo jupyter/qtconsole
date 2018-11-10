@@ -1908,7 +1908,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def _indent(self, dedent=True):
         """ Indent/Dedent current line or current text selection.
         """
-        num_newlines = self._get_cursor().selectedText().count("\u2029")
+        num_newlines = self._get_cursor().selectedText().count(u"\u2029")
         save_cur = self._get_cursor()
         cur = self._get_cursor()
 

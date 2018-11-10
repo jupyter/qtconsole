@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+import pytest
+
 from qtconsole.qt import QtCore, QtGui
 from qtconsole.qt_loaders import load_qtest
-
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.completion_widget import CompletionWidget
-import ipython_genutils.testing.decorators as dec
+from . import no_display
+
 
 QTest = load_qtest()
 
-setup = dec.skip_file_no_x11(__name__)
 
-
+@pytest.mark.skipif(no_display, reason="Doesn't work without a display")
 class TestCompletionWidget(unittest.TestCase):
 
     @classmethod

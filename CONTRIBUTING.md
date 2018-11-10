@@ -29,5 +29,5 @@ python setup.py develop
 Finally, to run the tests:
 
 ```
-nosetests
+pytest
 ```

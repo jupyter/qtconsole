@@ -3,24 +3,22 @@ language: python
 sudo: false
 
 env:
-    global:
-        - CONDA_DEPENDENCIES='pyqt traitlets ipython_genutils jupyter_core jupyter_client pygments ipykernel nose'
-        - PIP_DEPENDENCIES='coveralls'
+  global:
+    - CONDA_DEPENDENCIES='pyqt traitlets ipython_genutils jupyter_core jupyter_client pygments ipykernel pytest pytest-cov mock'
+    - PIP_DEPENDENCIES='coveralls pytest-xvfb'
 
 matrix:
-    include:
-        - python: "3.6"
-        - python: "3.5"
-        - python: "3.4"
-        - python: "2.7"
-          env: PIP_DEPENDENCIES="coveralls mock"
+  include:
+    - python: "3.6"
+    - python: "3.5"
+    - python: "2.7"
 
 install:
-    - git clone --depth 1 git://github.com/astropy/ci-helpers.git
-    - source ci-helpers/travis/setup_conda.sh
+  - git clone --depth 1 git://github.com/astropy/ci-helpers.git
+  - source ci-helpers/travis/setup_conda.sh
 
 script:
-    - nosetests --with-coverage --cover-package qtconsole qtconsole
+  - pytest -x -vv --cov=qtconsole qtconsole
 
 after_success:
-    - coveralls
+  - coveralls
