@@ -12,9 +12,11 @@ To release a new version of qtconsole you need to follow these steps:
 
 * git add and git commit with `Release X.X.X`
 
-* python setup.py sdist upload
+* python setup.py sdist
 
-* activate pyenv-with-latest-setuptools && python setup.py bdist_wheel upload
+* activate pyenv-with-latest-setuptools && python setup.py bdist_wheel
+
+* twine upload dist/*
 
 * git tag -a X.X.X -m 'Release X.X.X'
 
