@@ -3,6 +3,14 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.4.3:
+
+`4.4.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.3>`__
+
+- Fix complete statements check inside indented block for Python after
+  the IPython 7 release.
+- Improve auto-scrolling during execution.
+
 .. _4.4.2:
 
 `4.4.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.2>`__
