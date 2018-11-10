@@ -625,10 +625,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Decide what to execute.
         if source is None:
             source = self.input_buffer
-            if not hidden:
-                # A newline is appended later, but it should be considered part
-                # of the input buffer.
-                source += '\n'
         elif not hidden:
             self.input_buffer = source
 

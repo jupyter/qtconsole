@@ -1,6 +1,11 @@
+import sys
 import unittest
 
 import pytest
+if sys.version[0] == '2':  # Python 2
+    from IPython.core.inputsplitter import InputSplitter as TransformerManager
+else:
+    from IPython.core.inputtransformer2 import TransformerManager
 
 from qtconsole.qt import QtCore, QtGui
 from qtconsole.qt_loaders import load_qtest
@@ -379,3 +384,33 @@ class TestConsoleWidget(unittest.TestCase):
             dict(parent_header=dict(msg_id=msg_id),
                  content=dict(status="complete", indent="###")))
         self.assertEqual(calls, [])
+
+    def test_complete_python(self):
+        """Test that is_complete is working correctly for Python."""
+        # Kernel client to test the responses of is_complete
+        class TestIPyKernelClient(object):
+            def is_complete(self, source):
+                tm = TransformerManager()
+                check_complete = tm.check_complete(source)
+                responses.append(check_complete)
+
+        # Initialize widget
+        responses = []
+        w = ConsoleWidget()
+        w._append_plain_text('Header\n')
+        w._prompt = 'prompt>'
+        w._show_prompt()
+        w.kernel_client = TestIPyKernelClient()
+
+        # Execute incomplete statement inside a block
+        code = '\n'.join(["if True:", "    a = 1"])
+        w._set_input_buffer(code)
+        w.execute(interactive=True)
+        assert responses == [('incomplete', 4)]
+
+        # Execute complete statement inside a block
+        responses = []
+        code = '\n'.join(["if True:", "    a = 1\n\n"])
+        w._set_input_buffer(code)
+        w.execute(interactive=True)
+        assert responses == [('complete', None)]
