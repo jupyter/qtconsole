@@ -2087,9 +2087,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor.insertText(text)
         cursor.endEditBlock()
 
-        if self._executing and end_doc_pos - end_scroll_pos <= 1:
-            self._control.moveCursor(QtGui.QTextCursor.End)
-
     def _insert_plain_text_into_buffer(self, cursor, text):
         """ Inserts text into the input buffer using the specified cursor (which
             must be in the input buffer), ensuring that continuation prompts are
