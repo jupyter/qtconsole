@@ -416,6 +416,11 @@ class TestConsoleWidget(unittest.TestCase):
         assert responses == [('complete', None)]
 
     def test_debug(self):
+        """
+        Make sure the cursor works while debugging 
+        
+        It might not because the console is "_executing"
+        """
         # Kernel client to test the responses of is_complete
         class TestIPyKernelClient(object):
             def is_complete(self, source):
