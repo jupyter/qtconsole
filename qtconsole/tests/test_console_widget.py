@@ -414,3 +414,36 @@ class TestConsoleWidget(unittest.TestCase):
         w._set_input_buffer(code)
         w.execute(interactive=True)
         assert responses == [('complete', None)]
+
+    def test_debug(self):
+        """
+        Make sure the cursor works while debugging 
+        
+        It might not because the console is "_executing"
+        """
+        # Kernel client to test the responses of is_complete
+        class TestIPyKernelClient(object):
+            def is_complete(self, source):
+                tm = TransformerManager()
+                check_complete = tm.check_complete(source)
+                responses.append(check_complete)
+
+        # Initialize widget
+        responses = []
+        w = ConsoleWidget()
+        w._append_plain_text('Header\n')
+        w._prompt = 'prompt>'
+        w._show_prompt()
+        w.kernel_client = TestIPyKernelClient()
+        control = w._control
+
+        # Execute incomplete statement inside a block
+        code = "%debug range(1)\n"
+        w._set_input_buffer(code)
+        w.execute(interactive=True)
+
+         # We should be able to move the cursor while debugging
+        w._set_input_buffer("abd")
+        QTest.keyClick(control, QtCore.Qt.Key_Left)
+        QTest.keyClick(control, 'c')
+        self.assertEqual(w._get_input_buffer(),"abcd")
