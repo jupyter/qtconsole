@@ -3,6 +3,12 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.4.4:
+
+`4.4.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.4>`__
+
+- Prevent cursor from moving to the end of the line while debugging.
+
 .. _4.4.3:
 
 `4.4.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.3>`__
