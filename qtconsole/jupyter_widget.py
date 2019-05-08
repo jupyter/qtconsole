@@ -133,6 +133,9 @@ class JupyterWidget(IPythonWidget):
         else:
             self.set_default_style()
 
+        # Initialize language name.
+        self.language_name = None
+
     #---------------------------------------------------------------------------
     # 'BaseFrontendMixin' abstract interface
     #
@@ -288,7 +291,7 @@ class JupyterWidget(IPythonWidget):
     def _handle_kernel_info_reply(self, rep):
         """Handle kernel info replies."""
         content = rep['content']
-        language_name = content['language_info']['name']
+        self.language_name = content['language_info']['name']
         pygments_lexer = content['language_info'].get('pygments_lexer', '')
 
         try:
@@ -299,7 +302,7 @@ class JupyterWidget(IPythonWidget):
             elif pygments_lexer == 'ipython2':
                 lexer = IPythonLexer()
             else:
-                lexer = get_lexer_by_name(language_name)
+                lexer = get_lexer_by_name(self.language_name)
             self._highlighter._lexer = lexer
         except ClassNotFound:
             pass
