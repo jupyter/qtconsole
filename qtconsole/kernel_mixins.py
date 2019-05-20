@@ -7,6 +7,7 @@ from qtconsole.qt import QtCore
 
 from traitlets import HasTraits, Type
 from .util import MetaQObjectHasTraits, SuperQObject
+from .comms import CommManager
 
 
 class QtKernelRestarterMixin(MetaQObjectHasTraits('NewBase', (HasTraits, SuperQObject), {})):
@@ -35,6 +36,9 @@ class QtKernelClientMixin(MetaQObjectHasTraits('NewBase', (HasTraits, SuperQObje
     # 'KernelClient' interface
     #---------------------------------------------------------------------------
 
+    def __init__(self, *args, **kwargs):
+        super(QtKernelClientMixin, self).__init__(*args, **kwargs)
+        self.comm_manager = None
     #------ Channel management -------------------------------------------------
 
     def start_channels(self, *args, **kw):
@@ -42,9 +46,11 @@ class QtKernelClientMixin(MetaQObjectHasTraits('NewBase', (HasTraits, SuperQObje
         """
         super(QtKernelClientMixin, self).start_channels(*args, **kw)
         self.started_channels.emit()
+        self.comm_manager = CommManager(parent=self, kernel_client=self)
 
     def stop_channels(self):
         """ Reimplemented to emit signal.
         """
         super(QtKernelClientMixin, self).stop_channels()
         self.stopped_channels.emit()
+        self.comm_manager = None
