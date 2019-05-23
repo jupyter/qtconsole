@@ -562,7 +562,7 @@ class JupyterWidget(IPythonWidget):
     #------ Trait change handlers --------------------------------------------
 
     @observe('style_sheet')
-    def _style_sheet_changed(self):
+    def _style_sheet_changed(self, changed=None):
         """ Set the style sheets of the underlying widgets.
         """
         self.setStyleSheet(self.style_sheet)
@@ -573,7 +573,7 @@ class JupyterWidget(IPythonWidget):
             self._page_control.document().setDefaultStyleSheet(self.style_sheet)
 
     @observe('syntax_style')
-    def _syntax_style_changed(self):
+    def _syntax_style_changed(self, changed=None):
         """ Set the style for the syntax highlighter.
         """
         if self._highlighter is None:
