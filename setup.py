@@ -27,8 +27,9 @@ PY3 = (sys.version_info[0] >= 3)
 # get on with it
 #-----------------------------------------------------------------------------
 
-import os
 from glob import glob
+import io
+import os
 
 from distutils.core import setup
 
@@ -49,22 +50,27 @@ version_ns = {}
 with open(pjoin(here, name, '_version.py')) as f:
     exec(f.read(), {}, version_ns)
 
+with io.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
 
 setup_args = dict(
-    name            = name,
-    version         = version_ns['__version__'],
-    scripts         = glob(pjoin('scripts', '*')),
-    packages        = packages,
-    package_data    = package_data,
-    description     = "Jupyter Qt console",
-    long_description= "Qt-based console for Jupyter with support for rich media output",
-    author          = 'Jupyter Development Team',
-    author_email    = 'jupyter@googlegroups.com',
-    url             = 'http://jupyter.org',
-    license         = 'BSD',
-    platforms       = "Linux, Mac OS X, Windows",
-    keywords        = ['Interactive', 'Interpreter', 'Shell'],
-    classifiers     = [
+    name                          = name,
+    version                       = version_ns['__version__'],
+    scripts                       = glob(pjoin('scripts', '*')),
+    packages                      = packages,
+    package_data                  = package_data,
+    description                   = "Jupyter Qt console",
+    long_description              = long_description,
+    long_description_content_type = 'text/markdown',
+    author                        = 'Jupyter Development Team',
+    author_email                  = 'jupyter@googlegroups.com',
+    maintainer                    = 'Spyder Development Team',
+    url                           = 'http://jupyter.org',
+    license                       = 'BSD',
+    platforms                     = "Linux, Mac OS X, Windows",
+    keywords                      = ['Interactive', 'Interpreter', 'Shell'],
+    classifiers = [
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Science/Research',
@@ -72,9 +78,9 @@ setup_args = dict(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )
 
