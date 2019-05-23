@@ -21,7 +21,7 @@ from IPython.lib.lexers import IPythonLexer, IPython3Lexer
 from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 from qtconsole import __version__
-from traitlets import Bool, Unicode
+from traitlets import Bool, Unicode, observe, default
 from .frontend_widget import FrontendWidget
 from . import styles
 
@@ -561,6 +561,7 @@ class JupyterWidget(IPythonWidget):
 
     #------ Trait change handlers --------------------------------------------
 
+    @observe('style_sheet')
     def _style_sheet_changed(self):
         """ Set the style sheets of the underlying widgets.
         """
@@ -571,6 +572,7 @@ class JupyterWidget(IPythonWidget):
         if self._page_control is not None:
             self._page_control.document().setDefaultStyleSheet(self.style_sheet)
 
+    @observe('syntax_style')
     def _syntax_style_changed(self):
         """ Set the style for the syntax highlighter.
         """
@@ -585,6 +587,7 @@ class JupyterWidget(IPythonWidget):
 
     #------ Trait default initializers -----------------------------------------
 
+    @default('banner')
     def _banner_default(self):
         return "Jupyter QtConsole {version}\n".format(version=__version__)
 
