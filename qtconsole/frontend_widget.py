@@ -16,7 +16,7 @@ from ipython_genutils import py3compat
 from ipython_genutils.importstring import import_item
 
 from qtconsole.base_frontend_mixin import BaseFrontendMixin
-from traitlets import Any, Bool, Instance, Unicode, DottedObjectName
+from traitlets import Any, Bool, Instance, Unicode, DottedObjectName, default
 from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
@@ -798,6 +798,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     #------ Trait default initializers -----------------------------------------
 
+    @default('banner')
     def _banner_default(self):
         """ Returns the standard Python banner.
         """
