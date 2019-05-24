@@ -3,6 +3,20 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.5:
+
+`4.5 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5>`__
+
+Additions
+~~~~~~~~~
+- Add Comms to qtconsole.
+- Add kernel language name as an attribute of JupyterWidget.
+
+Changes
+~~~~~~~
+- Use new traitlets API with decorators.
+
+
 .. _4.4.4:
 
 `4.4.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.4>`__
