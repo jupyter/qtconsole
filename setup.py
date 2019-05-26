@@ -31,11 +31,10 @@ from glob import glob
 import io
 import os
 
-from distutils.core import setup
+from setuptools import setup
 
 pjoin = os.path.join
 here = os.path.abspath(os.path.dirname(__file__))
-pkg_root = pjoin(here, name)
 
 packages = []
 for d, _, _ in os.walk(pjoin(here, name)):
@@ -70,6 +69,24 @@ setup_args = dict(
     license                       = 'BSD',
     platforms                     = "Linux, Mac OS X, Windows",
     keywords                      = ['Interactive', 'Interpreter', 'Shell'],
+    install_requires = [
+        'traitlets',
+        'ipython_genutils',
+        'jupyter_core',
+        'jupyter_client>=4.1',
+        'pygments',
+        'ipykernel>=4.1', # not a real dependency, but require the reference kernel
+    ],
+    extras_require = {
+        'test': ['pytest'],
+        'test:python_version=="2.7"': ['mock'],
+        'doc': 'Sphinx>=1.3',
+    },
+    entry_points = {
+        'gui_scripts': [
+            'jupyter-qtconsole = qtconsole.qtconsoleapp:main',
+        ]
+    },
     classifiers = [
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
@@ -83,34 +100,6 @@ setup_args = dict(
         'Programming Language :: Python :: 3.7',
     ],
 )
-
-if 'develop' in sys.argv or any(a.startswith('bdist') for a in sys.argv):
-    import setuptools
-
-setuptools_args = {}
-install_requires = setuptools_args['install_requires'] = [
-    'traitlets',
-    'ipython_genutils',
-    'jupyter_core',
-    'jupyter_client>=4.1',
-    'pygments',
-    'ipykernel>=4.1', # not a real dependency, but require the reference kernel
-]
-
-extras_require = setuptools_args['extras_require'] = {
-    'test': ['pytest'],
-    'test:python_version=="2.7"': ['mock'],
-    'doc': 'Sphinx>=1.3',
-}
-
-if 'setuptools' in sys.modules:
-    setup_args['entry_points'] = {
-        'gui_scripts': [
-            'jupyter-qtconsole = qtconsole.qtconsoleapp:main',
-        ]
-    }
-    setup_args.pop('scripts')
-    setup_args.update(setuptools_args)
 
 if __name__ == '__main__':
     setup(**setup_args)
