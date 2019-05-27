@@ -3,6 +3,13 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.5.1:
+
+`4.5.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.1>`__
+
+- Only use setuptools in setup.py to fix uploading tarballs to PyPI.
+
+
 .. _4.5:
 
 `4.5 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5>`__
