@@ -46,7 +46,7 @@ class CompletionPlain(QtGui.QWidget):
         self._console_widget._clear_temporary_buffer()
 
 
-    def show_items(self, cursor, items):
+    def show_items(self, cursor, items, prefix_length=0):
         """ Shows the completion widget with 'items' at the position specified
             by 'cursor'.
         """
@@ -54,4 +54,7 @@ class CompletionPlain(QtGui.QWidget):
             return
         self.cancel_completion()
         strng = text.columnize(items)
+        # Move cursor to start of the prefix to replace it
+        # when a item is selected
+        cursor.movePosition(QtGui.QTextCursor.Left, n=prefix_length)
         self._console_widget._fill_temporary_buffer(cursor, strng, html=False)

@@ -296,12 +296,15 @@ class CompletionHtml(QtGui.QWidget):
         r, c = self._index
         self._select_index(r, c+1)
 
-    def show_items(self, cursor, items):
+    def show_items(self, cursor, items, prefix_length=0):
         """ Shows the completion widget with 'items' at the position specified
             by 'cursor'.
         """
         if not items :
             return
+        # Move cursor to start of the prefix to replace it
+        # when a item is selected
+        cursor.movePosition(QtGui.QTextCursor.Left, n=prefix_length)
         self._start_position = cursor.position()
         self._consecutive_tab = 1
         # Calculate the number of characters available.
