@@ -17,7 +17,7 @@ class CompletionWidget(QtGui.QListWidget):
         """
         text_edit = console_widget._control
         assert isinstance(text_edit, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
-        super(CompletionWidget, self).__init__()
+        super(CompletionWidget, self).__init__(parent=console_widget)
 
         self._text_edit = text_edit
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -94,7 +94,7 @@ class CompletionWidget(QtGui.QListWidget):
     # 'CompletionWidget' interface
     #--------------------------------------------------------------------------
 
-    def show_items(self, cursor, items):
+    def show_items(self, cursor, items, prefix_length=0):
         """ Shows the completion widget with 'items' at the position specified
             by 'cursor'.
         """
@@ -112,6 +112,10 @@ class CompletionWidget(QtGui.QListWidget):
         w = (self.sizeHintForColumn(0) +
              self.verticalScrollBar().sizeHint().width())
         self.setGeometry(point.x(), point.y(), w, height)
+
+        # Move cursor to start of the prefix to replace it
+        # when a item is selected
+        cursor.movePosition(QtGui.QTextCursor.Left, n=prefix_length)
         self._start_position = cursor.position()
         self.setCurrentRow(0)
         self.raise_()
@@ -138,8 +142,16 @@ class CompletionWidget(QtGui.QListWidget):
         return cursor
 
     def _update_current(self):
-        """ Updates the current item based on the current text.
+        """ Updates the current item based on the current text and the
+            position of the widget.
         """
+        # Update widget position
+        cursor = self._text_edit.textCursor()
+        point = self._text_edit.cursorRect(cursor).bottomRight()
+        position = self._text_edit.mapToGlobal(point)
+        self.move(position)
+
+        # Update current item
         prefix = self._current_text_cursor().selection().toPlainText()
         if prefix:
             items = self.findItems(prefix, (QtCore.Qt.MatchStartsWith |
