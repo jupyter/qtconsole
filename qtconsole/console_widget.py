@@ -944,7 +944,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         # Perform the insertion.
         result = insert(cursor, input, *args, **kwargs)
-
+        self._control.moveCursor(QtGui.QTextCursor.End)
         return result
 
     def _append_block(self, block_format=None, before_prompt=False):
