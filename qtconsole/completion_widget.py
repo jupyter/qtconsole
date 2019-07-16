@@ -102,7 +102,11 @@ class CompletionWidget(QtGui.QListWidget):
         point = text_edit.cursorRect(cursor).bottomRight()
         point = text_edit.mapToGlobal(point)
         self.clear()
-        self.addItems(items)
+        for item in items:
+            list_item = QtGui.QListWidgetItem()
+            list_item.setData(QtCore.Qt.UserRole, item)
+            list_item.setText(item.split('.')[-1])
+            self.addItem(list_item)
         height = self.sizeHint().height()
         screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
@@ -128,7 +132,8 @@ class CompletionWidget(QtGui.QListWidget):
     def _complete_current(self):
         """ Perform the completion with the currently selected item.
         """
-        self._current_text_cursor().insertText(self.currentItem().text())
+        text = self.currentItem().data(QtCore.Qt.UserRole)
+        self._current_text_cursor().insertText(text)
         self.hide()
 
     def _current_text_cursor(self):
