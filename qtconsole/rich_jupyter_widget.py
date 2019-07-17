@@ -88,7 +88,7 @@ class RichJupyterWidget(RichIPythonWidget):
         format = self._control.cursorForPosition(pos).charFormat()
         name = format.stringProperty(QtGui.QTextFormat.ImageName)
         if name:
-            menu = QtGui.QMenu()
+            menu = QtGui.QMenu(self)
 
             menu.addAction('Copy Image', lambda: self._copy_image(name))
             menu.addAction('Save Image As...', lambda: self._save_image(name))
