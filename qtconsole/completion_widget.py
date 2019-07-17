@@ -1,5 +1,8 @@
 """A dropdown completer widget for the qtconsole."""
 
+import os
+import sys
+
 from qtconsole.qt import QtCore, QtGui
 
 
@@ -99,8 +102,7 @@ class CompletionWidget(QtGui.QListWidget):
             by 'cursor'.
         """
         text_edit = self._text_edit
-        point = text_edit.cursorRect(cursor).bottomRight()
-        point = text_edit.mapToGlobal(point)
+        point = self._get_position_point(cursor)
         self.clear()
         for item in items:
             list_item = QtGui.QListWidgetItem()
@@ -129,6 +131,24 @@ class CompletionWidget(QtGui.QListWidget):
     # Protected interface
     #--------------------------------------------------------------------------
 
+    def _get_position_point(self, cursor):
+        """ Get point of start of the widget.
+        """
+        point = self._text_edit.cursorRect(cursor).center()
+        point_size = self._text_edit.font().pointSize()
+
+        if sys.platform == 'darwin':
+            delta = int((point_size * 1.20) ** 0.98)
+        elif os.name == 'nt':
+            delta = int((point_size * 1.20) ** 1.05)
+        else:
+            delta = int((point_size * 1.20) ** 0.98)
+
+        y = delta - (point_size / 2)
+        point.setY(point.y() + y)
+        point = self._text_edit.mapToGlobal(point)
+        return point
+
     def _complete_current(self):
         """ Perform the completion with the currently selected item.
         """
@@ -152,9 +172,8 @@ class CompletionWidget(QtGui.QListWidget):
         """
         # Update widget position
         cursor = self._text_edit.textCursor()
-        point = self._text_edit.cursorRect(cursor).bottomRight()
-        position = self._text_edit.mapToGlobal(point)
-        self.move(position)
+        point = self._get_position_point(cursor)
+        self.move(point)
 
         # Update current item
         prefix = self._current_text_cursor().selection().toPlainText()
