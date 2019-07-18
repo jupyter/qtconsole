@@ -1,5 +1,8 @@
 """A dropdown completer widget for the qtconsole."""
 
+import os
+import sys
+
 from qtconsole.qt import QtCore, QtGui
 
 
@@ -17,7 +20,7 @@ class CompletionWidget(QtGui.QListWidget):
         """
         text_edit = console_widget._control
         assert isinstance(text_edit, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
-        super(CompletionWidget, self).__init__()
+        super(CompletionWidget, self).__init__(parent=console_widget)
 
         self._text_edit = text_edit
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
@@ -94,15 +97,18 @@ class CompletionWidget(QtGui.QListWidget):
     # 'CompletionWidget' interface
     #--------------------------------------------------------------------------
 
-    def show_items(self, cursor, items):
+    def show_items(self, cursor, items, prefix_length=0):
         """ Shows the completion widget with 'items' at the position specified
             by 'cursor'.
         """
         text_edit = self._text_edit
-        point = text_edit.cursorRect(cursor).bottomRight()
-        point = text_edit.mapToGlobal(point)
+        point = self._get_top_left_position(cursor)
         self.clear()
-        self.addItems(items)
+        for item in items:
+            list_item = QtGui.QListWidgetItem()
+            list_item.setData(QtCore.Qt.UserRole, item)
+            list_item.setText(item.split('.')[-1])
+            self.addItem(list_item)
         height = self.sizeHint().height()
         screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
@@ -112,6 +118,10 @@ class CompletionWidget(QtGui.QListWidget):
         w = (self.sizeHintForColumn(0) +
              self.verticalScrollBar().sizeHint().width())
         self.setGeometry(point.x(), point.y(), w, height)
+
+        # Move cursor to start of the prefix to replace it
+        # when a item is selected
+        cursor.movePosition(QtGui.QTextCursor.Left, n=prefix_length)
         self._start_position = cursor.position()
         self.setCurrentRow(0)
         self.raise_()
@@ -121,10 +131,29 @@ class CompletionWidget(QtGui.QListWidget):
     # Protected interface
     #--------------------------------------------------------------------------
 
+    def _get_top_left_position(self, cursor):
+        """ Get top left position for this widget.
+        """
+        point = self._text_edit.cursorRect(cursor).center()
+        point_size = self._text_edit.font().pointSize()
+
+        if sys.platform == 'darwin':
+            delta = int((point_size * 1.20) ** 0.98)
+        elif os.name == 'nt':
+            delta = int((point_size * 1.20) ** 1.05)
+        else:
+            delta = int((point_size * 1.20) ** 0.98)
+
+        y = delta - (point_size / 2)
+        point.setY(point.y() + y)
+        point = self._text_edit.mapToGlobal(point)
+        return point
+
     def _complete_current(self):
         """ Perform the completion with the currently selected item.
         """
-        self._current_text_cursor().insertText(self.currentItem().text())
+        text = self.currentItem().data(QtCore.Qt.UserRole)
+        self._current_text_cursor().insertText(text)
         self.hide()
 
     def _current_text_cursor(self):
@@ -138,8 +167,15 @@ class CompletionWidget(QtGui.QListWidget):
         return cursor
 
     def _update_current(self):
-        """ Updates the current item based on the current text.
+        """ Updates the current item based on the current text and the
+            position of the widget.
         """
+        # Update widget position
+        cursor = self._text_edit.textCursor()
+        point = self._get_top_left_position(cursor)
+        self.move(point)
+
+        # Update current item
         prefix = self._current_text_cursor().selection().toPlainText()
         if prefix:
             items = self.findItems(prefix, (QtCore.Qt.MatchStartsWith |
