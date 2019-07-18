@@ -102,7 +102,7 @@ class CompletionWidget(QtGui.QListWidget):
             by 'cursor'.
         """
         text_edit = self._text_edit
-        point = self._get_position_point(cursor)
+        point = self._get_top_left_position(cursor)
         self.clear()
         for item in items:
             list_item = QtGui.QListWidgetItem()
@@ -131,8 +131,8 @@ class CompletionWidget(QtGui.QListWidget):
     # Protected interface
     #--------------------------------------------------------------------------
 
-    def _get_position_point(self, cursor):
-        """ Get point of start of the widget.
+    def _get_top_left_position(self, cursor):
+        """ Get top left position for this widget.
         """
         point = self._text_edit.cursorRect(cursor).center()
         point_size = self._text_edit.font().pointSize()
@@ -172,7 +172,7 @@ class CompletionWidget(QtGui.QListWidget):
         """
         # Update widget position
         cursor = self._text_edit.textCursor()
-        point = self._get_position_point(cursor)
+        point = self._get_top_left_position(cursor)
         self.move(point)
 
         # Update current item
