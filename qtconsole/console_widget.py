@@ -490,7 +490,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.paging == 'vsplit':
             height = height * 2 + splitwidth
 
-        return QtCore.QSize(width, height)
+        return QtCore.QSize(int(width), int(height))
 
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
@@ -2403,13 +2403,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             maximum = document.size().height()
             step = viewport_height
         diff = maximum - scrollbar.maximum()
-        scrollbar.setRange(0, maximum)
-        scrollbar.setPageStep(step)
+        scrollbar.setRange(0, round(maximum))
+        scrollbar.setPageStep(round(step))
 
         # Compensate for undesirable scrolling that occurs automatically due to
         # maximumBlockCount() text truncation.
         if diff < 0 and document.blockCount() == document.maximumBlockCount():
-            scrollbar.setValue(scrollbar.value() + diff)
+            scrollbar.setValue(round(scrollbar.value() + diff))
 
     def _custom_context_menu_requested(self, pos):
         """ Shows a context menu at the given QPoint (in widget coordinates).
