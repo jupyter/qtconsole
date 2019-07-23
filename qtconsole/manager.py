@@ -18,7 +18,7 @@ class QtKernelRestarter(KernelRestarter, QtKernelRestarterMixin):
         if self._timer is None:
             self._timer = QtCore.QTimer()
             self._timer.timeout.connect(self.poll)
-        self._timer.start(self.time_to_dead * 1000)
+        self._timer.start(round(self.time_to_dead * 1000))
 
     def stop(self):
         self._timer.stop()
