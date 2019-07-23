@@ -3,6 +3,15 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.5.2:
+
+`4.5.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.2>`__
+
+- Remove deprecation warnings in Python 3.8
+- Improve positioning and content of completion widget.
+- Scroll down for output from remote commands.
+
+
 .. _4.5.1:
 
 `4.5.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.1>`__
