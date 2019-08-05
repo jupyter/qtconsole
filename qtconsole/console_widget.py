@@ -116,6 +116,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
            The text is written directly to the console.
         """)
 
+    scrollbar_visibility = Bool(True, config=True,
+        help="""The visibility of the scrollar. If False then the scrollbar will be
+        invisible."""
+    )
+
     font_family = Unicode(config=True,
         help="""The font family to use for the console.
         On OSX this defaults to Monaco, on Windows the default is
@@ -1131,12 +1136,18 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         layout.documentSizeChanged.disconnect()
         layout.documentSizeChanged.connect(self._adjust_scrollbars)
 
+        # Configure the scrollbar policy
+        if self.scrollbar_visibility:
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOn
+        else :
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOff
+
         # Configure the control.
         control.setAttribute(QtCore.Qt.WA_InputMethodEnabled, True)
         control.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         control.setReadOnly(True)
         control.setUndoRedoEnabled(False)
-        control.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        control.setVerticalScrollBarPolicy(scrollbar_policy)
         return control
 
     def _create_page_control(self):
@@ -1153,7 +1164,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         viewport.installEventFilter(self)
         control.setReadOnly(True)
         control.setUndoRedoEnabled(False)
-        control.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+
+        # Configure the scrollbar policy
+        if self.scrollbar_visibility:
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOn
+        else :
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOff
+
+        control.setVerticalScrollBarPolicy(scrollbar_policy)
         return control
 
     def _event_filter_console_keypress(self, event):
