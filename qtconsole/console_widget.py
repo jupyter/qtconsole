@@ -2086,7 +2086,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor.insertText(text)
         cursor.endEditBlock()
 
-        if self._executing and end_doc_pos - end_scroll_pos <= 1:
+        if (self._executing and end_doc_pos - end_scroll_pos <= 1
+                and self._reading):
+            # Only apply this behavior while debugging.
+            # See issue #351
             end_scroll = (self._control.verticalScrollBar().maximum()
                           - self._control.verticalScrollBar().pageStep())
             self._control.verticalScrollBar().setValue(end_scroll)
