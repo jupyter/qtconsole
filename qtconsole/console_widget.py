@@ -944,7 +944,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         # Perform the insertion.
         result = insert(cursor, input, *args, **kwargs)
-        self._control.moveCursor(QtGui.QTextCursor.End)
         return result
 
     def _append_block(self, block_format=None, before_prompt=False):
@@ -2089,7 +2088,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self._executing and end_doc_pos - end_scroll_pos <= 1:
             end_scroll = (self._control.verticalScrollBar().maximum()
                           - self._control.verticalScrollBar().pageStep())
-            self._control.verticalScrollBar().setValue(end_scroll)
+            # only go up
+            if end_scroll > self._control.verticalScrollBar().value():
+                self._control.verticalScrollBar().setValue(end_scroll)
 
     def _insert_plain_text_into_buffer(self, cursor, text):
         """ Inserts text into the input buffer using the specified cursor (which
