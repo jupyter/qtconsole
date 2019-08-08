@@ -5,7 +5,7 @@ sudo: false
 env:
   global:
     - CONDA_DEPENDENCIES='pyqt traitlets ipython_genutils jupyter_core jupyter_client pygments ipykernel pytest pytest-cov mock'
-    - PIP_DEPENDENCIES='coveralls pytest-xvfb'
+    - PIP_DEPENDENCIES='coveralls pytest-xvfb pytest-qt pytest-ordering'
 
 matrix:
   include:

@@ -10,10 +10,139 @@ else:
 from qtconsole.qt import QtCore, QtGui
 from qtconsole.qt_loaders import load_qtest
 from qtconsole.console_widget import ConsoleWidget
+from qtconsole.qtconsoleapp import JupyterQtConsoleApp
 from . import no_display
 
 
+SHELL_TIMEOUT = 20000
 QTest = load_qtest()
+
+
+@pytest.fixture
+def qtconsole(qtbot):
+    """Qtconsole fixture."""
+    # Create a console
+    console = JupyterQtConsoleApp()
+    console.initialize(argv=[])
+
+    qtbot.addWidget(console.window)
+    console.window.confirm_exit = False
+    console.window.show()
+    return console
+
+
+@pytest.mark.first
+def test_scroll(qtconsole, qtbot):
+    """
+    Make sure the scrolling works.
+    """
+    window = qtconsole.window
+    shell = window.active_frontend
+    control = shell._control
+    scroll_bar = control.verticalScrollBar()
+
+    # Wait until the console is fully up
+    qtbot.waitUntil(lambda: shell._prompt_html is not None,
+                    timeout=SHELL_TIMEOUT)
+
+    assert scroll_bar.value() == 0
+    # Create a bunch of inputs
+    for i in range(20):
+        with qtbot.waitSignal(shell.executed):
+            qtbot.keyClicks(control, 'a = 1')
+            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                           modifier=QtCore.Qt.ShiftModifier)
+
+    assert scroll_bar.value() > 10
+
+    # Put the scroll bar to lines higher and check it doesn't move
+    scroll_position = scroll_bar.value() + scroll_bar.pageStep() // 2
+    scroll_bar.setValue(scroll_position)
+
+    for i in range(2):
+        with qtbot.waitSignal(shell.executed):
+            qtbot.keyClicks(control, 'a')
+            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                           modifier=QtCore.Qt.ShiftModifier)
+
+    assert scroll_bar.value() == scroll_position
+
+    # add more input and check it moved
+    for i in range(10):
+        with qtbot.waitSignal(shell.executed):
+            qtbot.keyClicks(control, 'a')
+            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                           modifier=QtCore.Qt.ShiftModifier)
+
+    assert scroll_bar.value() > scroll_position
+
+    prev_position = scroll_bar.value()
+
+    # Check the outputs are working as well
+    code = ["import time",
+            "for i in range(1000):",
+            "    print(i)",
+            "    time.sleep(.01)"]
+    for line in code:
+        qtbot.keyClicks(control, line)
+        qtbot.keyClick(control, QtCore.Qt.Key_Enter)
+
+    qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                   modifier=QtCore.Qt.ShiftModifier)
+
+    qtbot.wait(1000)
+
+    # Check everything advances
+    assert scroll_bar.value() > prev_position
+
+    # move up
+    prev_position = scroll_bar.value() - scroll_bar.pageStep()
+    scroll_bar.setValue(prev_position)
+
+    qtbot.wait(1000)
+
+    # Check position stayed the same
+    assert scroll_bar.value() == prev_position
+
+    # reset position
+    prev_position = scroll_bar.maximum() - (scroll_bar.pageStep() * 8) // 10
+    scroll_bar.setValue(prev_position)
+
+    qtbot.wait(1000)
+    assert scroll_bar.value() > prev_position
+
+
+@pytest.mark.first
+def test_debug(qtconsole, qtbot):
+    """
+    Make sure the cursor works while debugging
+
+    It might not because the console is "_executing"
+    """
+    window = qtconsole.window
+    shell = window.active_frontend
+    control = shell._control
+
+    # Wait until the console is fully up
+    qtbot.waitUntil(lambda: shell._prompt_html is not None,
+                    timeout=SHELL_TIMEOUT)
+
+    # Enter execution
+    code = "%debug range(1)"
+    qtbot.keyClicks(control, code)
+    qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                   modifier=QtCore.Qt.ShiftModifier)
+
+    qtbot.waitUntil(
+        lambda: control.toPlainText().strip().split()[-1] == "ipdb>")
+
+    # We should be able to move the cursor while debugging
+    qtbot.keyClicks(control, "abd")
+    qtbot.wait(100)
+    qtbot.keyClick(control, QtCore.Qt.Key_Left)
+    qtbot.keyClick(control, 'c')
+    qtbot.wait(100)
+    assert control.toPlainText().strip().split()[-1] == "abcd"
 
 
 @pytest.mark.skipif(no_display, reason="Doesn't work without a display")
@@ -414,36 +543,3 @@ class TestConsoleWidget(unittest.TestCase):
         w._set_input_buffer(code)
         w.execute(interactive=True)
         assert responses == [('complete', None)]
-
-    def test_debug(self):
-        """
-        Make sure the cursor works while debugging 
-        
-        It might not because the console is "_executing"
-        """
-        # Kernel client to test the responses of is_complete
-        class TestIPyKernelClient(object):
-            def is_complete(self, source):
-                tm = TransformerManager()
-                check_complete = tm.check_complete(source)
-                responses.append(check_complete)
-
-        # Initialize widget
-        responses = []
-        w = ConsoleWidget()
-        w._append_plain_text('Header\n')
-        w._prompt = 'prompt>'
-        w._show_prompt()
-        w.kernel_client = TestIPyKernelClient()
-        control = w._control
-
-        # Execute incomplete statement inside a block
-        code = "%debug range(1)\n"
-        w._set_input_buffer(code)
-        w.execute(interactive=True)
-
-         # We should be able to move the cursor while debugging
-        w._set_input_buffer("abd")
-        QTest.keyClick(control, QtCore.Qt.Key_Left)
-        QTest.keyClick(control, 'c')
-        self.assertEqual(w._get_input_buffer(),"abcd")
