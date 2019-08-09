@@ -31,7 +31,6 @@ def qtconsole(qtbot):
     return console
 
 
-@pytest.mark.first
 @pytest.mark.parametrize(
     "debug", [True, False])
 def test_scroll(qtconsole, qtbot, debug):
@@ -138,7 +137,6 @@ def test_scroll(qtconsole, qtbot, debug):
     assert scroll_bar.value() > prev_position
 
 
-@pytest.mark.first
 def test_debug(qtconsole, qtbot):
     """
     Make sure the cursor works while debugging
