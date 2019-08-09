@@ -10,10 +10,163 @@ else:
 from qtconsole.qt import QtCore, QtGui
 from qtconsole.qt_loaders import load_qtest
 from qtconsole.console_widget import ConsoleWidget
+from qtconsole.qtconsoleapp import JupyterQtConsoleApp
 from . import no_display
 
 
+SHELL_TIMEOUT = 20000
 QTest = load_qtest()
+
+
+@pytest.fixture
+def qtconsole(qtbot):
+    """Qtconsole fixture."""
+    # Create a console
+    console = JupyterQtConsoleApp()
+    console.initialize(argv=[])
+
+    qtbot.addWidget(console.window)
+    console.window.confirm_exit = False
+    console.window.show()
+    return console
+
+
+@pytest.mark.parametrize(
+    "debug", [True, False])
+def test_scroll(qtconsole, qtbot, debug):
+    """
+    Make sure the scrolling works.
+    """
+    window = qtconsole.window
+    shell = window.active_frontend
+    control = shell._control
+    scroll_bar = control.verticalScrollBar()
+
+    # Wait until the console is fully up
+    qtbot.waitUntil(lambda: shell._prompt_html is not None,
+                    timeout=SHELL_TIMEOUT)
+
+    assert scroll_bar.value() == 0
+
+    # Define a function with loads of output
+    # Check the outputs are working as well
+    code = ["import time",
+            "def print_numbers():",
+            "    for i in range(1000):",
+            "       print(i)",
+            "       time.sleep(.01)"]
+    for line in code:
+        qtbot.keyClicks(control, line)
+        qtbot.keyClick(control, QtCore.Qt.Key_Enter)
+
+    with qtbot.waitSignal(shell.executed):
+        qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                       modifier=QtCore.Qt.ShiftModifier)
+
+    def run_line(line, block=True):
+        qtbot.keyClicks(control, line)
+        if block:
+            with qtbot.waitSignal(shell.executed):
+                qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                               modifier=QtCore.Qt.ShiftModifier)
+        else:
+            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                               modifier=QtCore.Qt.ShiftModifier)
+
+    if debug:
+        # Enter debug
+        run_line('%debug print()', block=False)
+        qtbot.keyClick(control, QtCore.Qt.Key_Enter)
+        # redefine run_line
+        def run_line(line, block=True):
+            qtbot.keyClicks(control, '!' + line)
+            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                           modifier=QtCore.Qt.ShiftModifier)
+            if block:
+                qtbot.waitUntil(
+                    lambda: control.toPlainText().strip(
+                        ).split()[-1] == "ipdb>")
+
+    prev_position = scroll_bar.value()
+
+    # Create a bunch of inputs
+    for i in range(20):
+        run_line('a = 1')
+
+    assert scroll_bar.value() > prev_position
+
+    # Put the scroll bar higher and check it doesn't move
+    prev_position = scroll_bar.value() + scroll_bar.pageStep() // 2
+    scroll_bar.setValue(prev_position)
+
+    for i in range(2):
+        run_line('a')
+
+    assert scroll_bar.value() == prev_position
+
+    # add more input and check it moved
+    for i in range(10):
+        run_line('a')
+
+    assert scroll_bar.value() > prev_position
+
+    prev_position = scroll_bar.value()
+
+    # Run the printing function
+    run_line('print_numbers()', block=False)
+
+    qtbot.wait(1000)
+
+    # Check everything advances
+    assert scroll_bar.value() > prev_position
+
+    # move up
+    prev_position = scroll_bar.value() - scroll_bar.pageStep()
+    scroll_bar.setValue(prev_position)
+
+    qtbot.wait(1000)
+
+    # Check position stayed the same
+    assert scroll_bar.value() == prev_position
+
+    # reset position
+    prev_position = scroll_bar.maximum() - (scroll_bar.pageStep() * 8) // 10
+    scroll_bar.setValue(prev_position)
+
+    qtbot.wait(1000)
+    assert scroll_bar.value() > prev_position
+
+
+def test_debug(qtconsole, qtbot):
+    """
+    Make sure the cursor works while debugging
+
+    It might not because the console is "_executing"
+    """
+    window = qtconsole.window
+    shell = window.active_frontend
+    control = shell._control
+
+    # Wait until the console is fully up
+    qtbot.waitUntil(lambda: shell._prompt_html is not None,
+                    timeout=SHELL_TIMEOUT)
+
+    # Enter execution
+    code = "%debug range(1)"
+    qtbot.keyClicks(control, code)
+    qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                   modifier=QtCore.Qt.ShiftModifier)
+
+    qtbot.waitUntil(
+        lambda: control.toPlainText().strip().split()[-1] == "ipdb>")
+
+    # We should be able to move the cursor while debugging
+    qtbot.keyClicks(control, "abd")
+    qtbot.wait(100)
+    qtbot.keyClick(control, QtCore.Qt.Key_Left)
+    qtbot.keyClick(control, 'c')
+    qtbot.wait(100)
+    assert control.toPlainText().strip().split()[-1] == "abcd"
 
 
 @pytest.mark.skipif(no_display, reason="Doesn't work without a display")
@@ -414,36 +567,3 @@ class TestConsoleWidget(unittest.TestCase):
         w._set_input_buffer(code)
         w.execute(interactive=True)
         assert responses == [('complete', None)]
-
-    def test_debug(self):
-        """
-        Make sure the cursor works while debugging 
-        
-        It might not because the console is "_executing"
-        """
-        # Kernel client to test the responses of is_complete
-        class TestIPyKernelClient(object):
-            def is_complete(self, source):
-                tm = TransformerManager()
-                check_complete = tm.check_complete(source)
-                responses.append(check_complete)
-
-        # Initialize widget
-        responses = []
-        w = ConsoleWidget()
-        w._append_plain_text('Header\n')
-        w._prompt = 'prompt>'
-        w._show_prompt()
-        w.kernel_client = TestIPyKernelClient()
-        control = w._control
-
-        # Execute incomplete statement inside a block
-        code = "%debug range(1)\n"
-        w._set_input_buffer(code)
-        w.execute(interactive=True)
-
-         # We should be able to move the cursor while debugging
-        w._set_input_buffer("abd")
-        QTest.keyClick(control, QtCore.Qt.Key_Left)
-        QTest.keyClick(control, 'c')
-        self.assertEqual(w._get_input_buffer(),"abcd")
