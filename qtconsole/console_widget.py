@@ -2088,7 +2088,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self._executing and end_doc_pos - end_scroll_pos <= 1:
             end_scroll = (self._control.verticalScrollBar().maximum()
                           - self._control.verticalScrollBar().pageStep())
-            # only go up
+            # Only scroll down
             if end_scroll > self._control.verticalScrollBar().value():
                 self._control.verticalScrollBar().setValue(end_scroll)
 
