@@ -32,7 +32,9 @@ def qtconsole(qtbot):
 
 
 @pytest.mark.first
-def test_scroll(qtconsole, qtbot):
+@pytest.mark.parametrize(
+    "debug", [True, False])
+def test_scroll(qtconsole, qtbot, debug):
     """
     Make sure the scrolling works.
     """
@@ -46,49 +48,73 @@ def test_scroll(qtconsole, qtbot):
                     timeout=SHELL_TIMEOUT)
 
     assert scroll_bar.value() == 0
-    # Create a bunch of inputs
-    for i in range(20):
-        with qtbot.waitSignal(shell.executed):
-            qtbot.keyClicks(control, 'a = 1')
-            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
-                           modifier=QtCore.Qt.ShiftModifier)
 
-    assert scroll_bar.value() > 10
-
-    # Put the scroll bar to lines higher and check it doesn't move
-    scroll_position = scroll_bar.value() + scroll_bar.pageStep() // 2
-    scroll_bar.setValue(scroll_position)
-
-    for i in range(2):
-        with qtbot.waitSignal(shell.executed):
-            qtbot.keyClicks(control, 'a')
-            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
-                           modifier=QtCore.Qt.ShiftModifier)
-
-    assert scroll_bar.value() == scroll_position
-
-    # add more input and check it moved
-    for i in range(10):
-        with qtbot.waitSignal(shell.executed):
-            qtbot.keyClicks(control, 'a')
-            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
-                           modifier=QtCore.Qt.ShiftModifier)
-
-    assert scroll_bar.value() > scroll_position
-
-    prev_position = scroll_bar.value()
-
+    # Define a function with loads of output
     # Check the outputs are working as well
     code = ["import time",
-            "for i in range(1000):",
-            "    print(i)",
-            "    time.sleep(.01)"]
+            "def print_numbers():",
+            "    for i in range(1000):",
+            "       print(i)",
+            "       time.sleep(.01)"]
     for line in code:
         qtbot.keyClicks(control, line)
         qtbot.keyClick(control, QtCore.Qt.Key_Enter)
 
-    qtbot.keyClick(control, QtCore.Qt.Key_Enter,
-                   modifier=QtCore.Qt.ShiftModifier)
+    with qtbot.waitSignal(shell.executed):
+        qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                       modifier=QtCore.Qt.ShiftModifier)
+
+    def run_line(line, block=True):
+        qtbot.keyClicks(control, line)
+        if block:
+            with qtbot.waitSignal(shell.executed):
+                qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                               modifier=QtCore.Qt.ShiftModifier)
+        else:
+            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                               modifier=QtCore.Qt.ShiftModifier)
+
+    if debug:
+        # Enter debug
+        run_line('%debug print()', block=False)
+        qtbot.keyClick(control, QtCore.Qt.Key_Enter)
+        # redefine run_line
+        def run_line(line, block=True):
+            qtbot.keyClicks(control, '!' + line)
+            qtbot.keyClick(control, QtCore.Qt.Key_Enter,
+                           modifier=QtCore.Qt.ShiftModifier)
+            if block:
+                qtbot.waitUntil(
+                    lambda: control.toPlainText().strip(
+                        ).split()[-1] == "ipdb>")
+
+    prev_position = scroll_bar.value()
+
+    # Create a bunch of inputs
+    for i in range(20):
+        run_line('a = 1')
+
+    assert scroll_bar.value() > prev_position
+
+    # Put the scroll bar higher and check it doesn't move
+    prev_position = scroll_bar.value() + scroll_bar.pageStep() // 2
+    scroll_bar.setValue(prev_position)
+
+    for i in range(2):
+        run_line('a')
+
+    assert scroll_bar.value() == prev_position
+
+    # add more input and check it moved
+    for i in range(10):
+        run_line('a')
+
+    assert scroll_bar.value() > prev_position
+
+    prev_position = scroll_bar.value()
+
+    # Run the printing function
+    run_line('print_numbers()', block=False)
 
     qtbot.wait(1000)
 
