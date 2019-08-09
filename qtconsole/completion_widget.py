@@ -104,11 +104,27 @@ class CompletionWidget(QtGui.QListWidget):
         text_edit = self._text_edit
         point = self._get_top_left_position(cursor)
         self.clear()
+        path_items = []
         for item in items:
+            if os.path.isdir(item) or os.path.isfile(item):
+                path_items.append(item)
+            else:
+                list_item = QtGui.QListWidgetItem()
+                list_item.setData(QtCore.Qt.UserRole, item)
+                list_item.setText(item.split('.')[-1])
+                self.addItem(list_item)
+
+        common_prefix = os.path.dirname(os.path.commonprefix(path_items))
+        for path_item in path_items:
             list_item = QtGui.QListWidgetItem()
-            list_item.setData(QtCore.Qt.UserRole, item)
-            list_item.setText(item.split('.')[-1])
+            list_item.setData(QtCore.Qt.UserRole, path_item)
+            if common_prefix:
+                text = path_item.split(common_prefix)[-1]
+            else:
+                text = item
+            list_item.setText(text)
             self.addItem(list_item)
+
         height = self.sizeHint().height()
         screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
