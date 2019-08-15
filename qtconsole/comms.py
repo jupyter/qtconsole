@@ -19,11 +19,13 @@ import uuid
 from qtconsole.qt import QtCore
 from qtconsole.util import MetaQObjectHasTraits, SuperQObject
 
+
 class CommManager(MetaQObjectHasTraits(
         'NewBase', (LoggingConfigurable, SuperQObject), {})):
     """
     Manager for Comms in the Frontend
     """
+
     def __init__(self, kernel_client, *args, **kwargs):
         super(CommManager, self).__init__(*args, **kwargs)
         self.comms = {}
@@ -51,27 +53,27 @@ class CommManager(MetaQObjectHasTraits(
         """
         Create a new Comm, register it, and open its Kernel-side counterpart
         Mimics the auto-registration in `Comm.__init__` in the Jupyter Comm.
-        
+
         argument comm_id is optional
         """
         comm = Comm(target_name, self.kernel_client, comm_id)
         self.register_comm(comm)
         try:
             comm.open(data, metadata, buffers)
-        except:
+        except Exception:
             self.unregister_comm(comm)
             raise
         return comm
 
     def register_target(self, target_name, f):
         """Register a callable f for a given target name
-        
+
         f will be called with two arguments when a comm_open message is
         received with `target`:
-            
+
         - the Comm instance
         - the `comm_open` message itself.
-        
+
         f can be a Python callable or an import string for one.
         """
         if isinstance(f, string_types):
@@ -100,9 +102,9 @@ class CommManager(MetaQObjectHasTraits(
 
     def get_comm(self, comm_id):
         """Get a comm with a particular id
-        
+
         Returns the comm if found, otherwise None.
-        
+
         This will not raise an error,
         it will log messages if the comm cannot be found.
         """
@@ -110,8 +112,8 @@ class CommManager(MetaQObjectHasTraits(
             return self.comms[comm_id]
         except KeyError:
             self.log.warning("No such comm: %s", comm_id)
+            # don't create the list of keys if debug messages aren't enabled
             if self.log.isEnabledFor(logging.DEBUG):
-                # don't create the list of keys if debug messages aren't enabled
                 self.log.debug("Current comms: %s", list(self.comms.keys()))
 
     # comm message handlers
@@ -138,9 +140,10 @@ class CommManager(MetaQObjectHasTraits(
         # Failure.
         try:
             comm.close()
-        except:
-            self.log.error("""Could not close comm during `comm_open` failure
-                clean-up.  The comm may not have been opened yet.""",
+        except Exception:
+            self.log.error(
+                "Could not close comm during `comm_open` failure "
+                "clean-up.  The comm may not have been opened yet.""",
                 exc_info=True)
 
     def comm_close(self, msg):
@@ -171,6 +174,7 @@ class CommManager(MetaQObjectHasTraits(
         except Exception:
             self.log.error('Exception in comm_msg for %s', comm_id,
                            exc_info=True)
+
 
 class Comm(MetaQObjectHasTraits(
         'NewBase', (LoggingConfigurable, SuperQObject), {})):
@@ -233,22 +237,22 @@ class Comm(MetaQObjectHasTraits(
 
     def on_msg(self, callback):
         """Register a callback for comm_msg
-        
+
         Will be called with the `data` of any comm_msg messages.
-        
+
         Call `on_msg(None)` to disable an existing callback.
         """
         self._msg_callback = callback
 
     def on_close(self, callback):
         """Register a callback for comm_close
-        
+
         Will be called with the `data` of the close message.
-        
+
         Call `on_close(None)` to disable an existing callback.
         """
         self._close_callback = callback
-    
+
     # methods for handling incoming messages
     def handle_msg(self, msg):
         """Handle a comm_msg message"""
@@ -261,5 +265,6 @@ class Comm(MetaQObjectHasTraits(
         self.log.debug("handle_close[%s](%s)", self.comm_id, msg)
         if self._close_callback:
             return self._close_callback(msg)
+
 
 __all__ = ['CommManager']
