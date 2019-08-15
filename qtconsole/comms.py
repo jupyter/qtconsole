@@ -194,9 +194,6 @@ class Comm(MetaQObjectHasTraits(
         self._close_callback = close_callback
         self._send_channel = self.kernel_client.shell_channel
 
-    def __del__(self):
-        self.close()
-
     def _send_msg(self, msg_type, content, data, metadata, buffers):
         """
         Send a message on the shell channel.
