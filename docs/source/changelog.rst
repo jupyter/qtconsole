@@ -3,6 +3,14 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.5.3:
+
+`4.5.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.3>`__
+
+- Fix error when closing comms.
+- Fix prompt automatically scrolling down on execution.
+
+
 .. _4.5.2:
 
 `4.5.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.2>`__
