@@ -2,6 +2,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 from qtconsole.qt import QtGui
+from qtconsole.qstringhelpers import qstring_length
 
 from ipython_genutils.py3compat import PY3, string_types
 from pygments.formatters.html import HtmlFormatter
@@ -128,7 +129,7 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
         # Lex the text using Pygments
         index = 0
         for token, text in self._lexer.get_tokens(string):
-            length = len(text)
+            length = qstring_length(text)
             self.setFormat(index, length, self._get_format(token))
             index += length
 
