@@ -6,7 +6,10 @@
 
 """QString compatibility."""
 
-from spyder.py3compat import PY2
+import sys
+
+
+PY2 = sys.version[0] == '2'
 
 
 def qstring_length(text):
