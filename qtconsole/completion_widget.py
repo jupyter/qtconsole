@@ -83,7 +83,10 @@ class CompletionWidget(QtGui.QListWidget):
         """ Reimplemented to disconnect signal handlers and event filter.
         """
         super(CompletionWidget, self).hideEvent(event)
-        self._text_edit.cursorPositionChanged.disconnect(self._update_current)
+        try:
+            self._text_edit.cursorPositionChanged.disconnect(self._update_current)
+        except TypeError:
+            pass
         self.removeEventFilter(self)
 
     def showEvent(self, event):
