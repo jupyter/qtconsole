@@ -3,6 +3,13 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.5.4:
+
+`4.5.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.4>`__
+
+- Fix emoji highlighting.
+
+
 .. _4.5.3:
 
 `4.5.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.3>`__
