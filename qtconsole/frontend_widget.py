@@ -157,7 +157,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     exit_requested = QtCore.Signal(object)
 
     _CallTipRequest = namedtuple('_CallTipRequest', ['id', 'pos'])
-    _CompletionRequest = namedtuple('_CompletionRequest', ['id', 'pos'])
+    _CompletionRequest = namedtuple('_CompletionRequest',
+                                    ['id', 'code', 'pos'])
     _ExecutionRequest = namedtuple('_ExecutionRequest', ['id', 'kind'])
     _local_kernel = False
     _highlighter = Instance(FrontendHighlighter, allow_none=True)
@@ -727,13 +728,11 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _complete(self):
         """ Performs completion at the current cursor location.
         """
+        code = self.input_buffer
+        cursor_pos = self._get_input_buffer_cursor_pos()
         # Send the completion request to the kernel
-        msg_id = self.kernel_client.complete(
-            code=self.input_buffer,
-            cursor_pos=self._get_input_buffer_cursor_pos(),
-        )
-        pos = self._get_cursor().position()
-        info = self._CompletionRequest(msg_id, pos)
+        msg_id = self.kernel_client.complete(code=code, cursor_pos=cursor_pos)
+        info = self._CompletionRequest(msg_id, code, cursor_pos)
         self._request_info['complete'] = info
 
     def _process_execute_abort(self, msg):

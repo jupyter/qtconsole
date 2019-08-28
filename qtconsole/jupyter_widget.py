@@ -149,8 +149,9 @@ class JupyterWidget(IPythonWidget):
         self.log.debug("complete: %s", rep.get('content', ''))
         cursor = self._get_cursor()
         info = self._request_info.get('complete')
-        if info and info.id == rep['parent_header']['msg_id'] and \
-                info.pos == cursor.position():
+        if (info and info.id == rep['parent_header']['msg_id']
+                and info.pos == self._get_input_buffer_cursor_pos()
+                and info.code == self.input_buffer):
             content = rep['content']
             matches = content['matches']
             start = content['cursor_start']
