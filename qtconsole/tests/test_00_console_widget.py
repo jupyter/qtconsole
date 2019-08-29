@@ -137,6 +137,41 @@ def test_scroll(qtconsole, qtbot, debug):
     assert scroll_bar.value() > prev_position
 
 
+def test_input(qtconsole, qtbot):
+    """
+    Test input function
+    """
+    window = qtconsole.window
+    shell = window.active_frontend
+    control = shell._control
+
+    # Wait until the console is fully up
+    qtbot.waitUntil(lambda: shell._prompt_html is not None,
+                    timeout=SHELL_TIMEOUT)
+
+    with qtbot.waitSignal(shell.executed):
+        shell.execute("import time")
+
+    if sys.version[0] == '2':
+        input_function = 'raw_input'
+    else:
+        input_function = 'input'
+    shell.execute("print(" + input_function + "('name: ')); time.sleep(3)")
+
+    qtbot.waitUntil(lambda: control.toPlainText().split()[-1] == 'name:')
+
+    qtbot.keyClicks(control, 'test')
+    qtbot.keyClick(control, QtCore.Qt.Key_Enter)
+    qtbot.waitUntil(lambda: not shell._reading)
+    qtbot.keyClick(control, 'z', modifier=QtCore.Qt.ControlModifier)
+    for i in range(10):
+        qtbot.keyClick(control, QtCore.Qt.Key_Backspace)
+    qtbot.waitUntil(lambda: shell._prompt_html is not None,
+                    timeout=SHELL_TIMEOUT)
+
+    assert 'name: test\ntest' in control.toPlainText()
+
+
 def test_debug(qtconsole, qtbot):
     """
     Make sure the cursor works while debugging
