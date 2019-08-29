@@ -137,7 +137,6 @@ def test_scroll(qtconsole, qtbot, debug):
     assert scroll_bar.value() > prev_position
 
 
-@pytest.mark.skipif(sys.version[0] == '2', reason="input and py2")
 def test_input(qtconsole, qtbot):
     """
     Test input function
@@ -153,7 +152,11 @@ def test_input(qtconsole, qtbot):
     with qtbot.waitSignal(shell.executed):
         shell.execute("import time")
 
-    shell.execute("print(input('name: ')); time.sleep(3)")
+    if sys.version[0] == '2':
+        input_function = 'raw_input'
+    else:
+        input_function = 'input'
+    shell.execute("print(" + input_function + "('name: ')); time.sleep(3)")
 
     qtbot.waitUntil(lambda: control.toPlainText().split()[-1] == 'name:')
 
