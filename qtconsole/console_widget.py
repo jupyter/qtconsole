@@ -174,6 +174,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     # Signal emitted when the font is changed.
     font_changed = QtCore.Signal(QtGui.QFont)
 
+    _sig_is_complete_reply = QtCore.Signal()
+
     #------ Protected class variables ------------------------------------------
 
     # control handles
@@ -573,8 +575,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         status = msg['content'].get('status', u'complete')
         indent = msg['content'].get('indent', u'')
         self._trigger_is_complete_callback(status != 'incomplete', indent)
+        self._sig_is_complete_reply.emit()
 
-    def _trigger_is_complete_callback(self, complete=False, indent=u''):
+    def _trigger_is_complete_callback(self, complete=None, indent=u''):
+        if complete is None and self._is_complete_msg_id is not None:
+            self._wait_is_complete()
+            # If the call is still not recieved, set complete to false.
+            complete = False
         if self._is_complete_msg_id is not None:
             self._is_complete_msg_id = None
             self._is_complete_callback(complete, indent)
@@ -583,6 +590,29 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self._trigger_is_complete_callback()
         self._is_complete_msg_id = self.kernel_client.is_complete(source)
         self._is_complete_callback = callback
+
+    def _wait_is_complete(self, timeout=0.25):
+        """Wait up to timeout for a is_complete call."""
+        if self._is_complete_msg_id is None:
+            return
+        # Create event loop to wait with
+        wait_loop = QtCore.QEventLoop()
+        self._sig_is_complete_reply.connect(wait_loop.quit)
+        wait_timeout = QtCore.QTimer()
+        wait_timeout.setSingleShot(True)
+        wait_timeout.timeout.connect(wait_loop.quit)
+
+        # Wait until the kernel returns the value
+        wait_timeout.start(timeout * 1000)
+        while self._is_complete_msg_id is not None:
+            if not wait_timeout.isActive():
+                # Request timed out
+                self._sig_is_complete_reply.disconnect(wait_loop.quit)
+                return
+            wait_loop.exec_()
+
+        wait_timeout.stop()
+        self._sig_is_complete_reply.disconnect(wait_loop.quit)
 
     def execute(self, source=None, hidden=False, interactive=False):
         """ Executes source or the input buffer, possibly prompting for more
