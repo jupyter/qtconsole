@@ -223,9 +223,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self.setParent(parent)
 
         self._is_complete_msg_id = None
-        self._is_complete_timeout = 0.25
+        self._is_complete_timeout = 0.1
         self._is_complete_max_time = None
-        self._is_complete_number_returns = 0
 
         # While scrolling the pager on Mac OS X, it tears badly.  The
         # NativeGesture is platform and perhaps build-specific hence
@@ -585,10 +584,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self._is_complete_msg_id is not None:
             self._is_complete_msg_id = None
             self._is_complete_callback(complete, indent)
-            self._is_complete_number_returns = 0
 
     def _register_is_complete_callback(self, source, callback):
-        self._is_complete_number_returns += 1
         if self._is_complete_msg_id is not None:
             if self._is_complete_max_time < time.time():
                 # Second return while waiting for is_complete
@@ -1242,11 +1239,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                             try:
                                 cursor.beginEditBlock()
                                 cursor.setPosition(position)
-                                for i in range(self._is_complete_number_returns):
-                                    cursor.insertText('\n')
-                                    self._insert_continuation_prompt(cursor)
-                                    if indent:
-                                        cursor.insertText(indent)
+                                cursor.insertText('\n')
+                                self._insert_continuation_prompt(cursor)
+                                if indent:
+                                    cursor.insertText(indent)
                             finally:
                                 cursor.endEditBlock()
 
