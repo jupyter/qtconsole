@@ -1380,6 +1380,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         #------ No modifiers ---------------------------------------------------
 
         else:
+            self._trigger_is_complete_callback()
             if shift_down:
                 anchormode = QtGui.QTextCursor.KeepAnchor
             else:
