@@ -563,8 +563,7 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(calls, ["done"])
         calls = []
         self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029")
-        event = QtCore.QEvent(QtCore.QEvent.User)
-        w.eventFilter(w, event)
+        w._trigger_is_complete_callback()
         self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029\u2029> ")
 
         # assert that late answer isn't destroying anything
