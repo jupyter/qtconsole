@@ -223,6 +223,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self.setParent(parent)
 
         self._is_complete_msg_id = None
+        self._is_complete_timeout = 0.1
+        self._is_complete_max_time = None
 
         # While scrolling the pager on Mac OS X, it tears badly.  The
         # NativeGesture is platform and perhaps build-specific hence
@@ -409,7 +411,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text widgets.
         """
         etype = event.type()
-        self._trigger_is_complete_callback()
         if etype == QtCore.QEvent.KeyPress:
 
             # Re-map keys for all filtered widgets.
@@ -585,9 +586,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self._is_complete_callback(complete, indent)
 
     def _register_is_complete_callback(self, source, callback):
-        self._trigger_is_complete_callback()
-        self._is_complete_msg_id = self.kernel_client.is_complete(source)
+        if self._is_complete_msg_id is not None:
+            if self._is_complete_max_time < time.time():
+                # Second return while waiting for is_complete
+                return
+            else:
+                # request timed out
+                self._trigger_is_complete_callback()
+        self._is_complete_max_time = time.time() + self._is_complete_timeout
         self._is_complete_callback = callback
+        self._is_complete_msg_id = self.kernel_client.is_complete(source)
 
     def execute(self, source=None, hidden=False, interactive=False):
         """ Executes source or the input buffer, possibly prompting for more
@@ -1368,6 +1376,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         #------ No modifiers ---------------------------------------------------
 
         else:
+            self._trigger_is_complete_callback()
             if shift_down:
                 anchormode = QtGui.QTextCursor.KeepAnchor
             else:
