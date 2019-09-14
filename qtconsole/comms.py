@@ -100,17 +100,21 @@ class CommManager(MetaQObjectHasTraits(
         comm.sig_is_closing.disconnect(self.unregister_comm)
         self.comms.pop(comm.comm_id)
 
-    def get_comm(self, comm_id):
+    def get_comm(self, comm_id, closing=False):
         """Get a comm with a particular id
 
         Returns the comm if found, otherwise None.
 
         This will not raise an error,
         it will log messages if the comm cannot be found.
+        If the comm is closing, it might already have closed,
+        so this is ignored.
         """
         try:
             return self.comms[comm_id]
         except KeyError:
+            if closing:
+                return
             self.log.warning("No such comm: %s", comm_id)
             # don't create the list of keys if debug messages aren't enabled
             if self.log.isEnabledFor(logging.DEBUG):
@@ -150,7 +154,7 @@ class CommManager(MetaQObjectHasTraits(
         """Handler for comm_close messages"""
         content = msg['content']
         comm_id = content['comm_id']
-        comm = self.get_comm(comm_id)
+        comm = self.get_comm(comm_id, closing=True)
         if comm is None:
             return
 
