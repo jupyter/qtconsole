@@ -10,7 +10,7 @@ import sys
 import uuid
 import re
 
-from qtconsole.qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 from ipython_genutils import py3compat
 from ipython_genutils.importstring import import_item
 

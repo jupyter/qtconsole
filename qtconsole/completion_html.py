@@ -6,7 +6,7 @@
 
 import ipython_genutils.text as text
 
-from qtconsole.qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 #--------------------------------------------------------------------------
 # Return an HTML table with selected item in a special class

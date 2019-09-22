@@ -2,7 +2,7 @@ import unittest
 
 import pytest
 
-from qtconsole.qt import QtGui, QtWidgets
+from qtpy import QtGui, QtWidgets
 from qtconsole.kill_ring import KillRing, QtKillRing
 from . import no_display
 

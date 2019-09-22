@@ -57,7 +57,7 @@ if os.name == 'nt':
     except AttributeError:
         pass
 
-from qtconsole.qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error

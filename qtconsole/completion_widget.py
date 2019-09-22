@@ -3,7 +3,7 @@
 import os
 import sys
 
-from qtconsole.qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 
 class CompletionWidget(QtWidgets.QListWidget):

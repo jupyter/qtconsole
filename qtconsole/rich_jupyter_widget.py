@@ -6,7 +6,7 @@ import os
 import re
 from warnings import warn
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui
 
 from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool

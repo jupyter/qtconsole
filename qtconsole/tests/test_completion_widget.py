@@ -3,7 +3,7 @@ import unittest
 
 import pytest
 
-from qtconsole.qt import QtCore, QtWidgets
+from qtpy import QtCore, QtWidgets
 from qtpy.QtTest import QTest
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.completion_widget import CompletionWidget

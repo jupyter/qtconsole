@@ -2,7 +2,7 @@
 """
 
 # System library imports.
-from qtconsole.qt import QtCore, QtGui, QtSvg
+from qtpy import QtCore, QtGui, QtSvg
 
 # Our own imports
 from ipython_genutils.py3compat import unicode_type

@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------
 
 # System library imports
-from qtconsole.qt import QtCore, QtWidgets, QtGui
+from qtpy import QtCore, QtWidgets, QtGui
 
 #-----------------------------------------------------------------------------
 # Classes

@@ -7,7 +7,7 @@ if sys.version[0] == '2':  # Python 2
 else:
     from IPython.core.inputtransformer2 import TransformerManager
 
-from qtconsole.qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.qtconsoleapp import JupyterQtConsoleApp
 from . import no_display

@@ -16,7 +16,7 @@ from ipython_genutils.py3compat import string_types
 
 import uuid
 
-from qtconsole.qt import QtCore
+from qtpy import QtCore
 from qtconsole.util import MetaQObjectHasTraits, SuperQObject
 
 

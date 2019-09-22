@@ -7,7 +7,7 @@ import io
 import os
 import re
 
-from qtconsole.qt import QtGui, QtWidgets
+from qtpy import QtGui, QtWidgets
 
 from ipython_genutils import py3compat
 

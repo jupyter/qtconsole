@@ -13,7 +13,7 @@ import time
 from unicodedata import category
 import webbrowser
 
-from qtconsole.qt import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 from traitlets.config.configurable import LoggingConfigurable
 from qtconsole.rich_text import HtmlExporter

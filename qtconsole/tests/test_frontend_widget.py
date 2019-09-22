@@ -2,7 +2,7 @@ import unittest
 
 import pytest
 
-from qtconsole.qt import QtWidgets
+from qtpy import QtWidgets
 from qtconsole.frontend_widget import FrontendWidget
 from qtpy.QtTest import QTest
 from . import no_display

@@ -2,7 +2,7 @@ import unittest
 
 import pytest
 
-from qtconsole.qt import QtWidgets
+from qtpy import QtWidgets
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
 from . import no_display

@@ -11,7 +11,7 @@ import zmq
 from zmq import ZMQError
 from zmq.eventloop import ioloop, zmqstream
 
-from qtconsole.qt import QtCore
+from qtpy import QtCore
 
 # Local imports
 from traitlets import Type, Instance
