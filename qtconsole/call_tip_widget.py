@@ -3,10 +3,10 @@ import re
 from unicodedata import category
 
 # System library imports
-from qtconsole.qt import QtCore, QtGui
+from qtconsole.qt import QtCore, QtGui, QtWidgets
 
 
-class CallTipWidget(QtGui.QLabel):
+class CallTipWidget(QtWidgets.QLabel):
     """ Shows call tips by parsing the current text of Q[Plain]TextEdit.
     """
 
@@ -18,7 +18,7 @@ class CallTipWidget(QtGui.QLabel):
         """ Create a call tip manager that is attached to the specified Qt
             text edit widget.
         """
-        assert isinstance(text_edit, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
+        assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super(CallTipWidget, self).__init__(None, QtCore.Qt.ToolTip)
 
         self._hide_timer = QtCore.QBasicTimer()
@@ -27,15 +27,15 @@ class CallTipWidget(QtGui.QLabel):
         self.setFont(text_edit.document().defaultFont())
         self.setForegroundRole(QtGui.QPalette.ToolTipText)
         self.setBackgroundRole(QtGui.QPalette.ToolTipBase)
-        self.setPalette(QtGui.QToolTip.palette())
+        self.setPalette(QtWidgets.QToolTip.palette())
 
         self.setAlignment(QtCore.Qt.AlignLeft)
         self.setIndent(1)
-        self.setFrameStyle(QtGui.QFrame.NoFrame)
+        self.setFrameStyle(QtWidgets.QFrame.NoFrame)
         self.setMargin(1 + self.style().pixelMetric(
-                QtGui.QStyle.PM_ToolTipLabelFrameWidth, None, self))
+                QtWidgets.QStyle.PM_ToolTipLabelFrameWidth, None, self))
         self.setWindowOpacity(self.style().styleHint(
-                QtGui.QStyle.SH_ToolTipLabel_Opacity, None, self, None) / 255.0)
+                QtWidgets.QStyle.SH_ToolTipLabel_Opacity, None, self, None) / 255.0)
         self.setWordWrap(True)
 
     def eventFilter(self, obj, event):
@@ -98,10 +98,10 @@ class CallTipWidget(QtGui.QLabel):
     def paintEvent(self, event):
         """ Reimplemented to paint the background panel.
         """
-        painter = QtGui.QStylePainter(self)
-        option = QtGui.QStyleOptionFrame()
+        painter = QtWidgets.QStylePainter(self)
+        option = QtWidgets.QStyleOptionFrame()
         option.initFrom(self)
-        painter.drawPrimitive(QtGui.QStyle.PE_PanelTipLabel, option)
+        painter.drawPrimitive(QtWidgets.QStyle.PE_PanelTipLabel, option)
         painter.end()
 
         super(CallTipWidget, self).paintEvent(event)
@@ -155,7 +155,7 @@ class CallTipWidget(QtGui.QLabel):
         # location based trying to minimize the  area that goes off-screen.
         padding = 3 # Distance in pixels between cursor bounds and tip box.
         cursor_rect = text_edit.cursorRect(cursor)
-        screen_rect = QtGui.qApp.desktop().screenGeometry(text_edit)
+        screen_rect = QtWidgets.QApp.desktop().screenGeometry(text_edit)
         point = text_edit.mapToGlobal(cursor_rect.bottomRight())
         point.setY(point.y() + padding)
         tip_height = self.size().height()
@@ -240,7 +240,7 @@ class CallTipWidget(QtGui.QLabel):
             # If Enter events always came after Leave events, we wouldn't need
             # this check. But on Mac OS, it sometimes happens the other way
             # around when the tooltip is created.
-            QtGui.qApp.topLevelAt(QtGui.QCursor.pos()) != self):
+            QtWidgets.QApp.topLevelAt(QtGui.QCursor.pos()) != self):
             self._hide_timer.start(300, self)
 
     def _format_tooltip(self, doc):

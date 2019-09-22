@@ -7,6 +7,6 @@ dependencies:
   - ipykernel
   - pexpect
   - pygments
-  - pyqt
+  - qtpy
   - sphinx
   - sphinx_rtd_theme

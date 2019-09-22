@@ -34,6 +34,6 @@ def show():
 
 
 if __name__ == "__main__":
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
     show()
     app.exec_()
