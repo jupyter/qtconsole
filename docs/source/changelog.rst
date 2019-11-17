@@ -3,6 +3,27 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.6:
+
+4.6
+~~~
+
+4.6.0
+-----
+
+`4.6.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.6>`__
+
+Additions
++++++++++
+
+- Add an option to configure scrollbar visibility.
+
+Changes
++++++++
+
+- Avoid introducing a new line when executing code.
+
+
 .. _4.5:
 
 4.5
