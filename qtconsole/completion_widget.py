@@ -24,7 +24,6 @@ class CompletionWidget(QtGui.QListWidget):
 
         self._text_edit = text_edit
         self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
 
@@ -110,7 +109,12 @@ class CompletionWidget(QtGui.QListWidget):
         for item in items:
             list_item = QtGui.QListWidgetItem()
             list_item.setData(QtCore.Qt.UserRole, item)
-            list_item.setText(item.split('.')[-1])
+            # Check if the item could refer to a file. The replacing of '"'
+            # is needed for items on Windows
+            if os.path.isfile(os.path.abspath(item.replace("\"", ""))):
+                list_item.setText(item)
+            else:
+                list_item.setText(item.replace("\"", "").split('.')[-1])
             self.addItem(list_item)
         height = self.sizeHint().height()
         screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
@@ -119,7 +123,8 @@ class CompletionWidget(QtGui.QListWidget):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
             point.setY(point.y() - height)
         w = (self.sizeHintForColumn(0) +
-             self.verticalScrollBar().sizeHint().width())
+             self.verticalScrollBar().sizeHint().width() +
+             2 * self.frameWidth())
         self.setGeometry(point.x(), point.y(), w, height)
 
         # Move cursor to start of the prefix to replace it
