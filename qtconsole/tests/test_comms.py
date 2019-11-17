@@ -144,7 +144,7 @@ class Tests(unittest.TestCase):
         comm.close('close')
         msg = self._get_next_msg()
 
-        # Recived message has a header and parent header. The parent header has
+        # Received message has a header and parent header. The parent header has
         # the info about the close message type in Python 3
         if PY3:
             assert msg['parent_header']['msg_type'] == 'comm_close'
