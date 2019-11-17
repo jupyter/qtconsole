@@ -110,12 +110,7 @@ class CompletionWidget(QtGui.QListWidget):
         for item in items:
             list_item = QtGui.QListWidgetItem()
             list_item.setData(QtCore.Qt.UserRole, item)
-            # Check if the item could refer to a file. The replacing of '"'
-            # is needed for items on Windows
-            if os.path.isfile(os.path.abspath(item.replace("\"", ""))):
-                list_item.setText(item)
-            else:
-                list_item.setText(item.replace("\"", "").split('.')[-1])
+            list_item.setText(item.split('.')[-1])
             self.addItem(list_item)
         height = self.sizeHint().height()
         screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
