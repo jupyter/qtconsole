@@ -193,7 +193,8 @@ def test_debug(qtconsole, qtbot):
                    modifier=QtCore.Qt.ShiftModifier)
 
     qtbot.waitUntil(
-        lambda: control.toPlainText().strip().split()[-1] == "ipdb>")
+        lambda: control.toPlainText().strip().split()[-1] == "ipdb>",
+        timeout=SHELL_TIMEOUT)
 
     # We should be able to move the cursor while debugging
     qtbot.keyClicks(control, "abd")
