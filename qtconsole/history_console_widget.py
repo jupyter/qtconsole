@@ -166,6 +166,8 @@ class HistoryConsoleWidget(ConsoleWidget):
         while index > 0:
             index -= 1
             history = self._get_edited_history(index)
+            if history == self.input_buffer:
+                continue
             if (as_prefix and history.startswith(substring)) \
                 or (not as_prefix and substring in history):
                 replace = True
@@ -197,6 +199,8 @@ class HistoryConsoleWidget(ConsoleWidget):
         while index < len(self._history):
             index += 1
             history = self._get_edited_history(index)
+            if history == self.input_buffer:
+                continue
             if (as_prefix and history.startswith(substring)) \
                 or (not as_prefix and substring in history):
                 replace = True
