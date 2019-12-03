@@ -598,6 +598,16 @@ class MainWindow(QtGui.QMainWindow):
                     action.setChecked(True)
                     self.syntax_style_menu.setDefaultAction(action)
 
+        self.output_format_menu = self.view_menu.addMenu("&Output format")
+        expand_output_tabs_action = QtGui.QAction(
+            "&Expand output tabs to spaces",
+            self,
+            checkable=True,
+            checked=self.active_frontend.expand_output_tabs,
+            triggered=self.toggle_expand_output_tabs_active_frontend
+            )
+        self.output_format_menu.addAction(expand_output_tabs_action)
+
     def init_kernel_menu(self):
         self.kernel_menu = self.menuBar().addMenu("&Kernel")
         # Qt on OSX maps Ctrl to Cmd, and Meta to Ctrl
@@ -783,6 +793,11 @@ class MainWindow(QtGui.QMainWindow):
         widget = self.active_frontend
         widget.confirm_restart = not widget.confirm_restart
         self.confirm_restart_kernel_action.setChecked(widget.confirm_restart)
+
+    def toggle_expand_output_tabs_active_frontend(self):
+        widget = self.active_frontend
+        widget.expand_output_tabs = not widget.expand_output_tabs
+        self.expand_output_tabs.setChecked(widget.expand_output_tabs)
 
     def update_restart_checkbox(self):
         if self.active_frontend is None:
