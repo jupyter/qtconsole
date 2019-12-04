@@ -127,9 +127,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     confirm_restart = Bool(True, config=True,
         help="Whether to ask for user confirmation when restarting kernel")
 
-    expand_output_tabs = Bool(False, config=True,
-        help='Whether to expand tabs of outputs (change tabs for 8 spaces)')
-
     lexer_class = DottedObjectName(config=True,
         help="The pygments lexer class to use."
     )
@@ -681,11 +678,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def append_stream(self, text):
         """Appends text to the output stream."""
-        # Most consoles treat tabs as being 8 space characters. Convert tabs
-        # to spaces so that output looks as expected regardless of this
-        # widget's tab width.
-        if self.expand_output_tabs:
-            text = text.expandtabs(8)
         self._append_plain_text(text, before_prompt=True)
 
     def flush_clearoutput(self):
