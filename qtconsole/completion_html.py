@@ -309,7 +309,7 @@ class CompletionHtml(QtGui.QWidget):
         self._consecutive_tab = 1
         # Calculate the number of characters available.
         width = self._text_edit.document().textWidth()
-        char_width = QtGui.QFontMetrics(self._console_widget.font).width(' ')
+        char_width = QtGui.QFontMetrics(self._console_widget.font).boundingRect(' ').width()
         displaywidth = int(max(10, (width / char_width) - 1))
         items_m, ci = text.compute_item_matrix(items, empty=' ',
                                                displaywidth=displaywidth)
