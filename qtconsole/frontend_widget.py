@@ -678,10 +678,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def append_stream(self, text):
         """Appends text to the output stream."""
-        # Most consoles treat tabs as being 8 space characters. Convert tabs
-        # to spaces so that output looks as expected regardless of this
-        # widget's tab width.
-        text = text.expandtabs(8)
         self._append_plain_text(text, before_prompt=True)
 
     def flush_clearoutput(self):
