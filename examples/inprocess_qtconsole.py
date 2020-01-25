@@ -10,7 +10,7 @@ To run this example:
 """
 
 
-from qtpy import QtGui
+from qtpy import QtWidgets
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 
