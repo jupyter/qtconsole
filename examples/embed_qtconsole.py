@@ -8,7 +8,7 @@ To run:
     python3 embed_qtconsole.py
 """
 import sys
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.manager import QtKernelManager

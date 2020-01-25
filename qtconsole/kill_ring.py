@@ -5,7 +5,7 @@
 #-----------------------------------------------------------------------------
 
 # System library imports
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtWidgets, QtGui
 
 #-----------------------------------------------------------------------------
 # Classes
@@ -62,7 +62,7 @@ class QtKillRing(QtCore.QObject):
     def __init__(self, text_edit):
         """ Create a kill ring attached to the specified Qt text edit.
         """
-        assert isinstance(text_edit, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
+        assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super(QtKillRing, self).__init__()
 
         self._ring = KillRing()

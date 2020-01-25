@@ -3,11 +3,11 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 import ipython_genutils.text as text
 
 
-class CompletionPlain(QtGui.QWidget):
+class CompletionPlain(QtWidgets.QWidget):
     """ A widget for tab completion,  navigable by arrow keys """
 
     #--------------------------------------------------------------------------
@@ -18,7 +18,7 @@ class CompletionPlain(QtGui.QWidget):
         """ Create a completion widget that is attached to the specified Qt
             text edit widget.
         """
-        assert isinstance(console_widget._control, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
+        assert isinstance(console_widget._control, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super(CompletionPlain, self).__init__()
 
         self._text_edit = console_widget._control

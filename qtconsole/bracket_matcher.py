@@ -2,7 +2,7 @@
 """
 
 # System library imports
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 
 class BracketMatcher(QtCore.QObject):
@@ -22,7 +22,7 @@ class BracketMatcher(QtCore.QObject):
         """ Create a call tip manager that is attached to the specified Qt
             text edit widget.
         """
-        assert isinstance(text_edit, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
+        assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super(BracketMatcher, self).__init__()
 
         # The format to apply to matching brackets.
@@ -72,7 +72,7 @@ class BracketMatcher(QtCore.QObject):
     def _selection_for_character(self, position):
         """ Convenience method for selecting a character.
         """
-        selection = QtGui.QTextEdit.ExtraSelection()
+        selection = QtWidgets.QTextEdit.ExtraSelection()
         cursor = self._text_edit.textCursor()
         cursor.setPosition(position)
         cursor.movePosition(QtGui.QTextCursor.NextCharacter,

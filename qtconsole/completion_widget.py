@@ -3,10 +3,10 @@
 import os
 import sys
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 
-class CompletionWidget(QtGui.QListWidget):
+class CompletionWidget(QtWidgets.QListWidget):
     """ A widget for GUI tab completion.
     """
 
@@ -19,13 +19,13 @@ class CompletionWidget(QtGui.QListWidget):
             text edit widget.
         """
         text_edit = console_widget._control
-        assert isinstance(text_edit, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
+        assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super(CompletionWidget, self).__init__(parent=console_widget)
 
         self._text_edit = text_edit
-        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
         # We need Popup style to ensure correct mouse interaction
         # (dialog would dissappear on mouse click with ToolTip style)
@@ -40,8 +40,8 @@ class CompletionWidget(QtGui.QListWidget):
         # Ensure that the text edit keeps focus when widget is displayed.
         self.setFocusProxy(self._text_edit)
 
-        self.setFrameShadow(QtGui.QFrame.Plain)
-        self.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.setFrameShape(QtWidgets.QFrame.StyledPanel)
 
         self.itemActivated.connect(self._complete_current)
 
@@ -52,7 +52,7 @@ class CompletionWidget(QtGui.QListWidget):
         if obj is self:
             if event.type() == QtCore.QEvent.MouseButtonPress:
                 pos = self.mapToGlobal(event.pos())
-                target = QtGui.QApplication.widgetAt(pos)
+                target = QtWidgets.QApplication.widgetAt(pos)
                 if (target and self.isAncestorOf(target) or target is self):
                     return False
                 else:
@@ -72,7 +72,7 @@ class CompletionWidget(QtGui.QListWidget):
                      QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
             return super(CompletionWidget, self).keyPressEvent(event)
         else:
-            QtGui.QApplication.sendEvent(self._text_edit, event)
+            QtWidgets.QApplication.sendEvent(self._text_edit, event)
 
     #--------------------------------------------------------------------------
     # 'QWidget' interface
@@ -107,7 +107,7 @@ class CompletionWidget(QtGui.QListWidget):
         point = self._get_top_left_position(cursor)
         self.clear()
         for item in items:
-            list_item = QtGui.QListWidgetItem()
+            list_item = QtWidgets.QListWidgetItem()
             list_item.setData(QtCore.Qt.UserRole, item)
             # Check if the item could refer to a file. The replacing of '"'
             # is needed for items on Windows
@@ -117,7 +117,7 @@ class CompletionWidget(QtGui.QListWidget):
                 list_item.setText(item.replace("\"", "").split('.')[-1])
             self.addItem(list_item)
         height = self.sizeHint().height()
-        screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
+        screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
                 point.y() - height < 0):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())

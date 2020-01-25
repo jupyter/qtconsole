@@ -15,7 +15,7 @@ import time
 from textwrap import dedent
 from warnings import warn
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui
 
 from IPython.lib.lexers import IPythonLexer, IPython3Lexer
 from pygments.lexers import get_lexer_by_name

@@ -13,7 +13,7 @@ from threading import Thread
 from jupyter_core.paths import jupyter_runtime_dir
 from pygments.styles import get_all_styles
 
-from qtconsole.qt import QtGui,QtCore
+from qtpy import QtGui, QtCore, QtWidgets
 from qtconsole import styles
 from qtconsole.jupyter_widget import JupyterWidget
 from qtconsole.usage import gui_reference
@@ -26,7 +26,7 @@ def background(f):
     return t
 
 
-class MainWindow(QtGui.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
 
     #---------------------------------------------------------------------------
     # 'object' interface
@@ -38,10 +38,10 @@ class MainWindow(QtGui.QMainWindow):
                     connection_frontend_factory=None,
                 ):
         """ Create a tabbed MainWindow for managing FrontendWidgets
-        
+
         Parameters
         ----------
-        
+
         app : reference to QApplication parent
         confirm_exit : bool, optional
             Whether we should prompt on close of tabs
@@ -49,7 +49,7 @@ class MainWindow(QtGui.QMainWindow):
             A callable that returns a new JupyterWidget instance, attached to
             its own running kernel.
         slave_frontend_factory : callable
-            A callable that takes an existing JupyterWidget, and  returns a new 
+            A callable that takes an existing JupyterWidget, and  returns a new
             JupyterWidget instance, attached to the same kernel.
         """
 
@@ -62,7 +62,7 @@ class MainWindow(QtGui.QMainWindow):
         self.slave_frontend_factory = slave_frontend_factory
         self.connection_frontend_factory = connection_frontend_factory
 
-        self.tab_widget = QtGui.QTabWidget(self)
+        self.tab_widget = QtWidgets.QTabWidget(self)
         self.tab_widget.setDocumentMode(True)
         self.tab_widget.setTabsClosable(True)
         self.tab_widget.tabCloseRequested[int].connect(self.close_tab)
@@ -125,7 +125,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def create_tab_with_existing_kernel(self):
         """create a new frontend attached to an external kernel in a new tab"""
-        connection_file, file_type = QtGui.QFileDialog.getOpenFileName(self,
+        connection_file, file_type = QtWidgets.QFileDialog.getOpenFileName(self,
                                                      "Connect to Existing Kernel",
                                                      jupyter_runtime_dir(),
                                                      "Connection file (*.json)")
@@ -213,23 +213,23 @@ class MainWindow(QtGui.QMainWindow):
         if keepkernel is None: #show prompt
             if kernel_client and kernel_client.channels_running:
                 title = self.window().windowTitle()
-                cancel = QtGui.QMessageBox.Cancel
-                okay = QtGui.QMessageBox.Ok
+                cancel = QtWidgets.QMessageBox.Cancel
+                okay = QtWidgets.QMessageBox.Ok
                 if closing_widget._may_close:
                     msg = "You are closing the tab : "+'"'+self.tab_widget.tabText(current_tab)+'"'
                     info = "Would you like to quit the Kernel and close all attached Consoles as well?"
-                    justthis = QtGui.QPushButton("&No, just this Tab", self)
+                    justthis = QtWidgets.QPushButton("&No, just this Tab", self)
                     justthis.setShortcut('N')
-                    closeall = QtGui.QPushButton("&Yes, close all", self)
+                    closeall = QtWidgets.QPushButton("&Yes, close all", self)
                     closeall.setShortcut('Y')
                     # allow ctrl-d ctrl-d exit, like in terminal
                     closeall.setShortcut('Ctrl+D')
-                    box = QtGui.QMessageBox(QtGui.QMessageBox.Question,
+                    box = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Question,
                                             title, msg)
                     box.setInformativeText(info)
                     box.addButton(cancel)
-                    box.addButton(justthis, QtGui.QMessageBox.NoRole)
-                    box.addButton(closeall, QtGui.QMessageBox.YesRole)
+                    box.addButton(justthis, QtWidgets.QMessageBox.NoRole)
+                    box.addButton(closeall, QtWidgets.QMessageBox.YesRole)
                     box.setDefaultButton(closeall)
                     box.setEscapeButton(cancel)
                     pixmap = QtGui.QPixmap(self._app.icon.pixmap(QtCore.QSize(64,64)))
@@ -249,7 +249,7 @@ class MainWindow(QtGui.QMainWindow):
                         self.tab_widget.removeTab(current_tab)
                         background(kernel_client.stop_channels)
                 else:
-                    reply = QtGui.QMessageBox.question(self, title,
+                    reply = QtWidgets.QMessageBox.question(self, title,
                         "Are you sure you want to close this Console?"+
                         "\nThe Kernel and other Consoles will remain active.",
                         okay|cancel,
@@ -362,9 +362,9 @@ class MainWindow(QtGui.QMainWindow):
     # Populate the menu bar with common actions and shortcuts
     def add_menu_action(self, menu, action, defer_shortcut=False):
         """Add action to menu as well as self
-        
+
         So that when the menu bar is invisible, its actions are still available.
-        
+
         If defer_shortcut is True, set the shortcut context to widget-only,
         where it will avoid conflict with shortcuts already bound to the
         widgets themselves.
@@ -387,19 +387,19 @@ class MainWindow(QtGui.QMainWindow):
     def init_file_menu(self):
         self.file_menu = self.menuBar().addMenu("&File")
 
-        self.new_kernel_tab_act = QtGui.QAction("New Tab with &New kernel",
+        self.new_kernel_tab_act = QtWidgets.QAction("New Tab with &New kernel",
             self,
             shortcut="Ctrl+T",
             triggered=self.create_tab_with_new_frontend)
         self.add_menu_action(self.file_menu, self.new_kernel_tab_act)
 
-        self.slave_kernel_tab_act = QtGui.QAction("New Tab with Sa&me kernel",
+        self.slave_kernel_tab_act = QtWidgets.QAction("New Tab with Sa&me kernel",
             self,
             shortcut="Ctrl+Shift+T",
             triggered=self.create_tab_with_current_kernel)
         self.add_menu_action(self.file_menu, self.slave_kernel_tab_act)
 
-        self.existing_kernel_tab_act = QtGui.QAction("New Tab with &Existing kernel",
+        self.existing_kernel_tab_act = QtWidgets.QAction("New Tab with &Existing kernel",
                                                      self,
                                                      shortcut="Alt+T",
                                                      triggered=self.create_tab_with_existing_kernel)
@@ -407,14 +407,14 @@ class MainWindow(QtGui.QMainWindow):
 
         self.file_menu.addSeparator()
 
-        self.close_action=QtGui.QAction("&Close Tab",
+        self.close_action=QtWidgets.QAction("&Close Tab",
             self,
             shortcut=QtGui.QKeySequence.Close,
             triggered=self.close_active_frontend
             )
         self.add_menu_action(self.file_menu, self.close_action)
 
-        self.export_action=QtGui.QAction("&Save to HTML/XHTML",
+        self.export_action=QtWidgets.QAction("&Save to HTML/XHTML",
             self,
             shortcut=QtGui.QKeySequence.Save,
             triggered=self.export_action_active_frontend
@@ -428,7 +428,7 @@ class MainWindow(QtGui.QMainWindow):
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
             printkey = "Ctrl+Shift+P"
-        self.print_action = QtGui.QAction("&Print",
+        self.print_action = QtWidgets.QAction("&Print",
             self,
             shortcut=printkey,
             triggered=self.print_action_active_frontend)
@@ -440,7 +440,7 @@ class MainWindow(QtGui.QMainWindow):
 
             self.file_menu.addSeparator()
 
-            self.quit_action = QtGui.QAction("&Quit",
+            self.quit_action = QtWidgets.QAction("&Quit",
                 self,
                 shortcut=QtGui.QKeySequence.Quit,
                 triggered=self.close,
@@ -451,7 +451,7 @@ class MainWindow(QtGui.QMainWindow):
     def init_edit_menu(self):
         self.edit_menu = self.menuBar().addMenu("&Edit")
 
-        self.undo_action = QtGui.QAction("&Undo",
+        self.undo_action = QtWidgets.QAction("&Undo",
             self,
             shortcut=QtGui.QKeySequence.Undo,
             statusTip="Undo last action if possible",
@@ -459,7 +459,7 @@ class MainWindow(QtGui.QMainWindow):
             )
         self.add_menu_action(self.edit_menu, self.undo_action)
 
-        self.redo_action = QtGui.QAction("&Redo",
+        self.redo_action = QtWidgets.QAction("&Redo",
             self,
             shortcut=QtGui.QKeySequence.Redo,
             statusTip="Redo last action if possible",
@@ -468,28 +468,28 @@ class MainWindow(QtGui.QMainWindow):
 
         self.edit_menu.addSeparator()
 
-        self.cut_action = QtGui.QAction("&Cut",
+        self.cut_action = QtWidgets.QAction("&Cut",
             self,
             shortcut=QtGui.QKeySequence.Cut,
             triggered=self.cut_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.cut_action, True)
 
-        self.copy_action = QtGui.QAction("&Copy",
+        self.copy_action = QtWidgets.QAction("&Copy",
             self,
             shortcut=QtGui.QKeySequence.Copy,
             triggered=self.copy_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.copy_action, True)
 
-        self.copy_raw_action = QtGui.QAction("Copy (&Raw Text)",
+        self.copy_raw_action = QtWidgets.QAction("Copy (&Raw Text)",
             self,
             shortcut="Ctrl+Shift+C",
             triggered=self.copy_raw_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.copy_raw_action, True)
 
-        self.paste_action = QtGui.QAction("&Paste",
+        self.paste_action = QtWidgets.QAction("&Paste",
             self,
             shortcut=QtGui.QKeySequence.Paste,
             triggered=self.paste_active_frontend
@@ -503,7 +503,7 @@ class MainWindow(QtGui.QMainWindow):
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
             selectall = "Ctrl+Shift+A"
-        self.select_all_action = QtGui.QAction("Select Cell/&All",
+        self.select_all_action = QtWidgets.QAction("Select Cell/&All",
             self,
             shortcut=selectall,
             triggered=self.select_all_active_frontend
@@ -516,7 +516,7 @@ class MainWindow(QtGui.QMainWindow):
 
         if sys.platform != 'darwin':
             # disable on OSX, where there is always a menu bar
-            self.toggle_menu_bar_act = QtGui.QAction("Toggle &Menu Bar",
+            self.toggle_menu_bar_act = QtWidgets.QAction("Toggle &Menu Bar",
                 self,
                 shortcut="Ctrl+Shift+M",
                 statusTip="Toggle visibility of menubar",
@@ -524,7 +524,7 @@ class MainWindow(QtGui.QMainWindow):
             self.add_menu_action(self.view_menu, self.toggle_menu_bar_act)
 
         fs_key = "Ctrl+Meta+F" if sys.platform == 'darwin' else "F11"
-        self.full_screen_act = QtGui.QAction("&Full Screen",
+        self.full_screen_act = QtWidgets.QAction("&Full Screen",
             self,
             shortcut=fs_key,
             statusTip="Toggle between Fullscreen and Normal Size",
@@ -533,21 +533,21 @@ class MainWindow(QtGui.QMainWindow):
 
         self.view_menu.addSeparator()
 
-        self.increase_font_size = QtGui.QAction("Zoom &In",
+        self.increase_font_size = QtWidgets.QAction("Zoom &In",
             self,
             shortcut=QtGui.QKeySequence.ZoomIn,
             triggered=self.increase_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.increase_font_size, True)
 
-        self.decrease_font_size = QtGui.QAction("Zoom &Out",
+        self.decrease_font_size = QtWidgets.QAction("Zoom &Out",
             self,
             shortcut=QtGui.QKeySequence.ZoomOut,
             triggered=self.decrease_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.decrease_font_size, True)
 
-        self.reset_font_size = QtGui.QAction("Zoom &Reset",
+        self.reset_font_size = QtWidgets.QAction("Zoom &Reset",
             self,
             shortcut="Ctrl+0",
             triggered=self.reset_font_size_active_frontend
@@ -556,7 +556,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.view_menu.addSeparator()
 
-        self.clear_action = QtGui.QAction("&Clear Screen",
+        self.clear_action = QtWidgets.QAction("&Clear Screen",
             self,
             shortcut='Ctrl+L',
             statusTip="Clear the console",
@@ -565,15 +565,15 @@ class MainWindow(QtGui.QMainWindow):
 
         self.pager_menu = self.view_menu.addMenu("&Pager")
 
-        hsplit_action = QtGui.QAction(".. &Horizontal Split",
+        hsplit_action = QtWidgets.QAction(".. &Horizontal Split",
             self,
             triggered=lambda: self.set_paging_active_frontend('hsplit'))
 
-        vsplit_action = QtGui.QAction(" : &Vertical Split",
+        vsplit_action = QtWidgets.QAction(" : &Vertical Split",
             self,
             triggered=lambda: self.set_paging_active_frontend('vsplit'))
 
-        inside_action = QtGui.QAction("   &Inside Pager",
+        inside_action = QtWidgets.QAction("   &Inside Pager",
             self,
             triggered=lambda: self.set_paging_active_frontend('inside'))
 
@@ -584,9 +584,9 @@ class MainWindow(QtGui.QMainWindow):
         available_syntax_styles = self.get_available_syntax_styles()
         if len(available_syntax_styles) > 0:
             self.syntax_style_menu = self.view_menu.addMenu("&Syntax Style")
-            style_group = QtGui.QActionGroup(self)
+            style_group = QtWidgets.QActionGroup(self)
             for style in available_syntax_styles:
-                action = QtGui.QAction("{}".format(style), self,
+                action = QtWidgets.QAction("{}".format(style), self,
                                        triggered=lambda v,
                                        syntax_style=style:
                                            self.set_syntax_style(
@@ -606,14 +606,14 @@ class MainWindow(QtGui.QMainWindow):
 
         ctrl = "Meta" if sys.platform == 'darwin' else "Ctrl"
 
-        self.interrupt_kernel_action = QtGui.QAction("&Interrupt current Kernel",
+        self.interrupt_kernel_action = QtWidgets.QAction("&Interrupt current Kernel",
             self,
             triggered=self.interrupt_kernel_active_frontend,
             shortcut=ctrl+"+C",
             )
         self.add_menu_action(self.kernel_menu, self.interrupt_kernel_action)
 
-        self.restart_kernel_action = QtGui.QAction("&Restart current Kernel",
+        self.restart_kernel_action = QtWidgets.QAction("&Restart current Kernel",
             self,
             triggered=self.restart_kernel_active_frontend,
             shortcut=ctrl+"+.",
@@ -622,7 +622,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.kernel_menu.addSeparator()
 
-        self.confirm_restart_kernel_action = QtGui.QAction("&Confirm kernel restart",
+        self.confirm_restart_kernel_action = QtWidgets.QAction("&Confirm kernel restart",
             self,
             checkable=True,
             checked=self.active_frontend.confirm_restart,
@@ -636,13 +636,13 @@ class MainWindow(QtGui.QMainWindow):
         self.window_menu = self.menuBar().addMenu("&Window")
         if sys.platform == 'darwin':
             # add min/maximize actions to OSX, which lacks default bindings.
-            self.minimizeAct = QtGui.QAction("Mini&mize",
+            self.minimizeAct = QtWidgets.QAction("Mini&mize",
                 self,
                 shortcut="Ctrl+m",
                 statusTip="Minimize the window/Restore Normal Size",
                 triggered=self.toggleMinimized)
             # maximize is called 'Zoom' on OSX for some reason
-            self.maximizeAct = QtGui.QAction("&Zoom",
+            self.maximizeAct = QtWidgets.QAction("&Zoom",
                 self,
                 shortcut="Ctrl+Shift+M",
                 statusTip="Maximize the window/Restore Normal Size",
@@ -653,7 +653,7 @@ class MainWindow(QtGui.QMainWindow):
             self.window_menu.addSeparator()
 
         prev_key = "Ctrl+Alt+Left" if sys.platform == 'darwin' else "Ctrl+PgUp"
-        self.prev_tab_act = QtGui.QAction("Pre&vious Tab",
+        self.prev_tab_act = QtWidgets.QAction("Pre&vious Tab",
             self,
             shortcut=prev_key,
             statusTip="Select previous tab",
@@ -661,14 +661,14 @@ class MainWindow(QtGui.QMainWindow):
         self.add_menu_action(self.window_menu, self.prev_tab_act)
 
         next_key = "Ctrl+Alt+Right" if sys.platform == 'darwin' else "Ctrl+PgDown"
-        self.next_tab_act = QtGui.QAction("Ne&xt Tab",
+        self.next_tab_act = QtWidgets.QAction("Ne&xt Tab",
             self,
             shortcut=next_key,
             statusTip="Select next tab",
             triggered=self.next_tab)
         self.add_menu_action(self.window_menu, self.next_tab_act)
 
-        self.rename_window_act = QtGui.QAction("Rename &Window",
+        self.rename_window_act = QtWidgets.QAction("Rename &Window",
                                                self,
                                                shortcut="Alt+R",
                                                statusTip="Rename window",
@@ -676,7 +676,7 @@ class MainWindow(QtGui.QMainWindow):
         self.add_menu_action(self.window_menu, self.rename_window_act)
 
 
-        self.rename_current_tab_act = QtGui.QAction("&Rename Current Tab",
+        self.rename_current_tab_act = QtWidgets.QAction("&Rename Current Tab",
                                                     self,
                                                     shortcut="Ctrl+R",
                                                     statusTip="Rename current tab",
@@ -692,9 +692,9 @@ class MainWindow(QtGui.QMainWindow):
         self.help_menu = self.menuBar().addMenu("&Help")
 
         # Help Menu
-        self.help_action = QtGui.QAction("Show &QtConsole help", self,
+        self.help_action = QtWidgets.QAction("Show &QtConsole help", self,
                                          triggered=self._show_help)
-        self.online_help_action = QtGui.QAction("Open online &help", self,
+        self.online_help_action = QtWidgets.QAction("Open online &help", self,
                                                 triggered=self._open_online_help)
         self.add_menu_action(self.help_menu, self.help_action)
         self.add_menu_action(self.help_menu, self.online_help_action)
@@ -847,9 +847,9 @@ class MainWindow(QtGui.QMainWindow):
             return
         # Do Not loop on the widget count as it change while closing
         title = self.window().windowTitle()
-        cancel = QtGui.QMessageBox.Cancel
-        okay = QtGui.QMessageBox.Ok
-        accept_role = QtGui.QMessageBox.AcceptRole
+        cancel = QtWidgets.QMessageBox.Cancel
+        okay = QtWidgets.QMessageBox.Ok
+        accept_role = QtWidgets.QMessageBox.AcceptRole
 
         if self.confirm_exit:
             if self.tab_widget.count() > 1:
@@ -857,13 +857,13 @@ class MainWindow(QtGui.QMainWindow):
             else:
                 msg = "Close console, stop kernel, and Quit?"
             info = "Kernels not started here (e.g. notebooks) will be left alone."
-            closeall = QtGui.QPushButton("&Quit", self)
+            closeall = QtWidgets.QPushButton("&Quit", self)
             closeall.setShortcut('Q')
-            box = QtGui.QMessageBox(QtGui.QMessageBox.Question,
+            box = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Question,
                                     title, msg)
             box.setInformativeText(info)
             box.addButton(cancel)
-            box.addButton(closeall, QtGui.QMessageBox.YesRole)
+            box.addButton(closeall, QtWidgets.QMessageBox.YesRole)
             box.setDefaultButton(closeall)
             box.setEscapeButton(cancel)
             pixmap = QtGui.QPixmap(self._app.icon.pixmap(QtCore.QSize(64,64)))
@@ -882,4 +882,3 @@ class MainWindow(QtGui.QMainWindow):
                 widget._confirm_exit = False
                 self.close_tab(widget)
             event.accept()
-

@@ -3,7 +3,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-from qtconsole.qt import QtCore
+from qtpy import QtCore
 
 from traitlets import HasTraits, Type
 from .util import MetaQObjectHasTraits, SuperQObject

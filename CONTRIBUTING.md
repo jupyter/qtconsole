@@ -11,7 +11,7 @@ Use Conda to install dependencies and activate the development environment.
 ```
 conda create -n qtdev python=3
 conda activate qtdev
-conda install pyqt
+conda install qtpy pyqt
 ```
 
 To run after the changes have been made to source (preferred):

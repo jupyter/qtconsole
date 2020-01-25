@@ -7,7 +7,7 @@ import io
 import os
 import re
 
-from qtconsole.qt import QtGui
+from qtpy import QtGui, QtWidgets
 
 from ipython_genutils import py3compat
 
@@ -35,7 +35,7 @@ class HtmlExporter(object):
     def __init__(self, control):
         """ Creates an HtmlExporter for the given Q(Plain)TextEdit.
         """
-        assert isinstance(control, (QtGui.QPlainTextEdit, QtGui.QTextEdit))
+        assert isinstance(control, (QtWidgets.QPlainTextEdit, QtWidgets.QTextEdit))
         self.control = control
         self.filename = 'ipython.html'
         self.image_tag = None
@@ -50,8 +50,8 @@ class HtmlExporter(object):
         The name of the file that was saved, or None if no file was saved.
         """
         parent = self.control.window()
-        dialog = QtGui.QFileDialog(parent, 'Save as...')
-        dialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
+        dialog = QtWidgets.QFileDialog(parent, 'Save as...')
+        dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         filters = [
             'HTML with PNG figures (*.html *.htm)',
             'XHTML with inline SVG figures (*.xhtml *.xml)'
@@ -83,15 +83,15 @@ class HtmlExporter(object):
                         "file) or external image files?"
                     checkbox = QtGui.QCheckBox("&Don't ask again")
                     checkbox.setShortcut('D')
-                    ib = QtGui.QPushButton("&Inline")
+                    ib = QtWidgets.QPushButton("&Inline")
                     ib.setShortcut('I')
-                    eb = QtGui.QPushButton("&External")
+                    eb = QtWidgets.QPushButton("&External")
                     eb.setShortcut('E')
-                    box = QtGui.QMessageBox(QtGui.QMessageBox.Question,
+                    box = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Question,
                                             dialog.windowTitle(), msg)
                     box.setInformativeText(info)
-                    box.addButton(ib, QtGui.QMessageBox.NoRole)
-                    box.addButton(eb, QtGui.QMessageBox.YesRole)
+                    box.addButton(ib, QtWidgets.QMessageBox.NoRole)
+                    box.addButton(eb, QtWidgets.QMessageBox.YesRole)
                     layout.setSpacing(0)
                     layout.addWidget(box)
                     layout.addWidget(checkbox)
@@ -110,8 +110,8 @@ class HtmlExporter(object):
                 return exporter(html, self.filename, self.image_tag)
             except Exception as e:
                 msg = "Error exporting HTML to %s\n" % self.filename + str(e)
-                reply = QtGui.QMessageBox.warning(parent, 'Error', msg,
-                    QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                reply = QtWidgets.QMessageBox.warning(parent, 'Error', msg,
+                    QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
         return None
 

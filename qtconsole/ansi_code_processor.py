@@ -9,7 +9,7 @@ from collections import namedtuple
 import re
 
 # System library imports
-from qtconsole.qt import QtGui
+from qtpy import QtGui
 
 # Local imports
 from ipython_genutils.py3compat import string_types
