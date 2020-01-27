@@ -13,7 +13,7 @@ import time
 from unicodedata import category
 import webbrowser
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 from traitlets.config.configurable import LoggingConfigurable
 from qtconsole.rich_text import HtmlExporter
@@ -41,7 +41,7 @@ def is_whitespace(char):
 # Classes
 #-----------------------------------------------------------------------------
 
-class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtGui.QWidget)), {})):
+class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtWidgets.QWidget)), {})):
     """ An abstract base class for console-type widgets. This class has
         functionality for:
 
@@ -115,6 +115,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         'none'
            The text is written directly to the console.
         """)
+
+    scrollbar_visibility = Bool(True, config=True,
+        help="""The visibility of the scrollar. If False then the scrollbar will be
+        invisible."""
+    )
 
     font_family = Unicode(config=True,
         help="""The font family to use for the console.
@@ -218,6 +223,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self.setParent(parent)
 
         self._is_complete_msg_id = None
+        self._is_complete_timeout = 0.1
+        self._is_complete_max_time = None
 
         # While scrolling the pager on Mac OS X, it tears badly.  The
         # NativeGesture is platform and perhaps build-specific hence
@@ -227,7 +234,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self._pager_scroll_events.append(QtCore.QEvent.NativeGesture)
 
         # Create the layout and underlying text widget.
-        layout = QtGui.QStackedLayout(self)
+        layout = QtWidgets.QStackedLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         self._control = self._create_control()
         if self.paging in ('hsplit', 'vsplit'):
@@ -296,7 +303,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self.reset_font()
 
         # Configure actions.
-        action = QtGui.QAction('Print', None)
+        action = QtWidgets.QAction('Print', None)
         action.setEnabled(True)
         printkey = QtGui.QKeySequence(QtGui.QKeySequence.Print)
         if printkey.matches("Ctrl+P") and sys.platform != 'darwin':
@@ -309,14 +316,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self.addAction(action)
         self.print_action = action
 
-        action = QtGui.QAction('Save as HTML/XML', None)
+        action = QtWidgets.QAction('Save as HTML/XML', None)
         action.setShortcut(QtGui.QKeySequence.Save)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.export_html)
         self.addAction(action)
         self.export_action = action
 
-        action = QtGui.QAction('Select All', None)
+        action = QtWidgets.QAction('Select All', None)
         action.setEnabled(True)
         selectall = QtGui.QKeySequence(QtGui.QKeySequence.SelectAll)
         if selectall.matches("Ctrl+A") and sys.platform != 'darwin':
@@ -329,7 +336,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self.addAction(action)
         self.select_all_action = action
 
-        self.increase_font_size = QtGui.QAction("Bigger Font",
+        self.increase_font_size = QtWidgets.QAction("Bigger Font",
                 self,
                 shortcut=QtGui.QKeySequence.ZoomIn,
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
@@ -337,7 +344,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 triggered=self._increase_font_size)
         self.addAction(self.increase_font_size)
 
-        self.decrease_font_size = QtGui.QAction("Smaller Font",
+        self.decrease_font_size = QtWidgets.QAction("Smaller Font",
                 self,
                 shortcut=QtGui.QKeySequence.ZoomOut,
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
@@ -345,7 +352,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 triggered=self._decrease_font_size)
         self.addAction(self.decrease_font_size)
 
-        self.reset_font_size = QtGui.QAction("Normal Font",
+        self.reset_font_size = QtWidgets.QAction("Normal Font",
                 self,
                 shortcut="Ctrl+0",
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
@@ -404,7 +411,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text widgets.
         """
         etype = event.type()
-        self._trigger_is_complete_callback()
         if etype == QtCore.QEvent.KeyPress:
 
             # Re-map keys for all filtered widgets.
@@ -414,7 +420,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                             self._ctrl_down_remap[key],
                                             QtCore.Qt.NoModifier)
-                QtGui.qApp.sendEvent(obj, new_event)
+                QtWidgets.QApp.sendEvent(obj, new_event)
                 return True
 
             elif obj == self._control:
@@ -435,7 +441,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Manually adjust the scrollbars *after* a resize event is dispatched.
         elif etype == QtCore.QEvent.Resize and not self._filter_resize:
             self._filter_resize = True
-            QtGui.QApplication.instance().sendEvent(obj, event)
+            QtWidgets.QApplication.instance().sendEvent(obj, event)
             self._adjust_scrollbars()
             self._filter_resize = False
             return True
@@ -458,7 +464,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         elif etype == QtCore.QEvent.MouseMove:
             anchor = self._control.anchorAt(event.pos())
-            QtGui.QToolTip.showText(event.globalPos(), anchor)
+            QtWidgets.QToolTip.showText(event.globalPos(), anchor)
 
         return super(ConsoleWidget, self).eventFilter(obj, event)
 
@@ -474,7 +480,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         margin = (self._control.frameWidth() +
                   self._control.document().documentMargin()) * 2
         style = self.style()
-        splitwidth = style.pixelMetric(QtGui.QStyle.PM_SplitterWidth)
+        splitwidth = style.pixelMetric(QtWidgets.QStyle.PM_SplitterWidth)
 
         # Note 1: Despite my best efforts to take the various margins into
         # account, the width is still coming out a bit too small, so we include
@@ -482,7 +488,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Note 2: QFontMetrics.maxWidth is not used here or anywhere else due
         # to a Qt bug on certain Mac OS systems where it returns 0.
         width = font_metrics.width(' ') * self.console_width + margin
-        width += style.pixelMetric(QtGui.QStyle.PM_ScrollBarExtent)
+        width += style.pixelMetric(QtWidgets.QStyle.PM_ScrollBarExtent)
         if self.paging == 'hsplit':
             width = width * 2 + splitwidth
 
@@ -528,7 +534,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """ Returns whether text can be pasted from the clipboard.
         """
         if self._control.textInteractionFlags() & QtCore.Qt.TextEditable:
-            return bool(QtGui.QApplication.clipboard().text())
+            return bool(QtWidgets.QApplication.clipboard().text())
         return False
 
     def clear(self, keep_input=True):
@@ -557,7 +563,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def copy_anchor(self, anchor):
         """ Copy anchor text to the clipboard
         """
-        QtGui.QApplication.clipboard().setText(anchor)
+        QtWidgets.QApplication.clipboard().setText(anchor)
 
     def cut(self):
         """ Copy the currently selected text to the clipboard and delete it
@@ -580,9 +586,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self._is_complete_callback(complete, indent)
 
     def _register_is_complete_callback(self, source, callback):
-        self._trigger_is_complete_callback()
-        self._is_complete_msg_id = self.kernel_client.is_complete(source)
+        if self._is_complete_msg_id is not None:
+            if self._is_complete_max_time < time.time():
+                # Second return while waiting for is_complete
+                return
+            else:
+                # request timed out
+                self._trigger_is_complete_callback()
+        self._is_complete_max_time = time.time() + self._is_complete_timeout
         self._is_complete_callback = callback
+        self._is_complete_msg_id = self.kernel_client.is_complete(source)
 
     def execute(self, source=None, hidden=False, interactive=False):
         """ Executes source or the input buffer, possibly prompting for more
@@ -642,16 +655,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self._append_plain_text('\n')
             self._input_buffer_executing = self.input_buffer
             self._executing = True
-            self._prompt_finished()
-
-            # The maximum block count is only in effect during execution.
-            # This ensures that _prompt_pos does not become invalid due to
-            # text truncation.
-            self._control.document().setMaximumBlockCount(self.buffer_size)
-
-            # Setting a positive maximum block count will automatically
-            # disable the undo/redo history, but just to be safe:
-            self._control.setUndoRedoEnabled(False)
+            self._finalize_input_request()
 
             # Perform actual execution.
             self._execute(source, False)
@@ -676,6 +680,27 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """ Shows a dialog to export HTML/XML in various formats.
         """
         self._html_exporter.export()
+
+    def _finalize_input_request(self):
+        """
+        Set the widget to a non-reading state.
+        """
+        # Must set _reading to False before calling _prompt_finished
+        self._reading = False
+        self._prompt_finished()
+
+        # There is no prompt now, so before_prompt_position is eof
+        self._append_before_prompt_cursor.setPosition(
+            self._get_end_cursor().position())
+
+        # The maximum block count is only in effect during execution.
+        # This ensures that _prompt_pos does not become invalid due to
+        # text truncation.
+        self._control.document().setMaximumBlockCount(self.buffer_size)
+
+        # Setting a positive maximum block count will automatically
+        # disable the undo/redo history, but just to be safe:
+        self._control.setUndoRedoEnabled(False)
 
     def _get_input_buffer(self, force=False):
         """ The text that the user has entered entered at the current prompt.
@@ -763,7 +788,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
             # Remove any trailing newline, which confuses the GUI and forces the
             # user to backspace.
-            text = QtGui.QApplication.clipboard().text(mode).rstrip()
+            text = QtWidgets.QApplication.clipboard().text(mode).rstrip()
 
             # dedent removes "common leading whitespace" but to preserve relative
             # indent of multiline code, we have to compensate for any
@@ -815,7 +840,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.font_size:
             font.setPointSize(self.font_size)
         else:
-            font.setPointSize(QtGui.QApplication.instance().font().pointSize())
+            font.setPointSize(QtWidgets.QApplication.instance().font().pointSize())
         font.setStyleHint(QtGui.QFont.TypeWriter)
         self._set_font(font)
 
@@ -944,7 +969,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         # Perform the insertion.
         result = insert(cursor, input, *args, **kwargs)
-        self._control.moveCursor(QtGui.QTextCursor.End)
         return result
 
     def _append_block(self, block_format=None, before_prompt=False):
@@ -1101,9 +1125,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.custom_control:
             control = self.custom_control()
         elif self.kind == 'plain':
-            control = QtGui.QPlainTextEdit()
+            control = QtWidgets.QPlainTextEdit()
         elif self.kind == 'rich':
-            control = QtGui.QTextEdit()
+            control = QtWidgets.QTextEdit()
             control.setAcceptRichText(False)
             control.setMouseTracking(True)
 
@@ -1131,12 +1155,18 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         layout.documentSizeChanged.disconnect()
         layout.documentSizeChanged.connect(self._adjust_scrollbars)
 
+        # Configure the scrollbar policy
+        if self.scrollbar_visibility:
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOn
+        else :
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOff
+
         # Configure the control.
         control.setAttribute(QtCore.Qt.WA_InputMethodEnabled, True)
         control.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         control.setReadOnly(True)
         control.setUndoRedoEnabled(False)
-        control.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+        control.setVerticalScrollBarPolicy(scrollbar_policy)
         return control
 
     def _create_page_control(self):
@@ -1145,15 +1175,22 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self.custom_page_control:
             control = self.custom_page_control()
         elif self.kind == 'plain':
-            control = QtGui.QPlainTextEdit()
+            control = QtWidgets.QPlainTextEdit()
         elif self.kind == 'rich':
-            control = QtGui.QTextEdit()
+            control = QtWidgets.QTextEdit()
         control.installEventFilter(self)
         viewport = control.viewport()
         viewport.installEventFilter(self)
         control.setReadOnly(True)
         control.setUndoRedoEnabled(False)
-        control.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
+
+        # Configure the scrollbar policy
+        if self.scrollbar_visibility:
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOn
+        else :
+            scrollbar_policy = QtCore.Qt.ScrollBarAlwaysOff
+
+        control.setVerticalScrollBarPolicy(scrollbar_policy)
         return control
 
     def _event_filter_console_keypress(self, event):
@@ -1289,13 +1326,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                                 QtCore.Qt.Key_Return,
                                                 QtCore.Qt.NoModifier)
-                    QtGui.qApp.sendEvent(self._control, new_event)
+                    QtWidgets.QApp.sendEvent(self._control, new_event)
                     intercepted = True
                 else:
                     new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                                 QtCore.Qt.Key_Delete,
                                                 QtCore.Qt.NoModifier)
-                    QtGui.qApp.sendEvent(self._control, new_event)
+                    QtWidgets.QApp.sendEvent(self._control, new_event)
                     intercepted = True
 
         #------ Alt modifier ---------------------------------------------------
@@ -1339,6 +1376,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         #------ No modifiers ---------------------------------------------------
 
         else:
+            self._trigger_is_complete_callback()
             if shift_down:
                 anchormode = QtGui.QTextCursor.KeepAnchor
             else:
@@ -1527,14 +1565,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_PageDown,
                                         QtCore.Qt.NoModifier)
-            QtGui.qApp.sendEvent(self._page_control, new_event)
+            QtWidgets.QApp.sendEvent(self._page_control, new_event)
             return True
 
         elif key == QtCore.Qt.Key_Backspace:
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_PageUp,
                                         QtCore.Qt.NoModifier)
-            QtGui.qApp.sendEvent(self._page_control, new_event)
+            QtWidgets.QApp.sendEvent(self._page_control, new_event)
             return True
 
         # vi/less -like key bindings
@@ -1542,7 +1580,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_Down,
                                         QtCore.Qt.NoModifier)
-            QtGui.qApp.sendEvent(self._page_control, new_event)
+            QtWidgets.QApp.sendEvent(self._page_control, new_event)
             return True
 
         # vi/less -like key bindings
@@ -1550,7 +1588,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_Up,
                                         QtCore.Qt.NoModifier)
-            QtGui.qApp.sendEvent(self._page_control, new_event)
+            QtWidgets.QApp.sendEvent(self._page_control, new_event)
             return True
 
         return False
@@ -2019,12 +2057,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if buffer_size > 0:
             text = self._get_last_lines(text, buffer_size)
 
-        if self._executing:
-            viewport = self._control.viewport()
-            end_scroll_pos = self._control.cursorForPosition(
-                QtCore.QPoint(viewport.width()-1, viewport.height()-1)
-                ).position()
-            end_doc_pos = self._get_end_pos()
+        viewport = self._control.viewport()
+        end_scroll_pos = self._control.cursorForPosition(
+            QtCore.QPoint(viewport.width()-1, viewport.height()-1)
+            ).position()
+        end_doc_pos = self._get_end_pos()
 
         cursor.beginEditBlock()
         if self.ansi_codes:
@@ -2055,7 +2092,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                             cursor.StartOfLine, cursor.KeepAnchor)
 
                     elif act.action == 'beep':
-                        QtGui.qApp.beep()
+                        QtWidgets.QApp.beep()
 
                     elif act.action == 'backspace':
                         if not cursor.atBlockStart():
@@ -2086,10 +2123,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor.insertText(text)
         cursor.endEditBlock()
 
-        if self._executing and end_doc_pos - end_scroll_pos <= 1:
+        if end_doc_pos - end_scroll_pos <= 1:
             end_scroll = (self._control.verticalScrollBar().maximum()
                           - self._control.verticalScrollBar().pageStep())
-            self._control.verticalScrollBar().setValue(end_scroll)
+            # Only scroll down
+            if end_scroll > self._control.verticalScrollBar().value():
+                self._control.verticalScrollBar().setValue(end_scroll)
 
     def _insert_plain_text_into_buffer(self, cursor, text):
         """ Inserts text into the input buffer using the specified cursor (which
@@ -2393,7 +2432,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         document = self._control.document()
         scrollbar = self._control.verticalScrollBar()
         viewport_height = self._control.viewport().height()
-        if isinstance(self._control, QtGui.QPlainTextEdit):
+        if isinstance(self._control, QtWidgets.QPlainTextEdit):
             maximum = max(0, document.lineCount() - 1)
             step = viewport_height / self._control.fontMetrics().lineSpacing()
         else:

@@ -10,8 +10,7 @@ import sys
 import uuid
 import re
 
-from qtconsole import qt
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 from ipython_genutils import py3compat
 from ipython_genutils.importstring import import_item
 
@@ -157,7 +156,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     exit_requested = QtCore.Signal(object)
 
     _CallTipRequest = namedtuple('_CallTipRequest', ['id', 'pos'])
-    _CompletionRequest = namedtuple('_CompletionRequest', ['id', 'pos'])
+    _CompletionRequest = namedtuple('_CompletionRequest',
+                                    ['id', 'code', 'pos'])
     _ExecutionRequest = namedtuple('_ExecutionRequest', ['id', 'kind'])
     _local_kernel = False
     _highlighter = Instance(FrontendHighlighter, allow_none=True)
@@ -168,19 +168,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def __init__(self, local_kernel=_local_kernel, *args, **kw):
         super(FrontendWidget, self).__init__(*args, **kw)
-        # FIXME: remove this when PySide min version is updated past 1.0.7
-        # forcefully disable calltips if PySide is < 1.0.7, because they crash
-        if qt.QT_API == qt.QT_API_PYSIDE:
-            import PySide
-            if PySide.__version_info__ < (1, 0, 7):
-                self.log.warning("PySide %s < 1.0.7 found; disabling calltips",
-                                 PySide.__version__)
-                self.enable_calltips = False
-
         # FrontendWidget protected variables.
         self._bracket_matcher = BracketMatcher(self._control)
         self._call_tip_widget = CallTipWidget(self._control)
-        self._copy_raw_action = QtGui.QAction('Copy (Raw Text)', None)
+        self._copy_raw_action = QtWidgets.QAction('Copy (Raw Text)', None)
         self._hidden = False
         self._highlighter = FrontendHighlighter(self, lexer=self.lexer)
         self._kernel_manager = None
@@ -243,7 +234,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                     was_newline = False
                 if was_newline:  # user doesn't need newline
                     text = text[:-1]
-                QtGui.QApplication.clipboard().setText(text)
+                QtWidgets.QApplication.clipboard().setText(text)
         else:
             self.log.debug("frontend widget : unknown copy target")
 
@@ -469,6 +460,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         self.kernel_client.iopub_channel.flush()
 
         def callback(line):
+            self._finalize_input_request()
             self.kernel_client.input(line)
         if self._reading:
             self.log.debug("Got second input request, assuming first was interrupted.")
@@ -547,11 +539,11 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                     self.exit_requested.emit(self)
                 else:
                     title = self.window().windowTitle()
-                    reply = QtGui.QMessageBox.question(self, title,
+                    reply = QtWidgets.QMessageBox.question(self, title,
                         "Kernel has been shutdown permanently. "
                         "Close the Console?",
-                        QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
-                    if reply == QtGui.QMessageBox.Yes:
+                        QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
+                    if reply == QtWidgets.QMessageBox.Yes:
                         self.exit_requested.emit(self)
 
     def _handle_status(self, msg):
@@ -586,7 +578,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def interrupt_kernel(self):
         """ Attempts to interrupt the running kernel.
-        
+
         Also unsets _reading flag, to avoid runtime errors
         if raw_input is called again.
         """
@@ -645,10 +637,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             # they decline. (If they accept, the heartbeat will be un-paused
             # automatically when the kernel is restarted.)
             if self.confirm_restart:
-                buttons = QtGui.QMessageBox.Yes | QtGui.QMessageBox.No
-                result = QtGui.QMessageBox.question(self, 'Restart kernel?',
+                buttons = QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No
+                result = QtWidgets.QMessageBox.question(self, 'Restart kernel?',
                                                     message, buttons)
-                do_restart = result == QtGui.QMessageBox.Yes
+                do_restart = result == QtWidgets.QMessageBox.Yes
             else:
                 # confirm_restart is False, so we don't need to ask user
                 # anything, just do the restart
@@ -676,10 +668,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def append_stream(self, text):
         """Appends text to the output stream."""
-        # Most consoles treat tabs as being 8 space characters. Convert tabs
-        # to spaces so that output looks as expected regardless of this
-        # widget's tab width.
-        text = text.expandtabs(8)
         self._append_plain_text(text, before_prompt=True)
 
     def flush_clearoutput(self):
@@ -702,7 +690,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def _auto_call_tip(self):
         """Trigger call tip automatically on open parenthesis
-        
+
         Call tips can be requested explcitly with `_call_tip`.
         """
         cursor = self._get_cursor()
@@ -727,13 +715,11 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _complete(self):
         """ Performs completion at the current cursor location.
         """
+        code = self.input_buffer
+        cursor_pos = self._get_input_buffer_cursor_pos()
         # Send the completion request to the kernel
-        msg_id = self.kernel_client.complete(
-            code=self.input_buffer,
-            cursor_pos=self._get_input_buffer_cursor_pos(),
-        )
-        pos = self._get_cursor().position()
-        info = self._CompletionRequest(msg_id, pos)
+        msg_id = self.kernel_client.complete(code=code, cursor_pos=cursor_pos)
+        info = self._CompletionRequest(msg_id, code, cursor_pos)
         self._request_info['complete'] = info
 
     def _process_execute_abort(self, msg):

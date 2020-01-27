@@ -1,7 +1,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-from qtconsole.qt import QtGui
+from qtpy import QtGui
 
 from ipython_genutils.py3compat import unicode_type
 from traitlets import Bool
@@ -166,6 +166,8 @@ class HistoryConsoleWidget(ConsoleWidget):
         while index > 0:
             index -= 1
             history = self._get_edited_history(index)
+            if history == self.input_buffer:
+                continue
             if (as_prefix and history.startswith(substring)) \
                 or (not as_prefix and substring in history):
                 replace = True
@@ -197,6 +199,8 @@ class HistoryConsoleWidget(ConsoleWidget):
         while index < len(self._history):
             index += 1
             history = self._get_edited_history(index)
+            if history == self.input_buffer:
+                continue
             if (as_prefix and history.startswith(substring)) \
                 or (not as_prefix and substring in history):
                 replace = True

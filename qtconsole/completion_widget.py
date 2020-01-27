@@ -3,10 +3,10 @@
 import os
 import sys
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 
-class CompletionWidget(QtGui.QListWidget):
+class CompletionWidget(QtWidgets.QListWidget):
     """ A widget for GUI tab completion.
     """
 
@@ -19,14 +19,13 @@ class CompletionWidget(QtGui.QListWidget):
             text edit widget.
         """
         text_edit = console_widget._control
-        assert isinstance(text_edit, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
+        assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super(CompletionWidget, self).__init__(parent=console_widget)
 
         self._text_edit = text_edit
-        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
+        self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
 
         # We need Popup style to ensure correct mouse interaction
         # (dialog would dissappear on mouse click with ToolTip style)
@@ -41,8 +40,8 @@ class CompletionWidget(QtGui.QListWidget):
         # Ensure that the text edit keeps focus when widget is displayed.
         self.setFocusProxy(self._text_edit)
 
-        self.setFrameShadow(QtGui.QFrame.Plain)
-        self.setFrameShape(QtGui.QFrame.StyledPanel)
+        self.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.setFrameShape(QtWidgets.QFrame.StyledPanel)
 
         self.itemActivated.connect(self._complete_current)
 
@@ -53,7 +52,7 @@ class CompletionWidget(QtGui.QListWidget):
         if obj is self:
             if event.type() == QtCore.QEvent.MouseButtonPress:
                 pos = self.mapToGlobal(event.pos())
-                target = QtGui.QApplication.widgetAt(pos)
+                target = QtWidgets.QApplication.widgetAt(pos)
                 if (target and self.isAncestorOf(target) or target is self):
                     return False
                 else:
@@ -73,7 +72,7 @@ class CompletionWidget(QtGui.QListWidget):
                      QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
             return super(CompletionWidget, self).keyPressEvent(event)
         else:
-            QtGui.QApplication.sendEvent(self._text_edit, event)
+            QtWidgets.QApplication.sendEvent(self._text_edit, event)
 
     #--------------------------------------------------------------------------
     # 'QWidget' interface
@@ -83,7 +82,10 @@ class CompletionWidget(QtGui.QListWidget):
         """ Reimplemented to disconnect signal handlers and event filter.
         """
         super(CompletionWidget, self).hideEvent(event)
-        self._text_edit.cursorPositionChanged.disconnect(self._update_current)
+        try:
+            self._text_edit.cursorPositionChanged.disconnect(self._update_current)
+        except TypeError:
+            pass
         self.removeEventFilter(self)
 
     def showEvent(self, event):
@@ -106,17 +108,20 @@ class CompletionWidget(QtGui.QListWidget):
         self.clear()
         path_items = []
         for item in items:
-            if os.path.isdir(item) or os.path.isfile(item):
-                path_items.append(item)
+            # Check if the item could refer to a file or dir. The replacing
+            # of '"' is needed for items on Windows
+            if (os.path.isfile(os.path.abspath(item.replace("\"", ""))) or
+                    os.path.isdir(os.path.abspath(item.replace("\"", "")))):
+                path_items.append(item.replace("\"", ""))
             else:
-                list_item = QtGui.QListWidgetItem()
+                list_item = QtWidgets.QListWidgetItem()
                 list_item.setData(QtCore.Qt.UserRole, item)
                 list_item.setText(item.split('.')[-1])
                 self.addItem(list_item)
 
         common_prefix = os.path.dirname(os.path.commonprefix(path_items))
         for path_item in path_items:
-            list_item = QtGui.QListWidgetItem()
+            list_item = QtWidgets.QListWidgetItem()
             list_item.setData(QtCore.Qt.UserRole, path_item)
             if common_prefix:
                 text = path_item.split(common_prefix)[-1]
@@ -126,13 +131,14 @@ class CompletionWidget(QtGui.QListWidget):
             self.addItem(list_item)
 
         height = self.sizeHint().height()
-        screen_rect = QtGui.QApplication.desktop().availableGeometry(self)
+        screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
                 point.y() - height < 0):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
             point.setY(point.y() - height)
         w = (self.sizeHintForColumn(0) +
-             self.verticalScrollBar().sizeHint().width())
+             self.verticalScrollBar().sizeHint().width() +
+             2 * self.frameWidth())
         self.setGeometry(point.x(), point.y(), w, height)
 
         # Move cursor to start of the prefix to replace it

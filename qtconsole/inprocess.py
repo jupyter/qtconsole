@@ -1,7 +1,7 @@
 """ Defines an in-process KernelManager with signals and slots.
 """
 
-from qtconsole.qt import QtCore
+from qtpy import QtCore
 from ipykernel.inprocess import (
     InProcessHBChannel, InProcessKernelClient, InProcessKernelManager,
 )

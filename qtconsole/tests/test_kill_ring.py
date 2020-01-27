@@ -2,7 +2,7 @@ import unittest
 
 import pytest
 
-from qtconsole.qt import QtGui
+from qtpy import QtGui, QtWidgets
 from qtconsole.kill_ring import KillRing, QtKillRing
 from . import no_display
 
@@ -14,16 +14,16 @@ class TestKillRing(unittest.TestCase):
     def setUpClass(cls):
         """ Create the application for the test case.
         """
-        cls._app = QtGui.QApplication.instance()
+        cls._app = QtWidgets.QApplication.instance()
         if cls._app is None:
-            cls._app = QtGui.QApplication([])
+            cls._app = QtWidgets.QApplication([])
         cls._app.setQuitOnLastWindowClosed(False)
 
     @classmethod
     def tearDownClass(cls):
         """ Exit the application.
         """
-        QtGui.QApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def test_generic(self):
         """ Does the generic kill ring work?
@@ -48,7 +48,7 @@ class TestKillRing(unittest.TestCase):
     def test_qt_basic(self):
         """ Does the Qt kill ring work?
         """
-        text_edit = QtGui.QPlainTextEdit()
+        text_edit = QtWidgets.QPlainTextEdit()
         ring = QtKillRing(text_edit)
 
         ring.kill('foo')
@@ -69,7 +69,7 @@ class TestKillRing(unittest.TestCase):
     def test_qt_cursor(self):
         """ Does the Qt kill ring maintain state with cursor movement?
         """
-        text_edit = QtGui.QPlainTextEdit()
+        text_edit = QtWidgets.QPlainTextEdit()
         ring = QtKillRing(text_edit)
 
         ring.kill('foo')

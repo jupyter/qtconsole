@@ -3,7 +3,66 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.6:
+
+4.6
+~~~
+
+4.6.0
+-----
+
+`4.6.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.6>`__
+
+Additions
++++++++++
+
+- Add an option to configure scrollbar visibility.
+
+Changes
++++++++
+
+- Avoid introducing a new line when executing code.
+
+
+.. _4.5:
+
+4.5
+~~~
+
+.. _4.5.5:
+
+4.5.5
+-----
+
+`4.5.5 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.5>`__
+
+* Set console to read only after input.
+* Allow text to be added before the prompt while autocompleting.
+* Scroll when adding text even when not executing.
+
+.. _4.5.4:
+
+4.5.4
+-----
+
+`4.5.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.4>`__
+
+- Fix emoji highlighting.
+
+.. _4.5.3:
+
+4.5.3
+-----
+
+`4.5.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.3>`__
+
+- Fix error when closing comms.
+- Fix prompt automatically scrolling down on execution.
+
 .. _4.5.2:
+
+4.5.2
+-----
 
 `4.5.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.2>`__
 
@@ -11,35 +70,50 @@ Changes in Jupyter Qt console
 - Improve positioning and content of completion widget.
 - Scroll down for output from remote commands.
 
-
 .. _4.5.1:
+
+4.5.1
+-----
 
 `4.5.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5.1>`__
 
 - Only use setuptools in setup.py to fix uploading tarballs to PyPI.
 
+4.5.0
+-----
 
-.. _4.5:
-
-`4.5 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5>`__
+`4.5.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.5>`__
 
 Additions
-~~~~~~~~~
++++++++++
+
 - Add Comms to qtconsole.
 - Add kernel language name as an attribute of JupyterWidget.
 
 Changes
-~~~~~~~
++++++++
+
 - Use new traitlets API with decorators.
 
 
+.. _4.4:
+
+4.4
+~~~
+
 .. _4.4.4:
+
+4.4.4
+-----
 
 `4.4.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.4>`__
 
 - Prevent cursor from moving to the end of the line while debugging.
 
 .. _4.4.3:
+
+4.4.3
+-----
 
 `4.4.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.3>`__
 
@@ -49,24 +123,33 @@ Changes
 
 .. _4.4.2:
 
+4.4.2
+-----
+
 `4.4.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.2>`__
 
 - Fix incompatibility with PyQt5 5.11.
 
 .. _4.4.1:
 
+4.4.1
+-----
+
 `4.4.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4.1>`__
 
 - Fix setting width and height when displaying images with IPython's Image.
 - Avoid displaying errors when using Matplotlib to generate pngs from Latex.
 
+.. _4.4.0:
 
-.. _4.4:
+4.4.0
+-----
 
-`4.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4>`__
+`4.4.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.4>`__
 
 Additions
-~~~~~~~~~
++++++++++
+
 - :kbd:`Control-D` enters an EOT character if kernel is executing and input is
   empty.
 - Implement block indent on multiline selection with :kbd:`Tab`.
@@ -74,42 +157,47 @@ Additions
   be done in the menu ``View > Syntax Style``.
 
 Changes
-~~~~~~~
++++++++
+
 - Change :kbd:`Control-Shift-A` to select cell contents first.
 - Change default tab width to 4 spaces.
 - Enhance handling of input from other clients.
 - Don't block the console when the kernel is asked for completions.
 
 Fixes
-~~~~~
++++++
+
 - Fix bug that make PySide2 a forbidden binding.
 - Fix IndexError when copying prompts.
 - Fix behavior of right arrow key.
 - Fix behavior of :kbd:`Control-Backspace` and :kbd:`Control-Del`
 
 
+.. _4.3:
+
+4.3
+~~~
+
 .. _4.3.1:
+
+4.3.1
+-----
 
 `4.3.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.3.1>`__
 
 - Make %clear to delete previous output on Windows.
 - Fix SVG rendering.
 
+.. _4.3.0:
 
-.. _4.3:
-
-4.3
----
+4.3.0
+-----
 
 `4.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.3>`__
 
-- Rename `ConsoleWidget.width/height` traits to `console_width/console_height`
-  to avoid a name clash with the `QWidget` properties. Note: the name change
-  could be, in rare cases if a name collision exists, a code-breaking
-  change.
-
 Additions
-~~~~~~~~~
++++++++++
+
 - Add :kbd:`Shift-Tab` shortcut to unindent text
 - Add :kbd:`Control-R` shortcut to rename the current tab
 - Add :kbd:`Alt-R` shortcut to set the main window title
@@ -121,7 +209,12 @@ Additions
 - Add option to create new tab connected to the existing kernel
 
 Changes
-~~~~~~~
++++++++
+
+- Rename `ConsoleWidget.width/height` traits to `console_width/console_height`
+  to avoid a name clash with the `QWidget` properties. Note: the name change
+  could be, in rare cases if a name collision exists, a code-breaking
+  change.
 - Change :kbd:`Tab` key behavior to always indent to the next increment of 4 spaces
 - Change :kbd:`Home` key behavior to alternate cursor between the beginning of text
   (ignoring leading spaces) and beginning of the line
@@ -129,7 +222,8 @@ Changes
 - Move documentation to ReadTheDocs
 
 Fixes
-~~~~~
++++++
+
 - Fix automatic indentation of new lines that are inserted in the middle of a
   cell
 - Fix regression where prompt would never be shown for `--existing` consoles
@@ -147,7 +241,7 @@ Fixes
 .. _4.2:
 
 4.2
----
+~~~
 
 `4.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.2>`__
 
@@ -158,7 +252,7 @@ Fixes
 .. _4.1:
 
 4.1
----
+~~~
 
 .. _4.1.1:
 
@@ -172,7 +266,7 @@ Fixes
 .. _4.1.0:
 
 4.1.0
-~~~~~
+-----
 
 `4.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.1>`__
 
@@ -183,12 +277,12 @@ Fixes
 .. _4.0:
 
 4.0
----
+~~~
 
 .. _4.0.1:
 
 4.0.1
-~~~~~
+-----
 
 -  fix installation issues, including setuptools entrypoints for Windows
 -  Qt5 fixes
@@ -196,7 +290,7 @@ Fixes
 .. _4.0.0:
 
 4.0.0
-~~~~~
+-----
 
 `4.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.0>`__
 

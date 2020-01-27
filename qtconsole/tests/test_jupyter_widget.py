@@ -2,14 +2,11 @@ import unittest
 
 import pytest
 
-from qtconsole.qt import QtGui
-from qtconsole.qt_loaders import load_qtest
+from qtpy import QtWidgets
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
 from . import no_display
-
-
-QTest = load_qtest()
+from qtpy.QtTest import QTest
 
 
 @pytest.mark.skipif(no_display, reason="Doesn't work without a display")
@@ -19,16 +16,16 @@ class TestJupyterWidget(unittest.TestCase):
     def setUpClass(cls):
         """ Create the application for the test case.
         """
-        cls._app = QtGui.QApplication.instance()
+        cls._app = QtWidgets.QApplication.instance()
         if cls._app is None:
-            cls._app = QtGui.QApplication([])
+            cls._app = QtWidgets.QApplication([])
         cls._app.setQuitOnLastWindowClosed(False)
 
     @classmethod
     def tearDownClass(cls):
         """ Exit the application.
         """
-        QtGui.QApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def test_stylesheet_changed(self):
         """ Test changing stylesheets.
