@@ -3,6 +3,29 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.7:
+
+4.7
+~~~
+
+4.7.0
+-----
+
+`4.7.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.0>`__
+
+Additions
++++++++++
+
+- Use qtpy as the shim layer for Python Qt bindings and remove our own
+  shim.
+
+Changes
++++++++
+
+- Remove code to expand tabs to spaces.
+- Skip history if it is the same as the input buffer.
+
+
 .. _4.6:
 
 4.6
