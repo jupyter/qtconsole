@@ -1069,7 +1069,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def _context_menu_make(self, pos):
         """ Creates a context menu for the given QPoint (in widget coordinates).
         """
-        menu = QtGui.QMenu(self)
+        menu = QtWidgets.QMenu(self)
 
         self.cut_action = menu.addAction('Cut', self.cut)
         self.cut_action.setEnabled(self.can_cut())
