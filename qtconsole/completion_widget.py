@@ -106,16 +106,30 @@ class CompletionWidget(QtWidgets.QListWidget):
         text_edit = self._text_edit
         point = self._get_top_left_position(cursor)
         self.clear()
+        path_items = []
         for item in items:
-            list_item = QtWidgets.QListWidgetItem()
-            list_item.setData(QtCore.Qt.UserRole, item)
-            # Check if the item could refer to a file. The replacing of '"'
-            # is needed for items on Windows
-            if os.path.isfile(os.path.abspath(item.replace("\"", ""))):
-                list_item.setText(item)
+            # Check if the item could refer to a file or dir. The replacing
+            # of '"' is needed for items on Windows
+            if (os.path.isfile(os.path.abspath(item.replace("\"", ""))) or
+                    os.path.isdir(os.path.abspath(item.replace("\"", "")))):
+                path_items.append(item.replace("\"", ""))
             else:
-                list_item.setText(item.replace("\"", "").split('.')[-1])
+                list_item = QtWidgets.QListWidgetItem()
+                list_item.setData(QtCore.Qt.UserRole, item)
+                list_item.setText(item.split('.')[-1])
+                self.addItem(list_item)
+
+        common_prefix = os.path.dirname(os.path.commonprefix(path_items))
+        for path_item in path_items:
+            list_item = QtWidgets.QListWidgetItem()
+            list_item.setData(QtCore.Qt.UserRole, path_item)
+            if common_prefix:
+                text = path_item.split(common_prefix)[-1]
+            else:
+                text = item
+            list_item.setText(text)
             self.addItem(list_item)
+
         height = self.sizeHint().height()
         screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
