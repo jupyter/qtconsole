@@ -8,6 +8,16 @@ Changes in Jupyter Qt console
 4.7
 ~~~
 
+.. _4.7.1:
+
+4.7.1
+-----
+
+`4.7.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.1>`__
+
+* Remove common prefix from path completions.
+* Use QtWidgets instead of QtGui to create QMenu instances.
+
 4.7.0
 -----
 
