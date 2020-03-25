@@ -8,6 +8,16 @@ Changes in Jupyter Qt console
 4.7
 ~~~
 
+.. _4.7.2:
+
+4.7.2
+-----
+
+`4.7.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.2>`__
+
+* Set updated prompt as previous prompt object in JupyterWidget.
+* Fix some Qt incorrect imports.
+
 .. _4.7.1:
 
 4.7.1
