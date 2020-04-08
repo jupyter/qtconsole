@@ -7,7 +7,7 @@ import io
 import os
 import re
 
-from qtpy import QtGui, QtWidgets
+from qtpy import QtWidgets
 
 from ipython_genutils import py3compat
 
@@ -75,13 +75,13 @@ class HtmlExporter(object):
                 # If there are PNGs, decide how to export them.
                 inline = self.inline_png
                 if inline is None and IMG_RE.search(html):
-                    dialog = QtGui.QDialog(parent)
+                    dialog = QtWidgets.QDialog(parent)
                     dialog.setWindowTitle('Save as...')
-                    layout = QtGui.QVBoxLayout(dialog)
+                    layout = QtWidgets.QVBoxLayout(dialog)
                     msg = "Exporting HTML with PNGs"
                     info = "Would you like inline PNGs (single large html " \
                         "file) or external image files?"
-                    checkbox = QtGui.QCheckBox("&Don't ask again")
+                    checkbox = QtWidgets.QCheckBox("&Don't ask again")
                     checkbox.setShortcut('D')
                     ib = QtWidgets.QPushButton("&Inline")
                     ib.setShortcut('I')
