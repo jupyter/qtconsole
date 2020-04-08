@@ -116,10 +116,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_window_title(self):
         """Set the title of the console window"""
         old_title = self.windowTitle()
-        title, ok = QtGui.QInputDialog.getText(self,
-                                               "Rename Window",
-                                               "New title:",
-                                               text=old_title)
+        title, ok = QtWidgets.QInputDialog.getText(self,
+                                                   "Rename Window",
+                                                   "New title:",
+                                                   text=old_title)
         if ok:
             self.setWindowTitle(title)
 
@@ -151,10 +151,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def set_tab_title(self):
         """Set the title of the current tab"""
         old_title = self.tab_widget.tabText(self.tab_widget.currentIndex())
-        title, ok = QtGui.QInputDialog.getText(self,
-                                               "Rename Tab",
-                                               "New title:",
-                                               text=old_title)
+        title, ok = QtWidgets.QInputDialog.getText(self,
+                                                   "Rename Tab",
+                                                   "New title:",
+                                                   text=old_title)
         if ok:
             self.tab_widget.setTabText(self.tab_widget.currentIndex(), title)
 
