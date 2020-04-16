@@ -8,6 +8,15 @@ Changes in Jupyter Qt console
 4.7
 ~~~
 
+.. _4.7.3:
+
+4.7.3
+-----
+
+`4.7.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.3>`__
+
+* Fix all misuses of QtGui.
+
 .. _4.7.2:
 
 4.7.2
