@@ -85,8 +85,12 @@ class CallTipWidget(QtWidgets.QLabel):
         """ Reimplemented to disconnect signal handlers and event filter.
         """
         super(CallTipWidget, self).hideEvent(event)
-        self._text_edit.cursorPositionChanged.disconnect(
-            self._cursor_position_changed)
+        # This fixes issue jupyter/qtconsole#383
+        try:
+            self._text_edit.cursorPositionChanged.disconnect(
+                self._cursor_position_changed)
+        except TypeError:
+            pass
         self._text_edit.removeEventFilter(self)
 
     def leaveEvent(self, event):
