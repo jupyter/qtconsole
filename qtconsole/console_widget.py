@@ -430,7 +430,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 return self._event_filter_page_keypress(event)
 
         # Make middle-click paste safe.
-        elif etype == QtCore.QEvent.MouseButtonRelease and \
+        elif getattr(event, 'button', False) and \
+                etype == QtCore.QEvent.MouseButtonRelease and \
                 event.button() == QtCore.Qt.MidButton and \
                 obj == self._control.viewport():
             cursor = self._control.cursorForPosition(event.pos())
