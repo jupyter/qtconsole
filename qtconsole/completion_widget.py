@@ -116,7 +116,8 @@ class CompletionWidget(QtWidgets.QListWidget):
             else:
                 list_item = QtWidgets.QListWidgetItem()
                 list_item.setData(QtCore.Qt.UserRole, item)
-                list_item.setText(item)
+                # Need to split to only show last element of a dot completion
+                list_item.setText(item.split(".")[-1])
                 self.addItem(list_item)
 
         common_prefix = os.path.dirname(os.path.commonprefix(path_items))
