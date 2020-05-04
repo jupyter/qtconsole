@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import tempfile
 import unittest
 
 import pytest
@@ -60,3 +62,19 @@ class TestCompletionWidget(unittest.TestCase):
 
         self.assertEqual(self.text_edit.toPlainText(), "item1")
         self.assertFalse(w.isVisible())
+
+    def test_common_path_complete(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            items = [
+                os.path.join(tmpdir, "common/common1/item1"),
+                os.path.join(tmpdir, "common/common1/item2"),
+                os.path.join(tmpdir, "common/common1/item3")]
+            for item in items:
+                os.makedirs(item)
+            w = CompletionWidget(self.console)
+            w.show_items(self.text_edit.textCursor(), items)
+            self.assertEqual(w.currentItem().text(), '/item1')
+            QTest.keyClick(w, QtCore.Qt.Key_Down)
+            self.assertEqual(w.currentItem().text(), '/item2')
+            QTest.keyClick(w, QtCore.Qt.Key_Down)
+            self.assertEqual(w.currentItem().text(), '/item3')
