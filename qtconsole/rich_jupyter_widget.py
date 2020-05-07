@@ -6,7 +6,7 @@ import os
 import re
 from warnings import warn
 
-from qtpy import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool
@@ -88,7 +88,7 @@ class RichJupyterWidget(RichIPythonWidget):
         format = self._control.cursorForPosition(pos).charFormat()
         name = format.stringProperty(QtGui.QTextFormat.ImageName)
         if name:
-            menu = QtGui.QMenu(self)
+            menu = QtWidgets.QMenu(self)
 
             menu.addAction('Copy Image', lambda: self._copy_image(name))
             menu.addAction('Save Image As...', lambda: self._save_image(name))

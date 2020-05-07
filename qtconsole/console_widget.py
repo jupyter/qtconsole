@@ -13,7 +13,7 @@ import time
 from unicodedata import category
 import webbrowser
 
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
 
 from traitlets.config.configurable import LoggingConfigurable
 from qtconsole.rich_text import HtmlExporter
@@ -238,7 +238,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         layout.setContentsMargins(0, 0, 0, 0)
         self._control = self._create_control()
         if self.paging in ('hsplit', 'vsplit'):
-            self._splitter = QtGui.QSplitter()
+            self._splitter = QtWidgets.QSplitter()
             if self.paging == 'hsplit':
                 self._splitter.setOrientation(QtCore.Qt.Horizontal)
             else:
@@ -420,7 +420,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                             self._ctrl_down_remap[key],
                                             QtCore.Qt.NoModifier)
-                QtWidgets.QApp.sendEvent(obj, new_event)
+                QtWidgets.qApp.sendEvent(obj, new_event)
                 return True
 
             elif obj == self._control:
@@ -804,8 +804,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """ Print the contents of the ConsoleWidget to the specified QPrinter.
         """
         if (not printer):
-            printer = QtGui.QPrinter()
-            if(QtGui.QPrintDialog(printer).exec_() != QtGui.QDialog.Accepted):
+            printer = QtPrintSupport.QPrinter()
+            if(QtPrintSupport.QPrintDialog(printer).exec_() != QtPrintSupport.QPrintDialog.Accepted):
                 return
         self._control.print_(printer)
 
@@ -1069,7 +1069,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def _context_menu_make(self, pos):
         """ Creates a context menu for the given QPoint (in widget coordinates).
         """
-        menu = QtGui.QMenu(self)
+        menu = QtWidgets.QMenu(self)
 
         self.cut_action = menu.addAction('Cut', self.cut)
         self.cut_action.setEnabled(self.can_cut())
@@ -1326,13 +1326,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                                 QtCore.Qt.Key_Return,
                                                 QtCore.Qt.NoModifier)
-                    QtWidgets.QApp.sendEvent(self._control, new_event)
+                    QtWidgets.qApp.sendEvent(self._control, new_event)
                     intercepted = True
                 else:
                     new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                                 QtCore.Qt.Key_Delete,
                                                 QtCore.Qt.NoModifier)
-                    QtWidgets.QApp.sendEvent(self._control, new_event)
+                    QtWidgets.qApp.sendEvent(self._control, new_event)
                     intercepted = True
 
         #------ Alt modifier ---------------------------------------------------
@@ -1565,14 +1565,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_PageDown,
                                         QtCore.Qt.NoModifier)
-            QtWidgets.QApp.sendEvent(self._page_control, new_event)
+            QtWidgets.qApp.sendEvent(self._page_control, new_event)
             return True
 
         elif key == QtCore.Qt.Key_Backspace:
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_PageUp,
                                         QtCore.Qt.NoModifier)
-            QtWidgets.QApp.sendEvent(self._page_control, new_event)
+            QtWidgets.qApp.sendEvent(self._page_control, new_event)
             return True
 
         # vi/less -like key bindings
@@ -1580,7 +1580,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_Down,
                                         QtCore.Qt.NoModifier)
-            QtWidgets.QApp.sendEvent(self._page_control, new_event)
+            QtWidgets.qApp.sendEvent(self._page_control, new_event)
             return True
 
         # vi/less -like key bindings
@@ -1588,7 +1588,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             new_event = QtGui.QKeyEvent(QtCore.QEvent.KeyPress,
                                         QtCore.Qt.Key_Up,
                                         QtCore.Qt.NoModifier)
-            QtWidgets.QApp.sendEvent(self._page_control, new_event)
+            QtWidgets.qApp.sendEvent(self._page_control, new_event)
             return True
 
         return False
@@ -2092,7 +2092,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                             cursor.StartOfLine, cursor.KeepAnchor)
 
                     elif act.action == 'beep':
-                        QtWidgets.QApp.beep()
+                        QtWidgets.qApp.beep()
 
                     elif act.action == 'backspace':
                         if not cursor.atBlockStart():

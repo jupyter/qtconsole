@@ -406,6 +406,10 @@ class JupyterWidget(IPythonWidget):
             # Update the prompt cursor
             self._prompt_cursor.setPosition(cursor.position() - 1)
 
+            # Store the updated prompt.
+            block = self._control.document().lastBlock()
+            length = len(self._prompt)
+            self._previous_prompt_obj = self._PromptBlock(block, length, new_prompt_number)
 
     def _show_interpreter_prompt_for_reply(self, msg):
         """ Reimplemented for IPython-style prompts.

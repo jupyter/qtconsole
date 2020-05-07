@@ -1,17 +1,20 @@
 import sys
 import unittest
 
+from flaky import flaky
 import pytest
+from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtTest import QTest
+
+from qtconsole.console_widget import ConsoleWidget
+from qtconsole.qtconsoleapp import JupyterQtConsoleApp
+from . import no_display
+
 if sys.version[0] == '2':  # Python 2
     from IPython.core.inputsplitter import InputSplitter as TransformerManager
 else:
     from IPython.core.inputtransformer2 import TransformerManager
 
-from qtpy import QtCore, QtGui, QtWidgets
-from qtconsole.console_widget import ConsoleWidget
-from qtconsole.qtconsoleapp import JupyterQtConsoleApp
-from . import no_display
-from qtpy.QtTest import QTest
 
 SHELL_TIMEOUT = 20000
 
@@ -29,6 +32,7 @@ def qtconsole(qtbot):
     return console
 
 
+@flaky(max_runs=3)
 @pytest.mark.parametrize(
     "debug", [True, False])
 def test_scroll(qtconsole, qtbot, debug):
@@ -135,6 +139,7 @@ def test_scroll(qtconsole, qtbot, debug):
     assert scroll_bar.value() > prev_position
 
 
+@flaky(max_runs=3)
 def test_input(qtconsole, qtbot):
     """
     Test input function
@@ -170,6 +175,7 @@ def test_input(qtconsole, qtbot):
     assert 'name: test\ntest' in control.toPlainText()
 
 
+@flaky(max_runs=3)
 def test_debug(qtconsole, qtbot):
     """
     Make sure the cursor works while debugging

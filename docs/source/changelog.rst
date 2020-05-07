@@ -3,6 +3,58 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _4.7:
+
+4.7
+~~~
+
+.. _4.7.3:
+
+4.7.3
+-----
+
+`4.7.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.3>`__
+
+* Fix all misuses of QtGui.
+
+.. _4.7.2:
+
+4.7.2
+-----
+
+`4.7.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.2>`__
+
+* Set updated prompt as previous prompt object in JupyterWidget.
+* Fix some Qt incorrect imports.
+
+.. _4.7.1:
+
+4.7.1
+-----
+
+`4.7.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.1>`__
+
+* Remove common prefix from path completions.
+* Use QtWidgets instead of QtGui to create QMenu instances.
+
+4.7.0
+-----
+
+`4.7.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.0>`__
+
+Additions
++++++++++
+
+- Use qtpy as the shim layer for Python Qt bindings and remove our own
+  shim.
+
+Changes
++++++++
+
+- Remove code to expand tabs to spaces.
+- Skip history if it is the same as the input buffer.
+
+
 .. _4.6:
 
 4.6
