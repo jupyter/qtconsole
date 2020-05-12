@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import tempfile
+import shutil
 import unittest
 
 import pytest
@@ -12,6 +13,23 @@ from qtconsole.completion_widget import CompletionWidget
 from . import no_display
 
 
+class TemporaryDirectory(object):
+    """
+    Context manager for tempfile.mkdtemp().
+    This class is available in python +v3.2.
+    See: https://gist.github.com/cpelley/10e2eeaf60dacc7956bb
+    """
+
+    def __enter__(self):
+        self.dir_name = tempfile.mkdtemp()
+        return self.dir_name
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        shutil.rmtree(self.dir_name)
+
+
+TemporaryDirectory = getattr(tempfile, 'TemporaryDirectory',
+                             TemporaryDirectory)
 
 
 @pytest.mark.skipif(no_display, reason="Doesn't work without a display")
@@ -64,7 +82,7 @@ class TestCompletionWidget(unittest.TestCase):
         self.assertFalse(w.isVisible())
 
     def test_common_path_complete(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with TemporaryDirectory() as tmpdir:
             items = [
                 os.path.join(tmpdir, "common/common1/item1"),
                 os.path.join(tmpdir, "common/common1/item2"),
