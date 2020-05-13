@@ -8,6 +8,14 @@ Changes in Jupyter Qt console
 4.7
 ~~~
 
+4.7.4
+-----
+
+`4.7.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.4>`__
+
+* Fix completion widget text for paths and files.
+* Make Qtconsole work on Python 3.8 and Windows.
+
 .. _4.7.3:
 
 4.7.3
