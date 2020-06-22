@@ -8,6 +8,17 @@ Changes in Jupyter Qt console
 4.7
 ~~~
 
+.. _4.7.5:
+
+4.7.5
+-----
+
+`4.7.5 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.5>`__
+
+* Print input if there is no prompt.
+
+.. _4.7.4:
+
 4.7.4
 -----
 
