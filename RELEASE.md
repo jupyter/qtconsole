@@ -16,6 +16,8 @@ To release a new version of qtconsole you need to follow these steps:
 
 * activate pyenv-with-latest-setuptools && python setup.py bdist_wheel
 
+* twine check dist/*
+
 * twine upload dist/*
 
 * git tag -a X.X.X -m 'Release X.X.X'

@@ -1,7 +1,7 @@
 """ Defines a KernelClient that provides signals and slots.
 """
 
-from qtconsole.qt import QtCore
+from qtpy import QtCore
 
 # Local imports
 from traitlets import Bool, DottedObjectName

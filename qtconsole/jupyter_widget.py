@@ -15,7 +15,7 @@ import time
 from textwrap import dedent
 from warnings import warn
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui
 
 from IPython.lib.lexers import IPythonLexer, IPython3Lexer
 from pygments.lexers import get_lexer_by_name
@@ -226,11 +226,11 @@ class JupyterWidget(IPythonWidget):
                 last_cell = cell
         self._set_history(items)
 
-    def _insert_other_input(self, cursor, content):
+    def _insert_other_input(self, cursor, content, remote=True):
         """Insert function for input from other frontends"""
         n = content.get('execution_count', 0)
-        prompt = self._make_in_prompt(n, remote=True)
-        cont_prompt = self._make_continuation_prompt(self._prompt, remote=True)
+        prompt = self._make_in_prompt(n, remote=remote)
+        cont_prompt = self._make_continuation_prompt(self._prompt, remote=remote)
         cursor.insertText('\n')
         for i, line in enumerate(content['code'].strip().split('\n')):
             if i == 0:
@@ -246,7 +246,12 @@ class JupyterWidget(IPythonWidget):
         """Handle an execute_input message"""
         self.log.debug("execute_input: %s", msg.get('content', ''))
         if self.include_output(msg):
-            self._append_custom(self._insert_other_input, msg['content'], before_prompt=True)
+            self._append_custom(
+                self._insert_other_input, msg['content'], before_prompt=True)
+        elif not self._prompt:
+            self._append_custom(
+                self._insert_other_input, msg['content'],
+                before_prompt=True, remote=False)
 
     def _handle_execute_result(self, msg):
         """Handle an execute_result message"""
@@ -385,6 +390,9 @@ class JupyterWidget(IPythonWidget):
 
     def _update_prompt(self, new_prompt_number):
         """Replace the last displayed prompt with a new one."""
+        if self._previous_prompt_obj is None:
+            return
+
         block = self._previous_prompt_obj.block
 
         # Make sure the prompt block has not been erased.
@@ -406,6 +414,10 @@ class JupyterWidget(IPythonWidget):
             # Update the prompt cursor
             self._prompt_cursor.setPosition(cursor.position() - 1)
 
+            # Store the updated prompt.
+            block = self._control.document().lastBlock()
+            length = len(self._prompt)
+            self._previous_prompt_obj = self._PromptBlock(block, length, new_prompt_number)
 
     def _show_interpreter_prompt_for_reply(self, msg):
         """ Reimplemented for IPython-style prompts.

@@ -2,7 +2,7 @@
 """
 
 # System library imports.
-from qtconsole.qt import QtCore, QtGui, QtSvg
+from qtpy import QtCore, QtGui, QtSvg, QtWidgets
 
 # Our own imports
 from ipython_genutils.py3compat import unicode_type
@@ -26,8 +26,8 @@ def save_svg(string, parent=None):
     if isinstance(string, unicode_type):
         string = string.encode('utf-8')
 
-    dialog = QtGui.QFileDialog(parent, 'Save SVG Document')
-    dialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
+    dialog = QtWidgets.QFileDialog(parent, 'Save SVG Document')
+    dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
     dialog.setDefaultSuffix('svg')
     dialog.setNameFilter('SVG document (*.svg)')
     if dialog.exec_():
@@ -53,7 +53,7 @@ def svg_to_clipboard(string):
 
     mime_data = QtCore.QMimeData()
     mime_data.setData('image/svg+xml', string)
-    QtGui.QApplication.clipboard().setMimeData(mime_data)
+    QtWidgets.QApplication.clipboard().setMimeData(mime_data)
 
 def svg_to_image(string, size=None):
     """ Convert a SVG document to a QImage.

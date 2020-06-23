@@ -1,7 +1,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-from qtconsole.qt import QtGui
+from qtpy import QtGui
 
 from ipython_genutils.py3compat import unicode_type
 from traitlets import Bool

@@ -1,7 +1,7 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-from qtconsole.qt import QtGui
+from qtpy import QtGui
 from qtconsole.qstringhelpers import qstring_length
 
 from ipython_genutils.py3compat import PY3, string_types

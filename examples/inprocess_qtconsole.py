@@ -10,7 +10,7 @@ To run this example:
 """
 
 
-from qtconsole.qt import QtGui
+from qtpy import QtWidgets
 from qtconsole.rich_jupyter_widget import RichJupyterWidget
 from qtconsole.inprocess import QtInProcessKernelManager
 
@@ -34,6 +34,6 @@ def show():
 
 
 if __name__ == "__main__":
-    app = QtGui.QApplication([])
+    app = QtWidgets.QApplication([])
     show()
     app.exec_()

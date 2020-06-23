@@ -2,13 +2,10 @@ import unittest
 
 import pytest
 
-from qtconsole.qt import QtGui
-from qtconsole.qt_loaders import load_qtest
+from qtpy import QtWidgets
 from qtconsole.frontend_widget import FrontendWidget
+from qtpy.QtTest import QTest
 from . import no_display
-
-
-QTest = load_qtest()
 
 
 @pytest.mark.skipif(no_display, reason="Doesn't work without a display")
@@ -18,16 +15,16 @@ class TestFrontendWidget(unittest.TestCase):
     def setUpClass(cls):
         """ Create the application for the test case.
         """
-        cls._app = QtGui.QApplication.instance()
+        cls._app = QtWidgets.QApplication.instance()
         if cls._app is None:
-            cls._app = QtGui.QApplication([])
+            cls._app = QtWidgets.QApplication([])
         cls._app.setQuitOnLastWindowClosed(False)
 
     @classmethod
     def tearDownClass(cls):
         """ Exit the application.
         """
-        QtGui.QApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def test_transform_classic_prompt(self):
         """ Test detecting classic prompts.

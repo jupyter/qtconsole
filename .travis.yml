@@ -4,14 +4,13 @@ sudo: false
 
 env:
   global:
-    - CONDA_DEPENDENCIES='pyqt traitlets ipython_genutils jupyter_core jupyter_client pygments ipykernel pytest pytest-cov mock'
+    - CONDA_DEPENDENCIES='pyqt qtpy traitlets ipython_genutils jupyter_core jupyter_client pygments ipykernel pytest pytest-cov mock flaky pyzmq>=17.1'
     - PIP_DEPENDENCIES='coveralls pytest-xvfb pytest-qt'
 
 matrix:
   include:
     - env: PYTHON_VERSION=3.7
-    - python: "3.6"
-    - python: "2.7"
+    - python: "3.6.10"
 
 install:
   - git clone --depth 1 git://github.com/astropy/ci-helpers.git

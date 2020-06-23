@@ -6,7 +6,7 @@ import os
 import re
 from warnings import warn
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool
@@ -88,7 +88,7 @@ class RichJupyterWidget(RichIPythonWidget):
         format = self._control.cursorForPosition(pos).charFormat()
         name = format.stringProperty(QtGui.QTextFormat.ImageName)
         if name:
-            menu = QtGui.QMenu(self)
+            menu = QtWidgets.QMenu(self)
 
             menu.addAction('Copy Image', lambda: self._copy_image(name))
             menu.addAction('Save Image As...', lambda: self._save_image(name))
@@ -263,7 +263,7 @@ class RichJupyterWidget(RichIPythonWidget):
         """ Copies the ImageResource with 'name' to the clipboard.
         """
         image = self._get_image(name)
-        QtGui.QApplication.clipboard().setImage(image)
+        QtWidgets.QApplication.clipboard().setImage(image)
 
     def _get_image(self, name):
         """ Returns the QImage stored as the ImageResource with 'name'.
@@ -319,13 +319,13 @@ class RichJupyterWidget(RichIPythonWidget):
                 svg = str(self._name_to_svg_map[match.group("name")])
             except KeyError:
                 if not self._svg_warning_displayed:
-                    QtGui.QMessageBox.warning(self, 'Error converting PNG to SVG.',
+                    QtWidgets.QMessageBox.warning(self, 'Error converting PNG to SVG.',
                         'Cannot convert PNG images to SVG, export with PNG figures instead. '
                         'If you want to export matplotlib figures as SVG, add '
                         'to your ipython config:\n\n'
                         '\tc.InlineBackend.figure_format = \'svg\'\n\n'
                         'And regenerate the figures.',
-                                              QtGui.QMessageBox.Ok)
+                                              QtWidgets.QMessageBox.Ok)
                     self._svg_warning_displayed = True
                 return ("<b>Cannot convert  PNG images to SVG.</b>  "
                         "You must export this session with PNG images. "
@@ -398,8 +398,8 @@ class RichJupyterWidget(RichIPythonWidget):
     def _save_image(self, name, format='PNG'):
         """ Shows a save dialog for the ImageResource with 'name'.
         """
-        dialog = QtGui.QFileDialog(self._control, 'Save Image')
-        dialog.setAcceptMode(QtGui.QFileDialog.AcceptSave)
+        dialog = QtWidgets.QFileDialog(self._control, 'Save Image')
+        dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         dialog.setDefaultSuffix(format.lower())
         dialog.setNameFilter('%s file (*.%s)' % (format, format.lower()))
         if dialog.exec_():

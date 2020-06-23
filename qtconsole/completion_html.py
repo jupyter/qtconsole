@@ -6,7 +6,7 @@
 
 import ipython_genutils.text as text
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 #--------------------------------------------------------------------------
 # Return an HTML table with selected item in a special class
@@ -44,8 +44,8 @@ def html_tableify(item_matrix, select=None, header=None , footer=None) :
 
 class SlidingInterval(object):
     """a bound interval that follows a cursor
-    
-    internally used to scoll the completion view when the cursor 
+
+    internally used to scoll the completion view when the cursor
     try to go beyond the edges, and show '...' when rows are hidden
     """
 
@@ -54,9 +54,9 @@ class SlidingInterval(object):
     _current = 0
     def __init__(self, maximum=1, width=6, minimum=0, sticky_lenght=1):
         """Create a new bounded interval
-        
-        any value return by this will be bound between maximum and 
-        minimum. usual width will be 'width', and sticky_length 
+
+        any value return by this will be bound between maximum and
+        minimum. usual width will be 'width', and sticky_length
         set when the return  interval should expand to max and min
         """
         self._min = minimum
@@ -109,7 +109,7 @@ class SlidingInterval(object):
     def nth(self):
         return self.current - self.start
 
-class CompletionHtml(QtGui.QWidget):
+class CompletionHtml(QtWidgets.QWidget):
     """ A widget for tab completion,  navigable by arrow keys """
 
     #--------------------------------------------------------------------------
@@ -129,7 +129,7 @@ class CompletionHtml(QtGui.QWidget):
         """ Create a completion widget that is attached to the specified Qt
             text edit widget.
         """
-        assert isinstance(console_widget._control, (QtGui.QTextEdit, QtGui.QPlainTextEdit))
+        assert isinstance(console_widget._control, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super(CompletionHtml, self).__init__()
 
         self._text_edit = console_widget._control

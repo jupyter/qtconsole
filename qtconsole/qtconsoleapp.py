@@ -57,7 +57,7 @@ if os.name == 'nt':
     except AttributeError:
         pass
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui, QtWidgets
 
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
@@ -130,11 +130,11 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     version = __version__
     description = """
         The Jupyter QtConsole.
-        
+
         This launches a Console-style application using Qt.  It is not a full
         console, in that launched terminal subprocesses will not be able to accept
         input.
-        
+
     """
     examples = _examples
 
@@ -233,7 +233,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
 
     def new_frontend_slave(self, current_widget):
         """Create and return a new frontend attached to an existing kernel.
-        
+
         Parameters
         ----------
         current_widget : JupyterWidget
@@ -258,7 +258,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
 
     def init_qt_app(self):
         # separate from qt_elements, because it must run first
-        self.app = QtGui.QApplication(['jupyter-qtconsole'])
+        self.app = QtWidgets.QApplication(['jupyter-qtconsole'])
         self.app.setApplicationName('jupyter-qtconsole')
 
     def init_qt_elements(self):
@@ -267,7 +267,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         base_path = os.path.abspath(os.path.dirname(__file__))
         icon_path = os.path.join(base_path, 'resources', 'icon', 'JupyterConsole.svg')
         self.app.icon = QtGui.QIcon(icon_path)
-        QtGui.QApplication.setWindowIcon(self.app.icon)
+        QtWidgets.QApplication.setWindowIcon(self.app.icon)
 
         ip = self.ip
         local_kernel = (not self.existing) or is_local_ip(ip)
@@ -378,8 +378,39 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
             cfg[new_name].merge(cfg[old_name])
             return cfg
 
+    def _init_asyncio_patch(self):
+        """
+        Same workaround fix as https://github.com/ipython/ipykernel/pull/456
+
+        Set default asyncio policy to be compatible with tornado
+        Tornado 6 (at least) is not compatible with the default
+        asyncio implementation on Windows
+        Pick the older SelectorEventLoopPolicy on Windows
+        if the known-incompatible default policy is in use.
+        do this as early as possible to make it a low priority and overrideable
+        ref: https://github.com/tornadoweb/tornado/issues/2608
+        FIXME: if/when tornado supports the defaults in asyncio,
+               remove and bump tornado requirement for py38
+        """
+        if sys.platform.startswith("win") and sys.version_info >= (3, 8):
+            import asyncio
+            try:
+                from asyncio import (
+                    WindowsProactorEventLoopPolicy,
+                    WindowsSelectorEventLoopPolicy,
+                )
+            except ImportError:
+                pass
+                # not affected
+            else:
+                if type(asyncio.get_event_loop_policy()) is WindowsProactorEventLoopPolicy:
+                    # WindowsProactorEventLoopPolicy is not compatible with tornado 6
+                    # fallback to the pre-3.8 default of Selector
+                    asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+
     @catch_config_error
     def initialize(self, argv=None):
+        self._init_asyncio_patch()
         self.init_qt_app()
         super(JupyterQtConsoleApp, self).initialize(argv)
         if self._dispatching:

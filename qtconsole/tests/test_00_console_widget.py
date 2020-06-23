@@ -1,21 +1,22 @@
 import sys
 import unittest
 
+from flaky import flaky
 import pytest
+from qtpy import QtCore, QtGui, QtWidgets
+from qtpy.QtTest import QTest
+
+from qtconsole.console_widget import ConsoleWidget
+from qtconsole.qtconsoleapp import JupyterQtConsoleApp
+from . import no_display
+
 if sys.version[0] == '2':  # Python 2
     from IPython.core.inputsplitter import InputSplitter as TransformerManager
 else:
     from IPython.core.inputtransformer2 import TransformerManager
 
-from qtconsole.qt import QtCore, QtGui
-from qtconsole.qt_loaders import load_qtest
-from qtconsole.console_widget import ConsoleWidget
-from qtconsole.qtconsoleapp import JupyterQtConsoleApp
-from . import no_display
-
 
 SHELL_TIMEOUT = 20000
-QTest = load_qtest()
 
 
 @pytest.fixture
@@ -31,6 +32,7 @@ def qtconsole(qtbot):
     return console
 
 
+@flaky(max_runs=3)
 @pytest.mark.parametrize(
     "debug", [True, False])
 def test_scroll(qtconsole, qtbot, debug):
@@ -137,6 +139,7 @@ def test_scroll(qtconsole, qtbot, debug):
     assert scroll_bar.value() > prev_position
 
 
+@flaky(max_runs=3)
 def test_input(qtconsole, qtbot):
     """
     Test input function
@@ -172,6 +175,7 @@ def test_input(qtconsole, qtbot):
     assert 'name: test\ntest' in control.toPlainText()
 
 
+@flaky(max_runs=3)
 def test_debug(qtconsole, qtbot):
     """
     Make sure the cursor works while debugging
@@ -212,16 +216,16 @@ class TestConsoleWidget(unittest.TestCase):
     def setUpClass(cls):
         """ Create the application for the test case.
         """
-        cls._app = QtGui.QApplication.instance()
+        cls._app = QtWidgets.QApplication.instance()
         if cls._app is None:
-            cls._app = QtGui.QApplication([])
+            cls._app = QtWidgets.QApplication([])
         cls._app.setQuitOnLastWindowClosed(False)
 
     @classmethod
     def tearDownClass(cls):
         """ Exit the application.
         """
-        QtGui.QApplication.quit()
+        QtWidgets.QApplication.quit()
 
     def assert_text_equal(self, cursor, text):
         cursor.select(cursor.Document)
@@ -260,7 +264,7 @@ class TestConsoleWidget(unittest.TestCase):
         cursor = w._get_prompt_cursor()
         w._insert_html(cursor, '<a href="http://python.org">written in</a>')
         obj = w._control
-        tip = QtGui.QToolTip
+        tip = QtWidgets.QToolTip
         self.assertEqual(tip.text(), u'')
 
         # should be somewhere else
@@ -286,8 +290,8 @@ class TestConsoleWidget(unittest.TestCase):
     def test_width_height(self):
         # width()/height() QWidget properties should not be overridden.
         w = ConsoleWidget()
-        self.assertEqual(w.width(), QtGui.QWidget.width(w))
-        self.assertEqual(w.height(), QtGui.QWidget.height(w))
+        self.assertEqual(w.width(), QtWidgets.QWidget.width(w))
+        self.assertEqual(w.height(), QtWidgets.QWidget.height(w))
 
     def test_prompt_cursors(self):
         """Test the cursors that keep track of where the prompt begins and
@@ -337,6 +341,7 @@ class TestConsoleWidget(unittest.TestCase):
         w._prompt = 'prompt>'
         w._show_prompt()
         control = w._control
+        app = QtWidgets.QApplication.instance()
 
         cursor = w._get_cursor()
         w._insert_plain_text_into_buffer(cursor, "if:\n    pass")
@@ -347,13 +352,13 @@ class TestConsoleWidget(unittest.TestCase):
         # "select all" action selects cell first
         w.select_all_smart()
         QTest.keyClick(control, QtCore.Qt.Key_C, QtCore.Qt.ControlModifier)
-        copied = QtGui.qApp.clipboard().text()
+        copied = app.clipboard().text()
         self.assertEqual(copied,  'if:\n>     pass')
 
         # # "select all" action triggered a second time selects whole document
         w.select_all_smart()
         QTest.keyClick(control, QtCore.Qt.Key_C, QtCore.Qt.ControlModifier)
-        copied = QtGui.qApp.clipboard().text()
+        copied = app.clipboard().text()
         self.assertEqual(copied,  'Header\nprompt>if:\n>     pass')
 
     def test_keypresses(self):
@@ -362,6 +367,7 @@ class TestConsoleWidget(unittest.TestCase):
         w._append_plain_text('Header\n')
         w._prompt = 'prompt>'
         w._show_prompt()
+        app = QtWidgets.QApplication.instance()
         control = w._control
 
         # Test setting the input buffer
@@ -378,21 +384,21 @@ class TestConsoleWidget(unittest.TestCase):
 
         # Ctrl+V pastes
         w._set_input_buffer('test input ')
-        QtGui.qApp.clipboard().setText('pasted text')
+        app.clipboard().setText('pasted text')
         QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
         self.assertEqual(w._get_input_buffer(), 'test input pasted text')
         self.assertEqual(control.document().blockCount(), 2)
 
         # Paste should strip indentation
         w._set_input_buffer('test input ')
-        QtGui.qApp.clipboard().setText('    pasted text')
+        app.clipboard().setText('    pasted text')
         QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
         self.assertEqual(w._get_input_buffer(), 'test input pasted text')
         self.assertEqual(control.document().blockCount(), 2)
 
         # Multiline paste, should also show continuation marks
         w._set_input_buffer('test input ')
-        QtGui.qApp.clipboard().setText('line1\nline2\nline3')
+        app.clipboard().setText('line1\nline2\nline3')
         QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
         self.assertEqual(w._get_input_buffer(),
                          'test input line1\nline2\nline3')
@@ -408,7 +414,7 @@ class TestConsoleWidget(unittest.TestCase):
         # in the case where pasted text has leading whitespace on first line
         # and we're pasting into indented position
         w._set_input_buffer('    ')
-        QtGui.qApp.clipboard().setText('    If 1:\n        pass')
+        app.clipboard().setText('    If 1:\n        pass')
         QTest.keyClick(control, QtCore.Qt.Key_V, QtCore.Qt.ControlModifier)
         self.assertEqual(w._get_input_buffer(),
                          '    If 1:\n        pass')
@@ -420,7 +426,7 @@ class TestConsoleWidget(unittest.TestCase):
                        QtCore.Qt.ControlModifier)
         self.assertEqual(w._get_input_buffer(),
                          ("foo = ['foo', 'foo', 'foo',    \n"
-                            "       'bar', 'bar', '"))
+                          "       'bar', 'bar', '"))
         QTest.keyClick(control, QtCore.Qt.Key_Backspace,
                        QtCore.Qt.ControlModifier)
         QTest.keyClick(control, QtCore.Qt.Key_Backspace,

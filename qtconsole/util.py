@@ -3,7 +3,7 @@
 
 import inspect
 
-from qtconsole.qt import QtCore, QtGui
+from qtpy import QtCore, QtGui
 
 from ipython_genutils.py3compat import iteritems
 from traitlets import HasTraits, TraitType

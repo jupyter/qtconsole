@@ -76,6 +76,8 @@ setup_args = dict(
         'jupyter_client>=4.1',
         'pygments',
         'ipykernel>=4.1', # not a real dependency, but require the reference kernel
+        'qtpy',
+        'pyzmq>=17.1'
     ],
     extras_require = {
         'test': ['pytest'],
