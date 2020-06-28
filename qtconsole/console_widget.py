@@ -511,6 +511,17 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """
     )
 
+    include_other_output_code = Bool(True, config=True,
+        help="""Whether to include output code from clients
+        other than this one sharing the same kernel.
+
+        Only relevant if include_other_output is True.
+        If include_other_output is True and include_other_output_code is False, 
+        then the code executed by other remote clients is not shown. Only the
+        execution result is shown.
+        """
+    )
+
     other_output_prefix = Unicode('[remote] ', config=True,
         help="""Prefix to add to outputs coming from clients other than this one.
 

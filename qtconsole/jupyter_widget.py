@@ -246,8 +246,14 @@ class JupyterWidget(IPythonWidget):
         """Handle an execute_input message"""
         self.log.debug("execute_input: %s", msg.get('content', ''))
         if self.include_output(msg):
-            self._append_custom(
-                self._insert_other_input, msg['content'], before_prompt=True)
+            if self.include_other_output_code:
+                self._append_custom(
+                    self._insert_other_input, msg['content'], before_prompt=True)
+            else:
+                content = {"code": "<code>", 
+                           "execution_count": msg['content']['execution_count']}
+                self._append_custom(
+                        self._insert_other_input, content, before_prompt=True)
         elif not self._prompt:
             self._append_custom(
                 self._insert_other_input, msg['content'],
