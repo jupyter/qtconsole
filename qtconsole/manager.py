@@ -24,7 +24,7 @@ class QtKernelRestarter(KernelRestarter, QtKernelRestarterMixin):
         self._timer.stop()
 
     def poll(self):
-        super(QtKernelRestarter, self).poll()
+        super().poll()
 
 
 class QtKernelManager(KernelManager, QtKernelManagerMixin):

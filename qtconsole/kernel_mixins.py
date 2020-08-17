@@ -37,20 +37,20 @@ class QtKernelClientMixin(MetaQObjectHasTraits('NewBase', (HasTraits, SuperQObje
     #---------------------------------------------------------------------------
 
     def __init__(self, *args, **kwargs):
-        super(QtKernelClientMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.comm_manager = None
     #------ Channel management -------------------------------------------------
 
     def start_channels(self, *args, **kw):
         """ Reimplemented to emit signal.
         """
-        super(QtKernelClientMixin, self).start_channels(*args, **kw)
+        super().start_channels(*args, **kw)
         self.started_channels.emit()
         self.comm_manager = CommManager(parent=self, kernel_client=self)
 
     def stop_channels(self):
         """ Reimplemented to emit signal.
         """
-        super(QtKernelClientMixin, self).stop_channels()
+        super().stop_channels()
         self.stopped_channels.emit()
         self.comm_manager = None

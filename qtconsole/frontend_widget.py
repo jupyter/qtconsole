@@ -27,7 +27,7 @@ class FrontendHighlighter(PygmentsHighlighter):
     """
 
     def __init__(self, frontend, lexer=None):
-        super(FrontendHighlighter, self).__init__(frontend._control.document(), lexer=lexer)
+        super().__init__(frontend._control.document(), lexer=lexer)
         self._current_offset = 0
         self._frontend = frontend
         self.highlighting_on = False
@@ -78,21 +78,21 @@ class FrontendHighlighter(PygmentsHighlighter):
         diff = len(string) - len(without_prompt)
         if diff > 0:
             self._current_offset = diff
-            super(FrontendHighlighter, self).highlightBlock(without_prompt)
+            super().highlightBlock(without_prompt)
 
     def rehighlightBlock(self, block):
         """ Reimplemented to temporarily enable highlighting if disabled.
         """
         old = self.highlighting_on
         self.highlighting_on = True
-        super(FrontendHighlighter, self).rehighlightBlock(block)
+        super().rehighlightBlock(block)
         self.highlighting_on = old
 
     def setFormat(self, start, count, format):
         """ Reimplemented to highlight selectively.
         """
         start += self._current_offset
-        super(FrontendHighlighter, self).setFormat(start, count, format)
+        super().setFormat(start, count, format)
 
 
 class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
@@ -167,7 +167,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     # -------------------------------------------------------------------------
 
     def __init__(self, local_kernel=_local_kernel, *args, **kw):
-        super(FrontendWidget, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         # FrontendWidget protected variables.
         self._bracket_matcher = BracketMatcher(self._control)
         self._call_tip_widget = CallTipWidget(self._control)
@@ -290,7 +290,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     def _context_menu_make(self, pos):
         """ Reimplemented to add an action for raw copy.
         """
-        menu = super(FrontendWidget, self)._context_menu_make(pos)
+        menu = super()._context_menu_make(pos)
         for before_action in menu.actions():
             if before_action.shortcut().matches(QtGui.QKeySequence.Paste) == \
                     QtGui.QKeySequence.ExactMatch:
@@ -336,7 +336,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                         cursor.removeSelectedText()
                         return True
 
-        return super(FrontendWidget, self)._event_filter_console_keypress(event)
+        return super()._event_filter_console_keypress(event)
 
     #---------------------------------------------------------------------------
     # 'BaseFrontendMixin' abstract interface

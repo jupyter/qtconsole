@@ -104,7 +104,7 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
     #---------------------------------------------------------------------------
 
     def __init__(self, parent, lexer=None):
-        super(PygmentsHighlighter, self).__init__(parent)
+        super().__init__(parent)
 
         self._document = self.document()
         self._formatter = HtmlFormatter(nowrap=True)

@@ -174,7 +174,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     widget_factory = Any(RichJupyterWidget)
 
     def parse_command_line(self, argv=None):
-        super(JupyterQtConsoleApp, self).parse_command_line(argv)
+        super().parse_command_line(argv)
         self.build_kernel_argv(self.extra_args)
 
 
@@ -412,7 +412,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     def initialize(self, argv=None):
         self._init_asyncio_patch()
         self.init_qt_app()
-        super(JupyterQtConsoleApp, self).initialize(argv)
+        super().initialize(argv)
         if self._dispatching:
             return
         # handle deprecated renames
@@ -429,7 +429,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
         self.init_signal()
 
     def start(self):
-        super(JupyterQtConsoleApp, self).start()
+        super().start()
 
         # draw the window
         if self.maximize:
@@ -446,7 +446,7 @@ class IPythonQtConsoleApp(JupyterQtConsoleApp):
     def __init__(self, *a, **kw):
         warn("IPythonQtConsoleApp is deprecated; use JupyterQtConsoleApp",
              DeprecationWarning)
-        super(IPythonQtConsoleApp, self).__init__(*a, **kw)
+        super().__init__(*a, **kw)
 
 
 # -----------------------------------------------------------------------------

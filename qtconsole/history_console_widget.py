@@ -25,7 +25,7 @@ class HistoryConsoleWidget(ConsoleWidget):
     #---------------------------------------------------------------------------
 
     def __init__(self, *args, **kw):
-        super(HistoryConsoleWidget, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
         # HistoryConsoleWidget protected variables.
         self._history = []
@@ -40,7 +40,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         """ Reimplemented to the store history. """
         history = self.input_buffer if source is None else source
 
-        super(HistoryConsoleWidget, self).do_execute(source, complete, indent)
+        super().do_execute(source, complete, indent)
 
         if complete:
             # Save the command unless it was an empty string or was identical

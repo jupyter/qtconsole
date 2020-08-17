@@ -218,7 +218,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         parent : QWidget, optional [default None]
             The parent for this widget.
         """
-        super(ConsoleWidget, self).__init__(**kw)
+        super().__init__(**kw)
         if parent:
             self.setParent(parent)
 
@@ -467,7 +467,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             anchor = self._control.anchorAt(event.pos())
             QtWidgets.QToolTip.showText(event.globalPos(), anchor)
 
-        return super(ConsoleWidget, self).eventFilter(obj, event)
+        return super().eventFilter(obj, event)
 
     #---------------------------------------------------------------------------
     # 'QWidget' interface

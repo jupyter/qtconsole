@@ -130,7 +130,7 @@ class CompletionHtml(QtWidgets.QWidget):
             text edit widget.
         """
         assert isinstance(console_widget._control, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
-        super(CompletionHtml, self).__init__()
+        super().__init__()
 
         self._text_edit = console_widget._control
         self._console_widget = console_widget
@@ -192,7 +192,7 @@ class CompletionHtml(QtWidgets.QWidget):
             elif etype == QtCore.QEvent.FocusOut:
                 self.cancel_completion()
 
-        return super(CompletionHtml, self).eventFilter(obj, event)
+        return super().eventFilter(obj, event)
 
     #--------------------------------------------------------------------------
     # 'CompletionHtml' interface
