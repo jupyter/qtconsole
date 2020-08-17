@@ -242,9 +242,9 @@ class TestConsoleWidget(unittest.TestCase):
                        'foo\b\nbar\n',
                        'foo\b\nbar\r\n',
                        'abc\rxyz\b\b=']
-        expected_outputs = [u'x=z\u2029',
-                            u'foo\u2029bar\u2029',
-                            u'foo\u2029bar\u2029',
+        expected_outputs = ['x=z\u2029',
+                            'foo\u2029bar\u2029',
+                            'foo\u2029bar\u2029',
                             'x=z']
         for i, text in enumerate(test_inputs):
             w._insert_plain_text(cursor, text)
@@ -265,14 +265,14 @@ class TestConsoleWidget(unittest.TestCase):
         w._insert_html(cursor, '<a href="http://python.org">written in</a>')
         obj = w._control
         tip = QtWidgets.QToolTip
-        self.assertEqual(tip.text(), u'')
+        self.assertEqual(tip.text(), '')
 
         # should be somewhere else
         elsewhereEvent = QMouseEvent(MouseMove, QtCore.QPoint(50,50),
                                      noButton, noButtons, noModifiers)
         w.eventFilter(obj, elsewhereEvent)
         self.assertEqual(tip.isVisible(), False)
-        self.assertEqual(tip.text(), u'')
+        self.assertEqual(tip.text(), '')
         # should be over text
         overTextEvent = QMouseEvent(MouseMove, QtCore.QPoint(1,5),
                                     noButton, noButtons, noModifiers)
@@ -549,7 +549,7 @@ class TestConsoleWidget(unittest.TestCase):
         w._handle_is_complete_reply(
             dict(parent_header=dict(msg_id=msg_id),
                  content=dict(status="incomplete", indent="!!!")))
-        self.assert_text_equal(cursor, u"thing\u2029> !!!")
+        self.assert_text_equal(cursor, "thing\u2029> !!!")
         self.assertEqual(calls, [])
 
         # test complete statement (_execute called)
@@ -562,16 +562,16 @@ class TestConsoleWidget(unittest.TestCase):
                  content=dict(status="complete", indent="###")))
         self.assertEqual(calls, [("else", False)])
         calls = []
-        self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029")
+        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029")
 
         # test missing answer from is_complete
         msg_id = object()
         w.execute("done", interactive=True)
         self.assertEqual(calls, ["done"])
         calls = []
-        self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029")
+        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029")
         w._trigger_is_complete_callback()
-        self.assert_text_equal(cursor, u"thing\u2029> !!!else\u2029\u2029> ")
+        self.assert_text_equal(cursor, "thing\u2029> !!!else\u2029\u2029> ")
 
         # assert that late answer isn't destroying anything
         w._handle_is_complete_reply(

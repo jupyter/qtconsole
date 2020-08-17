@@ -40,8 +40,8 @@ if os.name == 'nt':
         try:
             import ctypes, traceback
             MB_ICONERROR = 0x00000010
-            title = u'Error starting QtConsole'
-            msg = u''.join(traceback.format_exception(exctype, value, tb))
+            title = 'Error starting QtConsole'
+            msg = ''.join(traceback.format_exception(exctype, value, tb))
             ctypes.windll.user32.MessageBoxW(0, msg, title, MB_ICONERROR)
         finally:
             # Also call the old exception hook to let it do

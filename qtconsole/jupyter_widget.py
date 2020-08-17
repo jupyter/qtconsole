@@ -218,7 +218,7 @@ class JupyterWidget(IPythonWidget):
         history_items = content['history']
         self.log.debug("Received history reply with %i entries", len(history_items))
         items = []
-        last_cell = u""
+        last_cell = ""
         for _, _, cell in history_items:
             cell = cell.rstrip()
             if cell != last_cell:
@@ -292,7 +292,7 @@ class JupyterWidget(IPythonWidget):
                 text = data['text/plain']
                 self._append_plain_text(text, True)
             # This newline seems to be needed for text and html output.
-            self._append_plain_text(u'\n', True)
+            self._append_plain_text('\n', True)
 
     def _handle_kernel_info_reply(self, rep):
         """Handle kernel info replies."""
