@@ -1,4 +1,3 @@
-import sys
 import unittest
 
 from flaky import flaky
@@ -10,10 +9,7 @@ from qtconsole.console_widget import ConsoleWidget
 from qtconsole.qtconsoleapp import JupyterQtConsoleApp
 from . import no_display
 
-if sys.version[0] == '2':  # Python 2
-    from IPython.core.inputsplitter import InputSplitter as TransformerManager
-else:
-    from IPython.core.inputtransformer2 import TransformerManager
+from IPython.core.inputtransformer2 import TransformerManager
 
 
 SHELL_TIMEOUT = 20000
@@ -155,10 +151,7 @@ def test_input(qtconsole, qtbot):
     with qtbot.waitSignal(shell.executed):
         shell.execute("import time")
 
-    if sys.version[0] == '2':
-        input_function = 'raw_input'
-    else:
-        input_function = 'input'
+    input_function = 'input'
     shell.execute("print(" + input_function + "('name: ')); time.sleep(3)")
 
     qtbot.waitUntil(lambda: control.toPlainText().split()[-1] == 'name:')
