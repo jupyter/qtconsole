@@ -8,6 +8,16 @@ Changes in Jupyter Qt console
 4.7
 ~~~
 
+.. _4.7.6:
+
+4.7.6
+-----
+
+`4.7.6 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.6>`__
+
+* Replace qApp with QApplication.instance().
+* Fix QFontMetrics.width deprecation.
+
 .. _4.7.5:
 
 4.7.5
