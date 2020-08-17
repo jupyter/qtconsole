@@ -3,7 +3,6 @@ import sys
 
 import unittest
 
-from ipython_genutils.py3compat import PY3
 from jupyter_client.blocking.channels import Empty
 
 from qtconsole.manager import QtKernelManager
@@ -146,17 +145,9 @@ class Tests(unittest.TestCase):
 
         # Received message has a header and parent header. The parent header has
         # the info about the close message type in Python 3
-        if PY3:
-            assert msg['parent_header']['msg_type'] == 'comm_close'
-            assert msg['msg_type'] == 'stream'
-            assert msg['content']['text'] == 'close\n'
-        else:
-            # For some reason ipykernel notifies me that it is closing,
-            # even though I closed the comm
-            assert msg['header']['msg_type'] == 'comm_close'
-            assert comm.comm_id == msg['content']['comm_id']
-            msg = self._get_next_msg()
-            assert msg['header']['msg_type'] == 'stream'
+        assert msg['parent_header']['msg_type'] == 'comm_close'
+        assert msg['msg_type'] == 'stream'
+        assert msg['content']['text'] == 'close\n'
 
 if __name__ == "__main__":
     unittest.main()

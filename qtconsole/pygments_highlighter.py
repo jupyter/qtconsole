@@ -4,10 +4,9 @@
 from qtpy import QtGui
 from qtconsole.qstringhelpers import qstring_length
 
-from ipython_genutils.py3compat import PY3, string_types
 from pygments.formatters.html import HtmlFormatter
 from pygments.lexer import RegexLexer, _TokenType, Text, Error
-from pygments.lexers import PythonLexer, Python3Lexer
+from pygments.lexers import Python3Lexer
 from pygments.styles import get_style_by_name
 
 
@@ -112,10 +111,7 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
         if lexer is not None:
             self._lexer = lexer
         else:
-            if PY3:
-                self._lexer = Python3Lexer()
-            else:
-                self._lexer = PythonLexer()
+            self._lexer = Python3Lexer()
 
     def highlightBlock(self, string):
         """ Highlight a block of text.
@@ -147,7 +143,7 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
     def set_style(self, style):
         """ Sets the style to the specified Pygments style.
         """
-        if isinstance(style, string_types):
+        if isinstance(style, str):
             style = get_style_by_name(style)
         self._style = style
         self._clear_caches()
