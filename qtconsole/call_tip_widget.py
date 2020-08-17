@@ -157,9 +157,9 @@ class CallTipWidget(QtWidgets.QLabel):
         # Locate and show the widget. Place the tip below the current line
         # unless it would be off the screen.  In that case, decide the best
         # location based trying to minimize the  area that goes off-screen.
-        padding = 3 # Distance in pixels between cursor bounds and tip box.
+        padding = 3  # Distance in pixels between cursor bounds and tip box.
         cursor_rect = text_edit.cursorRect(cursor)
-        screen_rect = QtWidgets.qApp.desktop().screenGeometry(text_edit)
+        screen_rect = QtWidgets.QApplication.instance().desktop().screenGeometry(text_edit)
         point = text_edit.mapToGlobal(cursor_rect.bottomRight())
         point.setY(point.y() + padding)
         tip_height = self.size().height()
@@ -244,7 +244,7 @@ class CallTipWidget(QtWidgets.QLabel):
             # If Enter events always came after Leave events, we wouldn't need
             # this check. But on Mac OS, it sometimes happens the other way
             # around when the tooltip is created.
-            QtWidgets.qApp.topLevelAt(QtGui.QCursor.pos()) != self):
+            QtWidgets.QApplication.instance().topLevelAt(QtGui.QCursor.pos()) != self):
             self._hide_timer.start(300, self)
 
     def _format_tooltip(self, doc):
