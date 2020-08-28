@@ -488,7 +488,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # a fudge factor of one character here.
         # Note 2: QFontMetrics.maxWidth is not used here or anywhere else due
         # to a Qt bug on certain Mac OS systems where it returns 0.
-        width = font_metrics.boundingRect(' ').width() * self.console_width + margin
+        width = font_metrics.horizontalAdvance(' ') * self.console_width + margin
         width += style.pixelMetric(QtWidgets.QStyle.PM_ScrollBarExtent)
 
         if self.paging == 'hsplit':
