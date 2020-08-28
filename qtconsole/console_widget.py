@@ -488,7 +488,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # a fudge factor of one character here.
         # Note 2: QFontMetrics.maxWidth is not used here or anywhere else due
         # to a Qt bug on certain Mac OS systems where it returns 0.
-        width = font_metrics.horizontalAdvance(' ') * self.console_width + margin
+        width = self._get_font_width() * self.console_width + margin
         width += style.pixelMetric(QtWidgets.QStyle.PM_ScrollBarExtent)
 
         if self.paging == 'hsplit':
@@ -752,12 +752,17 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """
         return self._control.document().defaultFont()
 
+    def _get_font_width(self, font=None):
+        if font is None:
+            font = self.font
+        font_metrics = QtGui.QFontMetrics(font)
+        return font_metrics.horizontalAdvance(' ') if hasattr(font_metrics, 'horizontalAdvance') else font_metrics.width(' ')
+
     def _set_font(self, font):
         """ Sets the base font for the ConsoleWidget to the specified QFont.
         """
-        font_metrics = QtGui.QFontMetrics(font)
         self._control.setTabStopWidth(
-            self.tab_width * font_metrics.boundingRect(' ').width()
+            self.tab_width * self._get_font_width(font)
         )
 
         self._completion_widget.setFont(font)
@@ -893,8 +898,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     def _set_tab_width(self, tab_width):
         """ Sets the width (in terms of space characters) for tab characters.
         """
-        font_metrics = QtGui.QFontMetrics(self.font)
-        self._control.setTabStopWidth(tab_width * font_metrics.boundingRect(' ').width())
+        self._control.setTabStopWidth(tab_width * self._get_font_width())
 
         self._tab_width = tab_width
 
@@ -1637,7 +1641,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """
         # Calculate the number of characters available.
         width = self._control.document().textWidth()
-        char_width = QtGui.QFontMetrics(self.font).boundingRect(' ').width()
+        char_width = self._get_font_width()
         displaywidth = max(10, (width / char_width) - 1)
 
         return columnize(items, separator, displaywidth)
