@@ -8,6 +8,15 @@ Changes in Jupyter Qt console
 4.7
 ~~~
 
+.. _4.7.7:
+
+4.7.7
+-----
+
+`4.7.7 on GitHub <https://github.com/jupyter/qtconsole/milestones/4.7.7>`__
+
+* Change font width calculation to use horizontalAdvance
+
 .. _4.7.6:
 
 4.7.6
