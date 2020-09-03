@@ -756,7 +756,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if font is None:
             font = self.font
         font_metrics = QtGui.QFontMetrics(font)
-        return font_metrics.horizontalAdvance(' ') if hasattr(font_metrics, 'horizontalAdvance') else font_metrics.width(' ')
+        if hasattr(font_metrics, 'horizontalAdvance'):
+            return font_metrics.horizontalAdvance(' ')
+        else:
+            return font_metrics.width(' ')
 
     def _set_font(self, font):
         """ Sets the base font for the ConsoleWidget to the specified QFont.
