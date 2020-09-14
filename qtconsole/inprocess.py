@@ -27,13 +27,13 @@ class QtInProcessChannel(SuperQObject, InProcessChannel):
     def start(self):
         """ Reimplemented to emit signal.
         """
-        super(QtInProcessChannel, self).start()
+        super().start()
         self.started.emit()
 
     def stop(self):
         """ Reimplemented to emit signal.
         """
-        super(QtInProcessChannel, self).stop()
+        super().stop()
         self.stopped.emit()
 
     def call_handlers_later(self, *args, **kwds):
@@ -53,7 +53,7 @@ class QtInProcessChannel(SuperQObject, InProcessChannel):
     def flush(self, timeout=1.0):
         """ Reimplemented to ensure that signals are dispatched immediately.
         """
-        super(QtInProcessChannel, self).flush()
+        super().flush()
         self.process_events()
 
 

@@ -115,7 +115,7 @@ class JupyterWidget(IPythonWidget):
     #---------------------------------------------------------------------------
 
     def __init__(self, *args, **kw):
-        super(JupyterWidget, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
         # JupyterWidget protected variables.
         self._payload_handlers = {
@@ -191,7 +191,7 @@ class JupyterWidget(IPythonWidget):
                 self._show_interpreter_prompt(number)
             self._request_info['execute'].pop(msg_id)
         else:
-            super(JupyterWidget, self)._handle_execute_reply(msg)
+            super()._handle_execute_reply(msg)
 
     def _handle_history_reply(self, msg):
         """ Handle history tail replies, which are only supported
@@ -317,7 +317,7 @@ class JupyterWidget(IPythonWidget):
         if self._starting:
             # finish handling started channels
             self._starting = False
-            super(JupyterWidget, self)._started_channels()
+            super()._started_channels()
 
     def _started_channels(self):
         """Make a history request"""
@@ -612,4 +612,4 @@ class IPythonWidget(JupyterWidget):
     def __init__(self, *a, **kw):
         warn("IPythonWidget is deprecated; use JupyterWidget",
              DeprecationWarning)
-        super(IPythonWidget, self).__init__(*a, **kw)
+        super().__init__(*a, **kw)

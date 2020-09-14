@@ -50,7 +50,7 @@ class RichJupyterWidget(RichIPythonWidget):
         """ Create a RichJupyterWidget.
         """
         kw['kind'] = 'rich'
-        super(RichJupyterWidget, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
         # Configure the ConsoleWidget HTML exporter for our formats.
         self._html_exporter.image_tag = self._get_image_tag
@@ -75,7 +75,7 @@ class RichJupyterWidget(RichIPythonWidget):
         to the export running.
         """
         self._svg_warning_displayed = False
-        super(RichJupyterWidget, self).export_html()
+        super().export_html()
 
 
     #---------------------------------------------------------------------------
@@ -101,7 +101,7 @@ class RichJupyterWidget(RichIPythonWidget):
                 menu.addAction('Save SVG As...',
                                lambda: save_svg(svg, self._control))
         else:
-            menu = super(RichJupyterWidget, self)._context_menu_make(pos)
+            menu = super()._context_menu_make(pos)
         return menu
 
     #---------------------------------------------------------------------------
@@ -146,11 +146,11 @@ class RichJupyterWidget(RichIPythonWidget):
                 try:
                     self._append_latex(data['text/latex'], True)
                 except LatexError:
-                    return super(RichJupyterWidget, self)._handle_display_data(msg)
+                    return super()._handle_display_data(msg)
                 self._append_html(self.output_sep2, True)
             else:
                 # Default back to the plain text representation.
-                return super(RichJupyterWidget, self)._handle_execute_result(msg)
+                return super()._handle_execute_result(msg)
 
     def _handle_display_data(self, msg):
         """Overridden to handle rich data types, like SVG."""
@@ -177,10 +177,10 @@ class RichJupyterWidget(RichIPythonWidget):
                 try:
                     self._append_latex(data['text/latex'], True)
                 except LatexError:
-                    return super(RichJupyterWidget, self)._handle_display_data(msg)
+                    return super()._handle_display_data(msg)
             else:
                 # Default back to the plain text representation.
-                return super(RichJupyterWidget, self)._handle_display_data(msg)
+                return super()._handle_display_data(msg)
 
     #---------------------------------------------------------------------------
     # 'RichJupyterWidget' protected interface
@@ -415,4 +415,4 @@ class RichIPythonWidget(RichJupyterWidget):
     def __init__(self, *a, **kw):
         warn("RichIPythonWidget is deprecated, use RichJupyterWidget",
              DeprecationWarning)
-        super(RichIPythonWidget, self).__init__(*a, **kw)
+        super().__init__(*a, **kw)

@@ -27,7 +27,7 @@ class CommManager(MetaQObjectHasTraits(
     """
 
     def __init__(self, kernel_client, *args, **kwargs):
-        super(CommManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.comms = {}
         self.targets = {}
         if kernel_client:
@@ -192,7 +192,7 @@ class Comm(MetaQObjectHasTraits(
         """
         Create a new comm. Must call open to use.
         """
-        super(Comm, self).__init__(target_name=target_name)
+        super().__init__(target_name=target_name)
         self.target_name = target_name
         self.kernel_client = kernel_client
         if comm_id is None:

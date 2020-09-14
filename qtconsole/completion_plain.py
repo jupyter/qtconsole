@@ -19,7 +19,7 @@ class CompletionPlain(QtWidgets.QWidget):
             text edit widget.
         """
         assert isinstance(console_widget._control, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
-        super(CompletionPlain, self).__init__()
+        super().__init__()
 
         self._text_edit = console_widget._control
         self._console_widget = console_widget
@@ -36,7 +36,7 @@ class CompletionPlain(QtWidgets.QWidget):
             if etype in( QtCore.QEvent.KeyPress, QtCore.QEvent.FocusOut ):
                 self.cancel_completion()
 
-        return super(CompletionPlain, self).eventFilter(obj, event)
+        return super().eventFilter(obj, event)
 
     #--------------------------------------------------------------------------
     # 'CompletionPlain' interface

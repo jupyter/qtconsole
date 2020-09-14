@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow):
             JupyterWidget instance, attached to the same kernel.
         """
 
-        super(MainWindow, self).__init__()
+        super().__init__()
         self._kernel_counter = 0
         self._external_kernel_counter = 0
         self._app = app

@@ -20,7 +20,7 @@ class CompletionWidget(QtWidgets.QListWidget):
         """
         text_edit = console_widget._control
         assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
-        super(CompletionWidget, self).__init__(parent=console_widget)
+        super().__init__(parent=console_widget)
 
         self._text_edit = text_edit
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -58,7 +58,7 @@ class CompletionWidget(QtWidgets.QListWidget):
                 else:
                     self.cancel_completion()
 
-        return super(CompletionWidget, self).eventFilter(obj, event)
+        return super().eventFilter(obj, event)
 
     def keyPressEvent(self, event):
         key = event.key()
@@ -70,7 +70,7 @@ class CompletionWidget(QtWidgets.QListWidget):
         elif key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down,
                      QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown,
                      QtCore.Qt.Key_Home, QtCore.Qt.Key_End):
-            return super(CompletionWidget, self).keyPressEvent(event)
+            return super().keyPressEvent(event)
         else:
             QtWidgets.QApplication.sendEvent(self._text_edit, event)
 
@@ -81,7 +81,7 @@ class CompletionWidget(QtWidgets.QListWidget):
     def hideEvent(self, event):
         """ Reimplemented to disconnect signal handlers and event filter.
         """
-        super(CompletionWidget, self).hideEvent(event)
+        super().hideEvent(event)
         try:
             self._text_edit.cursorPositionChanged.disconnect(self._update_current)
         except TypeError:
@@ -91,7 +91,7 @@ class CompletionWidget(QtWidgets.QListWidget):
     def showEvent(self, event):
         """ Reimplemented to connect signal handlers and event filter.
         """
-        super(CompletionWidget, self).showEvent(event)
+        super().showEvent(event)
         self._text_edit.cursorPositionChanged.connect(self._update_current)
         self.installEventFilter(self)
 
