@@ -5,7 +5,6 @@ import inspect
 
 from qtpy import QtCore, QtGui
 
-from ipython_genutils.py3compat import iteritems
 from traitlets import HasTraits, TraitType
 
 #-----------------------------------------------------------------------------
@@ -25,7 +24,7 @@ class MetaQObjectHasTraits(MetaQObject, MetaHasTraits):
     def __new__(mcls, name, bases, classdict):
         # FIXME: this duplicates the code from MetaHasTraits.
         # I don't think a super() call will help me here.
-        for k,v in iteritems(classdict):
+        for k,v in iter(classdict.items()):
             if isinstance(v, TraitType):
                 v.name = k
             elif inspect.isclass(v):
