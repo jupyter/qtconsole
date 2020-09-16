@@ -64,7 +64,7 @@ def get_tokens_unprocessed(self, text, stack=('root',)):
                     pos += 1
                     statestack = ['root']
                     statetokens = tokendefs['root']
-                    yield pos, Text, u'\n'
+                    yield pos, Text, '\n'
                     continue
                 yield pos, Error, text[pos]
                 pos += 1
@@ -188,7 +188,7 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
     def _get_format_from_document(self, token, document):
         """ Returns a QTextCharFormat for token by
         """
-        code, html = next(self._formatter._format_lines([(token, u'dummy')]))
+        code, html = next(self._formatter._format_lines([(token, 'dummy')]))
         self._document.setHtml(html)
         return QtGui.QTextCursor(self._document).charFormat()
 

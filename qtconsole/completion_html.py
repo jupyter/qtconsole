@@ -15,30 +15,30 @@ def html_tableify(item_matrix, select=None, header=None , footer=None) :
     if not item_matrix :
         return ''
     html_cols = []
-    tds = lambda text : u'<td>'+text+u'  </td>'
-    trs = lambda text : u'<tr>'+text+u'</tr>'
+    tds = lambda text : '<td>'+text+'  </td>'
+    trs = lambda text : '<tr>'+text+'</tr>'
     tds_items = [list(map(tds, row)) for row in item_matrix]
     if select :
         row, col = select
-        tds_items[row][col] = u'<td class="inverted">'\
+        tds_items[row][col] = '<td class="inverted">'\
                 +item_matrix[row][col]\
-                +u'  </td>'
+                +'  </td>'
     #select the right item
-    html_cols = map(trs, (u''.join(row) for row in tds_items))
+    html_cols = map(trs, (''.join(row) for row in tds_items))
     head = ''
     foot = ''
     if header :
-        head = (u'<tr>'\
-            +''.join((u'<td>'+header+u'</td>')*len(item_matrix[0]))\
+        head = ('<tr>'\
+            +''.join(('<td>'+header+'</td>')*len(item_matrix[0]))\
             +'</tr>')
 
     if footer :
-        foot = (u'<tr>'\
-            +''.join((u'<td>'+footer+u'</td>')*len(item_matrix[0]))\
+        foot = ('<tr>'\
+            +''.join(('<td>'+footer+'</td>')*len(item_matrix[0]))\
             +'</tr>')
-    html = (u'<table class="completion" style="white-space:pre"'
+    html = ('<table class="completion" style="white-space:pre"'
             'cellspacing=0>' +
-            head + (u''.join(html_cols)) + foot + u'</table>')
+            head + (''.join(html_cols)) + foot + '</table>')
     return html
 
 class SlidingInterval(object):

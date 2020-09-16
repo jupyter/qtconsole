@@ -177,7 +177,7 @@ def export_xhtml(html, filename, image_tag=None):
         # valid XML.
         offset = html.find("<html>")
         assert offset > -1, 'Invalid HTML string: no <html> tag.'
-        html = (u'<html xmlns="http://www.w3.org/1999/xhtml">\n'+
+        html = ('<html xmlns="http://www.w3.org/1999/xhtml">\n'+
                 html[offset+6:])
 
         html = fix_html(html)
@@ -206,7 +206,7 @@ def default_image_tag(match, path = None, format = "png"):
     format : "png"|"svg", optional [default "png"]
         Format for returned or referenced images.
     """
-    return u''
+    return ''
 
 
 def fix_html(html):
