@@ -11,7 +11,6 @@ import uuid
 import re
 
 from qtpy import QtCore, QtGui, QtWidgets
-from ipython_genutils import py3compat
 from ipython_genutils.importstring import import_item
 
 from qtconsole.base_frontend_mixin import BaseFrontendMixin
@@ -134,10 +133,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         self.lexer = lexer_class()
 
     def _lexer_class_default(self):
-        if py3compat.PY3:
-            return 'pygments.lexers.Python3Lexer'
-        else:
-            return 'pygments.lexers.PythonLexer'
+        return 'pygments.lexers.Python3Lexer'
 
     lexer = Any()
     def _lexer_default(self):

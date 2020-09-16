@@ -12,7 +12,6 @@ import re
 from qtpy import QtGui
 
 # Local imports
-from ipython_genutils.py3compat import string_types
 from qtconsole.styles import dark_style
 
 #-----------------------------------------------------------------------------
@@ -335,7 +334,7 @@ class QtAnsiCodeProcessor(AnsiCodeProcessor):
         else:
             return None
 
-        if isinstance(constructor, string_types):
+        if isinstance(constructor, str):
             # If this is an X11 color name, we just hope there is a close SVG
             # color name. We could use QColor's static method
             # 'setAllowX11ColorNames()', but this is global and only available

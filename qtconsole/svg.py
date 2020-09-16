@@ -4,8 +4,6 @@
 # System library imports.
 from qtpy import QtCore, QtGui, QtSvg, QtWidgets
 
-# Our own imports
-from ipython_genutils.py3compat import unicode_type
 
 def save_svg(string, parent=None):
     """ Prompts the user to save an SVG document to disk.
@@ -23,7 +21,7 @@ def save_svg(string, parent=None):
     The name of the file to which the document was saved, or None if the save
     was cancelled.
     """
-    if isinstance(string, unicode_type):
+    if isinstance(string, str):
         string = string.encode('utf-8')
 
     dialog = QtWidgets.QFileDialog(parent, 'Save SVG Document')
@@ -48,7 +46,7 @@ def svg_to_clipboard(string):
     string : basestring
         A Python string containing a SVG document.
     """
-    if isinstance(string, unicode_type):
+    if isinstance(string, str):
         string = string.encode('utf-8')
 
     mime_data = QtCore.QMimeData()
@@ -76,7 +74,7 @@ def svg_to_image(string, size=None):
     -------
     A QImage of format QImage.Format_ARGB32.
     """
-    if isinstance(string, unicode_type):
+    if isinstance(string, str):
         string = string.encode('utf-8')
 
     renderer = QtSvg.QSvgRenderer(QtCore.QByteArray(string))

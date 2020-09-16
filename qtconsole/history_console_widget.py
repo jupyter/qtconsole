@@ -3,7 +3,6 @@
 
 from qtpy import QtGui
 
-from ipython_genutils.py3compat import unicode_type
 from traitlets import Bool
 from .console_widget import ConsoleWidget
 
@@ -242,7 +241,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         if index in self._history_edits:
             return self._history_edits[index]
         elif index == len(self._history):
-            return unicode_type()
+            return str()
         return self._history[index]
 
     def _set_history(self, history):
