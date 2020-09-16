@@ -1,5 +1,4 @@
 import time
-import sys
 
 import unittest
 
@@ -7,9 +6,6 @@ from jupyter_client.blocking.channels import Empty
 
 from qtconsole.manager import QtKernelManager
 
-PY2 = sys.version[0] == '2'
-if PY2:
-    TimeoutError = RuntimeError
 
 class Tests(unittest.TestCase):
 

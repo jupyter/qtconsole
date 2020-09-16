@@ -14,8 +14,6 @@ something like 'current' as a stable URL for the most current version of the """
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
-from __future__ import print_function
-
 import os
 import shutil
 import sys

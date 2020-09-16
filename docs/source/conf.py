@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Jupyter Qt Console documentation build configuration file, created by
 # sphinx-quickstart on Mon Apr 13 10:20:17 2015.
 #
