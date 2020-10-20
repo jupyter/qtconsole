@@ -307,7 +307,11 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         if self._control_key_down(event.modifiers(), include_command=False):
 
             if key == QtCore.Qt.Key_C and self._executing:
-                self.request_interrupt_kernel()
+                # If text is selected, the user probably wants to copy it.
+                if self.can_copy() and event.matches(QtGui.QKeySequence.Copy):
+                    self.copy()
+                else:
+                    self.request_interrupt_kernel()
                 return True
 
             elif key == QtCore.Qt.Key_Period:
