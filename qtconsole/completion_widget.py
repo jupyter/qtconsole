@@ -14,7 +14,7 @@ class CompletionWidget(QtWidgets.QListWidget):
     # 'QObject' interface
     #--------------------------------------------------------------------------
 
-    def __init__(self, console_widget):
+    def __init__(self, console_widget, height=0):
         """ Create a completion widget that is attached to the specified Qt
             text edit widget.
         """
@@ -23,6 +23,7 @@ class CompletionWidget(QtWidgets.QListWidget):
         super().__init__(parent=console_widget)
 
         self._text_edit = text_edit
+        self._height_max = height if height > 0 else self.sizeHint().height()
         self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
@@ -131,16 +132,15 @@ class CompletionWidget(QtWidgets.QListWidget):
             list_item.setText(text)
             self.addItem(list_item)
 
-        height = self.sizeHint().height()
         screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
-                point.y() - height < 0):
+                point.y() - self._height_max < 0):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
-            point.setY(point.y() - height)
+            point.setY(point.y() - self._height_max)
         w = (self.sizeHintForColumn(0) +
              self.verticalScrollBar().sizeHint().width() +
              2 * self.frameWidth())
-        self.setGeometry(point.x(), point.y(), w, height)
+        self.setGeometry(point.x(), point.y(), w, self._height_max)
 
         # Move cursor to start of the prefix to replace it
         # when a item is selected
