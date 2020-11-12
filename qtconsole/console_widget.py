@@ -777,6 +777,18 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
     font = property(_get_font, _set_font)
 
+    def _set_completion_widget(self, gui_completion):
+        """ Set gui completion widget.
+        """
+        if gui_completion == 'ncurses':
+            self._completion_widget = CompletionHtml(self)
+        elif gui_completion == 'droplist':
+            self._completion_widget = CompletionWidget(self)
+        elif gui_completion == 'plain':
+            self._completion_widget = CompletionPlain(self)
+
+        self.gui_completion = gui_completion
+
     def open_anchor(self, anchor):
         """ Open selected anchor in the default webbrowser
         """
