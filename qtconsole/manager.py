@@ -34,7 +34,7 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
     autorestart = Bool(True, config=True)
 
     def __init__(self, *args, **kwargs):
-        super(QtKernelManager, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._is_restarting = False
 
     def start_restarter(self):
@@ -54,7 +54,7 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
                 self._restarter.stop()
 
     def post_start_kernel(self, **kw):
-        super(QtKernelManager, self).post_start_kernel(**kw)
+        super().post_start_kernel(**kw)
         if self._is_restarting:
             self.kernel_restarted.emit()
             self._is_restarting = False
