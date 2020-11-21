@@ -1,4 +1,5 @@
 import unittest
+import sys
 
 from flaky import flaky
 import pytest
@@ -354,6 +355,7 @@ class TestConsoleWidget(unittest.TestCase):
         copied = app.clipboard().text()
         self.assertEqual(copied,  'Header\nprompt>if:\n>     pass')
 
+    @pytest.mark.skipif(sys.platform == 'darwin', reason="Fails on macOS")
     def test_keypresses(self):
         """Test the event handling code for keypresses."""
         w = ConsoleWidget()

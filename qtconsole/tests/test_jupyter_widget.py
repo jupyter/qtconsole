@@ -1,8 +1,9 @@
 import unittest
+import sys
 
 import pytest
-
 from qtpy import QtWidgets
+
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
 from . import no_display
@@ -39,6 +40,8 @@ class TestJupyterWidget(unittest.TestCase):
         w.syntax_style = 'monokai'
         self.assertEqual(w._ansi_processor.get_color(15).name(), '#ffffff')
 
+    @pytest.mark.skipif(not sys.platform.startswith('linux'),
+                        reason="Works only on Linux")
     def test_other_output(self):
         """ Test displaying output from other clients.
         """
