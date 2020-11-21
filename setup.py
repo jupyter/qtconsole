@@ -77,7 +77,7 @@ setup_args = dict(
         'pyzmq>=17.1'
     ],
     extras_require = {
-        'test': ['pytest'],
+        'test': ['flaky', 'pytest', 'pytest-qt'],
         'test:python_version=="2.7"': ['mock'],
         'doc': 'Sphinx>=1.3',
     },
