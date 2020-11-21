@@ -9,8 +9,6 @@ import re
 
 from qtpy import QtWidgets
 
-from ipython_genutils import py3compat
-
 #-----------------------------------------------------------------------------
 # Constants
 #-----------------------------------------------------------------------------
@@ -66,7 +64,7 @@ class HtmlExporter(object):
         if dialog.exec_():
             self.filename = dialog.selectedFiles()[0]
             choice = dialog.selectedNameFilter()
-            html = py3compat.cast_unicode(self.control.document().toHtml())
+            html = self.control.document().toHtml()
 
             # Configure the exporter.
             if choice.startswith('XHTML'):
