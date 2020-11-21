@@ -1,6 +1,8 @@
 # Jupyter QtConsole
 
-[![Build Status](https://travis-ci.org/jupyter/qtconsole.svg?branch=master)](https://travis-ci.org/jupyter/qtconsole)
+![Windows tests](https://github.com/jupyter/qtconsole/workflows/Windows%20tests/badge.svg)
+![Macos tests](https://github.com/jupyter/qtconsole/workflows/Macos%20tests/badge.svg)
+![Linux tests](https://github.com/jupyter/qtconsole/workflows/Linux%20tests/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/jupyter/qtconsole/badge.svg?branch=master)](https://coveralls.io/github/jupyter/qtconsole?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/qtconsole/badge/?version=stable)](https://qtconsole.readthedocs.io/en/stable/)
 [![Google Group](https://img.shields.io/badge/-Google%20Group-lightgrey.svg)](https://groups.google.com/forum/#!forum/jupyter)
