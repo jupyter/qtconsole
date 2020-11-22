@@ -13,7 +13,7 @@ name = 'qtconsole'
 import sys
 
 v = sys.version_info
-if v[0] >= 3 and v[:2] < (3,5)):
+if v[0] >= 3 and v[:2] < (3, 5):
     error = "ERROR: %s requires Python version 3.6 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
