@@ -3,6 +3,28 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _5.0:
+
+5.0
+~~~
+
+5.0.0
+-----
+
+`5.0.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0>`__
+
+Additions
++++++++++
+
+- Add option to set completion type while running.
+
+Changes
++++++++
+
+- Emit kernel_restarted after restarting kernel.
+- Drop support for Python 2.7 and 3.5.
+
+
 .. _4.7:
 
 4.7
