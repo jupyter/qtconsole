@@ -66,6 +66,7 @@ setup_args = dict(
     license                       = 'BSD',
     platforms                     = "Linux, Mac OS X, Windows",
     keywords                      = ['Interactive', 'Interpreter', 'Shell'],
+    python_requires               = '>= 3.6',
     install_requires = [
         'traitlets',
         'ipython_genutils',
