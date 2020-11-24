@@ -8,6 +8,13 @@ Changes in Jupyter Qt console
 5.0
 ~~~
 
+5.0.1
+-----
+
+`5.0.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0.1>`__
+
+* Add python_requires to setup.py for Python 3.6+ compatibility
+
 5.0.0
 -----
 
