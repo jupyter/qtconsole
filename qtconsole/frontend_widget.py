@@ -215,6 +215,19 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         elif self._control.hasFocus():
             text = self._control.textCursor().selection().toPlainText()
             if text:
+                # Adjust the cursor to not take partial prompts
+                cursor = self._control.textCursor()
+                start_pos = cursor.selectionStart()
+                cursor.setPosition(start_pos)
+                if (cursor.blockNumber() >=
+                        self._get_prompt_cursor().blockNumber()):
+                    # Only remove partial prompt if in edit area
+                    line_prompt_pos = (
+                        cursor.block().position()
+                        + len(self._continuation_prompt))
+                    if start_pos < line_prompt_pos:
+                        text = text[(line_prompt_pos - start_pos):]
+
                 # Remove prompts.
                 lines = text.splitlines()
                 lines = map(self._highlighter.transform_classic_prompt, lines)
