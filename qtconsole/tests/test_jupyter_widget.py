@@ -1,8 +1,9 @@
 import unittest
 import sys
+from textwrap import dedent
 
 import pytest
-from qtpy import QtWidgets
+from qtpy import QtWidgets, QtGui
 
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
@@ -82,3 +83,25 @@ class TestJupyterWidget(unittest.TestCase):
             '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:600; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
         ))
+
+    def test_copy(self):
+        """Test copy removes partial and full prompts."""
+        w = JupyterWidget(kind='rich')
+        w._show_interpreter_prompt(1)
+        control = w._control
+
+        code = "    if True:\n        print('a')"
+        w._set_input_buffer(code)
+        assert code not in control.toPlainText()
+
+        cursor = w._get_prompt_cursor()
+
+        pos = cursor.position()
+        cursor.setPosition(pos - 3)
+        cursor.movePosition(QtGui.QTextCursor.End,
+                            QtGui.QTextCursor.KeepAnchor)
+        control.setTextCursor(cursor)
+        control.hasFocus = lambda: True
+        w.copy()
+        clipboard = QtWidgets.QApplication.clipboard()
+        assert clipboard.text() == code
