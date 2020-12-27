@@ -1,6 +1,5 @@
 import unittest
 import sys
-from textwrap import dedent
 
 import pytest
 from qtpy import QtWidgets, QtGui
