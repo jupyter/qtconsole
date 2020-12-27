@@ -2176,35 +2176,55 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 cursor.insertText(line)
             cursor.endEditBlock()
 
-    def _in_buffer(self, position=None):
-        """ Returns whether the current cursor (or, if specified, a position) is
-            inside the editing region.
+    def _in_buffer(self, position):
+        """ 
+        Returns whether the specified position is inside the editing region. 
+        """
+        return position == self._move_position_in_buffer(position)
+
+    def _move_position_in_buffer(self, position):
+        """ 
+        Return the next position in buffer.
         """
         cursor = self._control.textCursor()
-        if position is None:
-            position = cursor.position()
-        else:
-            cursor.setPosition(position)
+        cursor.setPosition(position)
         line = cursor.blockNumber()
         prompt_line = self._get_prompt_cursor().blockNumber()
         if line == prompt_line:
-            return position >= self._prompt_pos
-        elif line > prompt_line:
+            if position >= self._prompt_pos:
+                return position
+            return self._prompt_pos
+        if line > prompt_line:
             cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
             prompt_pos = cursor.position() + len(self._continuation_prompt)
-            return position >= prompt_pos
-        return False
+            if position >= prompt_pos:
+                return position
+            return prompt_pos
+        return self._prompt_pos
 
     def _keep_cursor_in_buffer(self):
         """ Ensures that the cursor is inside the editing region. Returns
             whether the cursor was moved.
         """
-        moved = not self._in_buffer()
-        if moved:
-            cursor = self._control.textCursor()
+        cursor = self._control.textCursor()
+        endpos = cursor.selectionEnd()
+        if endpos < self._prompt_pos:
+            # Cursor is not in buffer, move to the end
             cursor.movePosition(QtGui.QTextCursor.End)
             self._control.setTextCursor(cursor)
-        return moved
+            return True
+
+        startpos = cursor.selectionStart()
+
+        new_endpos = self._move_position_in_buffer(endpos)
+        new_startpos = self._move_position_in_buffer(startpos)
+        if new_endpos == endpos and new_startpos == startpos:
+            return False
+
+        cursor.setPosition(new_startpos)
+        cursor.setPosition(new_endpos, QtGui.QTextCursor.KeepAnchor)
+        self._control.setTextCursor(cursor)
+        return True
 
     def _keyboard_quit(self):
         """ Cancels the current editing task ala Ctrl-G in Emacs.

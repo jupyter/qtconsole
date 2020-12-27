@@ -84,8 +84,8 @@ class TestJupyterWidget(unittest.TestCase):
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:600; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
         ))
 
-    def test_copy(self):
-        """Test copy removes partial and full prompts."""
+    def test_copy_paste(self):
+        """Test copy/paste removes partial and full prompts."""
         w = JupyterWidget(kind='rich')
         w._show_interpreter_prompt(1)
         control = w._control
@@ -105,3 +105,6 @@ class TestJupyterWidget(unittest.TestCase):
         w.copy()
         clipboard = QtWidgets.QApplication.clipboard()
         assert clipboard.text() == code
+        w.paste()
+        expected = "In [1]: if True:\n   ...:     print('a')"
+        assert expected in control.toPlainText()
