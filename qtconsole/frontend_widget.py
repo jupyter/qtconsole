@@ -224,26 +224,35 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                                    QtGui.QTextCursor.KeepAnchor)
                 preceding_text = cursor.selectedText()
 
+                def remove_prompts(line):
+                    """Remove all prompts from line."""
+                    line = self._highlighter.transform_classic_prompt(line)
+                    return self._highlighter.transform_ipy_prompt(line)
+
                 # Get first line promp len
                 first_line = preceding_text + first_line_selection
                 len_with_prompt = len(first_line)
-                first_line = self._highlighter.transform_classic_prompt(
-                    first_line)
-                first_line = self._highlighter.transform_ipy_prompt(
-                    first_line)
+                first_line = remove_prompts(first_line)
                 prompt_len = len_with_prompt - len(first_line)
 
                 # Remove not selected part
                 if prompt_len < len(preceding_text):
                     first_line = first_line[len(preceding_text)-prompt_len:]
 
+                # Remove partial prompt last line
+                if len(remaining_lines) > 0 and remaining_lines[-1]:
+                    cursor = self._control.textCursor()
+                    cursor.setPosition(cursor.selectionEnd())
+                    last_line_full = cursor.block().text()
+                    prompt_len = (
+                        len(last_line_full)
+                        - len(remove_prompts(last_line_full)))
+                    if len(remaining_lines[-1]) < prompt_len:
+                        # This is a partial prompt
+                        remaining_lines[-1] = ""
+
                 # Remove prompts for other lines.
-                remaining_lines = map(
-                    self._highlighter.transform_classic_prompt,
-                    remaining_lines)
-                remaining_lines = map(
-                    self._highlighter.transform_ipy_prompt,
-                    remaining_lines)
+                remaining_lines = map(remove_prompts, remaining_lines)
                 text = '\n'.join([first_line, *remaining_lines])
 
                 # Needed to prevent errors when copying the prompt.
