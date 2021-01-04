@@ -222,7 +222,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                 cursor.setPosition(cursor.selectionStart())
                 cursor.setPosition(cursor.block().position(),
                                    QtGui.QTextCursor.KeepAnchor)
-                preceding_text = cursor.selectedText()
+                preceding_text = cursor.selection().toPlainText()
 
                 def remove_prompts(line):
                     """Remove all prompts from line."""
