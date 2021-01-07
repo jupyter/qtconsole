@@ -243,7 +243,15 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                 if len(remaining_lines) > 0 and remaining_lines[-1]:
                     cursor = self._control.textCursor()
                     cursor.setPosition(cursor.selectionEnd())
-                    last_line_full = cursor.block().text()
+                    block = cursor.block()
+                    start_pos = block.position()
+                    length = block.length()
+                    cursor.setPosition(start_pos)
+                    cursor.setPosition(start_pos + length,
+                                       QtGui.QTextCursor.KeepAnchor)
+                    last_line_full = cursor.selection().toPlainText()
+                    if len(last_line_full) > 0 and last_line_full[-1] == "\n":
+                        last_line_full = last_line_full[:-1]
                     prompt_len = (
                         len(last_line_full)
                         - len(remove_prompts(last_line_full)))
