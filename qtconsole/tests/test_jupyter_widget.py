@@ -83,7 +83,7 @@ class TestJupyterWidget(unittest.TestCase):
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:600; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
         ))
 
-    def test_copy_paste(self):
+    def test_copy_paste_prompt(self):
         """Test copy/paste removes partial and full prompts."""
         w = JupyterWidget(kind='rich')
         w._show_interpreter_prompt(1)

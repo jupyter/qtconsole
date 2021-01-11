@@ -237,7 +237,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
                 # Remove not selected part
                 if prompt_len < len(preceding_text):
-                    first_line = first_line[len(preceding_text)-prompt_len:]
+                    first_line = first_line[len(preceding_text) - prompt_len:]
 
                 # Remove partial prompt last line
                 if len(remaining_lines) > 0 and remaining_lines[-1]:
