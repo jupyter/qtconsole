@@ -215,11 +215,54 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         elif self._control.hasFocus():
             text = self._control.textCursor().selection().toPlainText()
             if text:
-                # Remove prompts.
-                lines = text.splitlines()
-                lines = map(self._highlighter.transform_classic_prompt, lines)
-                lines = map(self._highlighter.transform_ipy_prompt, lines)
-                text = '\n'.join(lines)
+                first_line_selection, *remaining_lines = text.splitlines()
+
+                # Get preceding text
+                cursor = self._control.textCursor()
+                cursor.setPosition(cursor.selectionStart())
+                cursor.setPosition(cursor.block().position(),
+                                   QtGui.QTextCursor.KeepAnchor)
+                preceding_text = cursor.selection().toPlainText()
+
+                def remove_prompts(line):
+                    """Remove all prompts from line."""
+                    line = self._highlighter.transform_classic_prompt(line)
+                    return self._highlighter.transform_ipy_prompt(line)
+
+                # Get first line promp len
+                first_line = preceding_text + first_line_selection
+                len_with_prompt = len(first_line)
+                first_line = remove_prompts(first_line)
+                prompt_len = len_with_prompt - len(first_line)
+
+                # Remove not selected part
+                if prompt_len < len(preceding_text):
+                    first_line = first_line[len(preceding_text) - prompt_len:]
+
+                # Remove partial prompt last line
+                if len(remaining_lines) > 0 and remaining_lines[-1]:
+                    cursor = self._control.textCursor()
+                    cursor.setPosition(cursor.selectionEnd())
+                    block = cursor.block()
+                    start_pos = block.position()
+                    length = block.length()
+                    cursor.setPosition(start_pos)
+                    cursor.setPosition(start_pos + length,
+                                       QtGui.QTextCursor.KeepAnchor)
+                    last_line_full = cursor.selection().toPlainText()
+                    if len(last_line_full) > 0 and last_line_full[-1] == "\n":
+                        last_line_full = last_line_full[:-1]
+                    prompt_len = (
+                        len(last_line_full)
+                        - len(remove_prompts(last_line_full)))
+                    if len(remaining_lines[-1]) < prompt_len:
+                        # This is a partial prompt
+                        remaining_lines[-1] = ""
+
+                # Remove prompts for other lines.
+                remaining_lines = map(remove_prompts, remaining_lines)
+                text = '\n'.join([first_line, *remaining_lines])
+
                 # Needed to prevent errors when copying the prompt.
                 # See issue 264
                 try:
