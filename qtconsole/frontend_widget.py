@@ -247,11 +247,9 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
                     start_pos = block.position()
                     length = block.length()
                     cursor.setPosition(start_pos)
-                    cursor.setPosition(start_pos + length,
+                    cursor.setPosition(start_pos + length - 1,
                                        QtGui.QTextCursor.KeepAnchor)
                     last_line_full = cursor.selection().toPlainText()
-                    if len(last_line_full) > 0 and last_line_full[-1] == "\n":
-                        last_line_full = last_line_full[:-1]
                     prompt_len = (
                         len(last_line_full)
                         - len(remove_prompts(last_line_full)))
