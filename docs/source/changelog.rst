@@ -8,6 +8,14 @@ Changes in Jupyter Qt console
 5.0
 ~~~
 
+5.0.2
+-----
+
+`5.0.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0.2>`__
+
+* Fix launching issue with Big Sur
+* Remove partial prompt on copy
+
 5.0.1
 -----
 
