@@ -7,6 +7,7 @@ input, there is no real readline support, among other limitations.
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
+from distutils.version import LooseVersion
 import os
 import signal
 import sys
@@ -57,7 +58,7 @@ if os.name == 'nt':
     except AttributeError:
         pass
 
-from qtpy import QtCore, QtGui, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets, QT_VERSION
 
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
@@ -410,6 +411,10 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
 
     @catch_config_error
     def initialize(self, argv=None):
+        # Fixes launching issues with Big Sur
+        # https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
+        if sys.platform == 'darwin' and LooseVersion(QT_VERSION) < LooseVersion('5.15.2'):
+            os.environ['QT_MAC_WANTS_LAYER'] = '1'
         self._init_asyncio_patch()
         self.init_qt_app()
         super().initialize(argv)
