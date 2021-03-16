@@ -8,6 +8,13 @@ Changes in Jupyter Qt console
 5.0
 ~~~
 
+5.0.3
+-----
+
+`5.0.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0.3>`__
+
+* Emit kernel_restarted signal only after a kernel crash.
+
 5.0.2
 -----
 
