@@ -1358,6 +1358,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     QtWidgets.QApplication.instance().sendEvent(self._control, new_event)
                     intercepted = True
 
+            elif key == QtCore.Qt.Key_Down:
+                end_scroll = (self._control.verticalScrollBar().maximum()
+                          - self._control.verticalScrollBar().pageStep())
+                # Only scroll down
+                if end_scroll > self._control.verticalScrollBar().value():
+                    self._control.verticalScrollBar().setValue(end_scroll)
+
         #------ Alt modifier ---------------------------------------------------
 
         elif alt_down:
