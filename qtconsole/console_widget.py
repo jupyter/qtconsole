@@ -1361,6 +1361,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             elif key == QtCore.Qt.Key_Down:
                 self._scroll_to_end()
 
+            elif key == QtCore.Qt.Key_Up:
+                self._control.verticalScrollBar().setValue(0)
+
         #------ Alt modifier ---------------------------------------------------
 
         elif alt_down:
