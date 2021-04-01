@@ -1359,11 +1359,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     intercepted = True
 
             elif key == QtCore.Qt.Key_Down:
-                end_scroll = (self._control.verticalScrollBar().maximum()
-                          - self._control.verticalScrollBar().pageStep())
-                # Only scroll down
-                if end_scroll > self._control.verticalScrollBar().value():
-                    self._control.verticalScrollBar().setValue(end_scroll)
+                self._scroll_to_end()
 
         #------ Alt modifier ---------------------------------------------------
 
@@ -2062,10 +2058,28 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor.endEditBlock()
         return text
 
+    def _viewport_at_end(self):
+        """Check if the viewport is at the end of the document."""
+        viewport = self._control.viewport()
+        end_scroll_pos = self._control.cursorForPosition(
+            QtCore.QPoint(viewport.width()-1, viewport.height()-1)
+            ).position()
+        end_doc_pos = self._get_end_pos()
+        return end_doc_pos - end_scroll_pos <= 1
+
+    def _scroll_to_end(self):
+        """Scroll to the end of the document."""
+        end_scroll = (self._control.verticalScrollBar().maximum()
+                      - self._control.verticalScrollBar().pageStep())
+        # Only scroll down
+        if end_scroll > self._control.verticalScrollBar().value():
+            self._control.verticalScrollBar().setValue(end_scroll)
+
     def _insert_plain_text(self, cursor, text, flush=False):
         """ Inserts plain text using the specified cursor, processing ANSI codes
             if enabled.
         """
+        should_autoscroll = self._viewport_at_end()
         # maximumBlockCount() can be different from self.buffer_size in
         # case input prompt is active.
         buffer_size = self._control.document().maximumBlockCount()
@@ -2086,12 +2100,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Clip the text to last `buffer_size` lines.
         if buffer_size > 0:
             text = self._get_last_lines(text, buffer_size)
-
-        viewport = self._control.viewport()
-        end_scroll_pos = self._control.cursorForPosition(
-            QtCore.QPoint(viewport.width()-1, viewport.height()-1)
-            ).position()
-        end_doc_pos = self._get_end_pos()
 
         cursor.beginEditBlock()
         if self.ansi_codes:
@@ -2153,12 +2161,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor.insertText(text)
         cursor.endEditBlock()
 
-        if end_doc_pos - end_scroll_pos <= 1:
-            end_scroll = (self._control.verticalScrollBar().maximum()
-                          - self._control.verticalScrollBar().pageStep())
-            # Only scroll down
-            if end_scroll > self._control.verticalScrollBar().value():
-                self._control.verticalScrollBar().setValue(end_scroll)
+        if should_autoscroll:
+            self._scroll_to_end()
 
     def _insert_plain_text_into_buffer(self, cursor, text):
         """ Inserts text into the input buffer using the specified cursor (which
