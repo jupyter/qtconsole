@@ -8,7 +8,6 @@ dependencies:
 - traitlets
 - ipython_genutils
 - jupyter_core
-- jupyter_client
 - pygments
 - ipykernel
 - pyzmq >=17.1
