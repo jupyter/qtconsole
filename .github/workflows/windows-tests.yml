@@ -32,7 +32,9 @@ jobs:
            python-version: ${{ matrix.PYTHON_VERSION }}
       - name: Install package dependencies
         shell: bash -l {0}
-        run: conda env update --file requirements/environment.yml
+        run: |
+          conda env update --file requirements/environment.yml
+          pip install https://github.com/davidbrochart/jupyter_client/archive/fix_threaded_client.zip --ignore-installed
       - name: Show environment information
         shell: bash -l {0}
         run: |
