@@ -1,8 +1,7 @@
 import time
+from queue import Empty
 
 import unittest
-
-from jupyter_client.blocking.channels import Empty
 
 from qtconsole.manager import QtKernelManager
 
