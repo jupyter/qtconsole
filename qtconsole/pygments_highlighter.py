@@ -74,7 +74,19 @@ def get_tokens_unprocessed(self, text, stack=('root',)):
 
 
 # Monkeypatch!
-RegexLexer.get_tokens_unprocessed = get_tokens_unprocessed
+from contextlib import contextmanager
+
+
+@contextmanager
+def _lexpatch():
+
+    try:
+        orig = RegexLexer.get_tokens_unprocessed
+        RegexLexer.get_tokens_unprocessed = get_tokens_unprocessed
+        yield
+    finally:
+        pass
+        RegexLexer.get_tokens_unprocessed = orig
 
 
 class PygmentsBlockUserData(QtGui.QTextBlockUserData):
@@ -117,24 +129,26 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
         """ Highlight a block of text.
         """
         prev_data = self.currentBlock().previous().userData()
-        if prev_data is not None:
-            self._lexer._saved_state_stack = prev_data.syntax_stack
-        elif hasattr(self._lexer, '_saved_state_stack'):
-            del self._lexer._saved_state_stack
+        with _lexpatch():
+            if prev_data is not None:
+                self._lexer._saved_state_stack = prev_data.syntax_stack
+            elif hasattr(self._lexer, "_saved_state_stack"):
+                del self._lexer._saved_state_stack
 
-        # Lex the text using Pygments
-        index = 0
-        for token, text in self._lexer.get_tokens(string):
-            length = qstring_length(text)
-            self.setFormat(index, length, self._get_format(token))
-            index += length
+            # Lex the text using Pygments
+            index = 0
+            for token, text in self._lexer.get_tokens(string):
+                length = qstring_length(text)
+                self.setFormat(index, length, self._get_format(token))
+                index += length
 
-        if hasattr(self._lexer, '_saved_state_stack'):
-            data = PygmentsBlockUserData(
-                syntax_stack=self._lexer._saved_state_stack)
-            self.currentBlock().setUserData(data)
-            # Clean up for the next go-round.
-            del self._lexer._saved_state_stack
+            if hasattr(self._lexer, "_saved_state_stack"):
+                data = PygmentsBlockUserData(
+                    syntax_stack=self._lexer._saved_state_stack
+                )
+                self.currentBlock().setUserData(data)
+                # Clean up for the next go-round.
+                del self._lexer._saved_state_stack
 
     #---------------------------------------------------------------------------
     # 'PygmentsHighlighter' interface
