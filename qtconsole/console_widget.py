@@ -2065,7 +2065,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """Check if the viewport is at the end of the document."""
         viewport = self._control.viewport()
         end_scroll_pos = self._control.cursorForPosition(
-            QtCore.QPoint(viewport.width()-1, viewport.height()-1)
+            QtCore.QPoint(viewport.width() - 1, viewport.height() - 1)
             ).position()
         end_doc_pos = self._get_end_pos()
         return end_doc_pos - end_scroll_pos <= 1
