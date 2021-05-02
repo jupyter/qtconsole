@@ -3,6 +3,29 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _5.1:
+
+5.1
+~~~
+
+5.1.0
+-----
+
+`5.1.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.1.0>`__
+
+Additions
++++++++++
+
+- Two new keyboard shortcuts: Ctrl + Up/Down to go to the beginning/end
+  of the buffer.
+
+Changes
++++++++
+
+- Monkeypatch RegexLexer only while in use by qtconsole.
+- Import Empty from queue module.
+
+
 .. _5.0:
 
 5.0
