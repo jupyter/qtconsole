@@ -2234,6 +2234,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 cursor.movePosition(QtGui.QTextCursor.End)
             self._control.setTextCursor(cursor)
             return True
+
         startpos = cursor.selectionStart()
 
         new_endpos = self._move_position_in_buffer(endpos)
