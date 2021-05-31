@@ -2223,8 +2223,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor = self._control.textCursor()
         endpos = cursor.selectionEnd()
         if endpos < self._prompt_pos:
-            # Cursor is not in buffer, move to the end
-            cursor.movePosition(QtGui.QTextCursor.End)
+            cursor.setPosition(endpos)
+            line = cursor.blockNumber()
+            prompt_line = self._get_prompt_cursor().blockNumber()
+            if line == prompt_line:
+                # Cursor is on prompt line, move to start of buffer
+                cursor.setPosition(self._prompt_pos)
+            else:
+                # Cursor is not in buffer, move to the end
+                cursor.movePosition(QtGui.QTextCursor.End)
             self._control.setTextCursor(cursor)
             return True
 
