@@ -1228,6 +1228,20 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         alt_down = event.modifiers() & QtCore.Qt.AltModifier
         shift_down = event.modifiers() & QtCore.Qt.ShiftModifier
 
+        cmd_down = \
+            sys.platform == "darwin" and \
+            self._control_key_down(event.modifiers(), include_command=True)
+        if cmd_down:
+            if key == QtCore.Qt.Key_Left:
+                key = QtCore.Qt.Key_Home
+            elif key == QtCore.Qt.Key_Right:
+                key = QtCore.Qt.Key_End
+            elif key == QtCore.Qt.Key_Up:
+                ctrl_down = True
+                key = QtCore.Qt.Key_Home
+            elif key == QtCore.Qt.Key_Down:
+                ctrl_down = True
+                key = QtCore.Qt.Key_End
         #------ Special modifier logic -----------------------------------------
 
         if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
@@ -1363,7 +1377,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
             elif key == QtCore.Qt.Key_Up:
                 self._control.verticalScrollBar().setValue(0)
-
         #------ Alt modifier ---------------------------------------------------
 
         elif alt_down:
@@ -1415,14 +1428,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._keyboard_quit()
                 intercepted = True
 
-            elif key == QtCore.Qt.Key_Up:
+            elif key == QtCore.Qt.Key_Up and not shift_down:
                 if self._reading or not self._up_pressed(shift_down):
                     intercepted = True
                 else:
                     prompt_line = self._get_prompt_cursor().blockNumber()
                     intercepted = cursor.blockNumber() <= prompt_line
 
-            elif key == QtCore.Qt.Key_Down:
+            elif key == QtCore.Qt.Key_Down and not shift_down:
                 if self._reading or not self._down_pressed(shift_down):
                     intercepted = True
                 else:
@@ -1439,7 +1452,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._indent(dedent=True)
                 intercepted = True
 
-            elif key == QtCore.Qt.Key_Left:
+            elif key == QtCore.Qt.Key_Left and not shift_down:
 
                 # Move to the previous line
                 line, col = cursor.blockNumber(), cursor.columnNumber()
@@ -1455,7 +1468,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 else:
                     intercepted = not self._in_buffer(position - 1)
 
-            elif key == QtCore.Qt.Key_Right:
+            elif key == QtCore.Qt.Key_Right and not shift_down:
                 #original_block_number = cursor.blockNumber()
                 if position == self._get_line_end_pos():
                     cursor.movePosition(QtGui.QTextCursor.NextBlock, mode=anchormode)
@@ -1552,7 +1565,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # position is still valid due to text truncation).
         if not (self._control_key_down(event.modifiers(), include_command=True)
                 or key in (QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown)
-                or (self._executing and not self._reading)):
+                or (self._executing and not self._reading)
+                or (event.text() == "" and not
+                    (not shift_down and key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down)))):
             self._keep_cursor_in_buffer()
 
         return intercepted
@@ -2191,13 +2206,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             cursor.endEditBlock()
 
     def _in_buffer(self, position):
-        """ 
-        Returns whether the specified position is inside the editing region. 
+        """
+        Returns whether the specified position is inside the editing region.
         """
         return position == self._move_position_in_buffer(position)
 
     def _move_position_in_buffer(self, position):
-        """ 
+        """
         Return the next position in buffer.
         """
         cursor = self._control.textCursor()
@@ -2222,6 +2237,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """
         cursor = self._control.textCursor()
         endpos = cursor.selectionEnd()
+
         if endpos < self._prompt_pos:
             cursor.setPosition(endpos)
             line = cursor.blockNumber()
