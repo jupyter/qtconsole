@@ -1228,9 +1228,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         alt_down = event.modifiers() & QtCore.Qt.AltModifier
         shift_down = event.modifiers() & QtCore.Qt.ShiftModifier
 
-        cmd_down = \
-            sys.platform == "darwin" and \
+        cmd_down = (
+            sys.platform == "darwin" and
             self._control_key_down(event.modifiers(), include_command=True)
+        )
         if cmd_down:
             if key == QtCore.Qt.Key_Left:
                 key = QtCore.Qt.Key_Home
