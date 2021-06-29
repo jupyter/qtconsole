@@ -8,6 +8,14 @@ Changes in Jupyter Qt console
 5.1
 ~~~
 
+5.1.1
+-----
+
+`5.1.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.1.1>`__
+
+* Improve handling of different keyboard combinations.
+* Move cursor to the beginning of buffer if on the same line.
+
 5.1.0
 -----
 
