@@ -20,6 +20,7 @@ class CallTipWidget(QtWidgets.QLabel):
         """
         assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super().__init__(None, QtCore.Qt.ToolTip)
+        text_edit.destroyed.connect(lambda: self.deleteLater())
 
         self._hide_timer = QtCore.QBasicTimer()
         self._text_edit = text_edit
