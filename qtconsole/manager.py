@@ -6,6 +6,7 @@ from qtpy import QtCore
 # Local imports
 from traitlets import Bool, DottedObjectName
 
+import jupyter_client
 from jupyter_client import KernelManager
 from jupyter_client.restarter import KernelRestarter
 
@@ -25,6 +26,25 @@ class QtKernelRestarter(KernelRestarter, QtKernelRestarterMixin):
 
     def poll(self):
         super().poll()
+
+
+def _post_start_kernel():
+    # KernelManager.post_start_kernel is async in jupyter_client>=7.0
+    if int(jupyter_client.__version__.split(".")[0]) >= 7:
+        async def post_start_kernel(self, **kw):
+            """Kernel restarted."""
+            await super(QtKernelManager, self).post_start_kernel(**kw)
+            if self._is_restarting:
+                self.kernel_restarted.emit()
+                self._is_restarting = False
+    else:
+        def post_start_kernel(self, **kw):
+            """Kernel restarted."""
+            super(QtKernelManager, self).post_start_kernel(**kw)
+            if self._is_restarting:
+                self.kernel_restarted.emit()
+                self._is_restarting = False
+    return post_start_kernel
 
 
 class QtKernelManager(KernelManager, QtKernelManagerMixin):
@@ -55,12 +75,7 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
             if self._restarter is not None:
                 self._restarter.stop()
 
-    def post_start_kernel(self, **kw):
-        """Kernel restarted."""
-        super().post_start_kernel(**kw)
-        if self._is_restarting:
-            self.kernel_restarted.emit()
-            self._is_restarting = False
+    post_start_kernel = _post_start_kernel()
 
     def _handle_kernel_restarting(self):
         """Kernel has died, and will be restarted."""
