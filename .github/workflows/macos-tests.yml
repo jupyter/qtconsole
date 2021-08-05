@@ -34,7 +34,7 @@ jobs:
         shell: bash -l {0}
         run: |
           conda env update --file requirements/environment.yml
-          pip install https://github.com/jupyter/jupyter_client/archive/master.zip --ignore-installed
+          pip install https://github.com/jupyter/jupyter_client/archive/master.zip --force-reinstall
       - name: Show environment information
         shell: bash -l {0}
         run: |
