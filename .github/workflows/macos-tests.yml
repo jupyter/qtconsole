@@ -35,12 +35,13 @@ jobs:
         run: |
           conda env update --file requirements/environment.yml
           conda install entrypoints nest-asyncio
-          pip install https://github.com/jupyter/jupyter_client/archive/master.zip --no-deps
+          pip install jupyter_client --pre --no-deps --ignore-installed
       - name: Show environment information
         shell: bash -l {0}
         run: |
           conda info
           conda list
+          python -c 'import jupyter_client; print("jupyter_client", jupyter_client.__version__)'
       - name: Run tests
         shell: bash -l {0}
         run: pytest -x -vv --cov=qtconsole qtconsole
