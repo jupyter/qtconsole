@@ -2128,9 +2128,27 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     # Unlike real terminal emulators, we don't distinguish
                     # between the screen and the scrollback buffer. A screen
                     # erase request clears everything.
-                    if act.action == 'erase' and act.area == 'screen':
-                        cursor.select(QtGui.QTextCursor.Document)
-                        cursor.removeSelectedText()
+                    if act.action == 'erase':
+                        remove = False
+                        fill = False
+                        if act.area == 'screen':
+                            cursor.select(cursor.Document)
+                            remove = True
+                        if act.area == 'line':
+                            if act.erase_to == 'all': 
+                                cursor.select(cursor.LineUnderCursor)
+                                remove = True
+                            elif act.erase_to == 'start':
+                                cursor.movePosition(cursor.StartOfLine, cursor.KeepAnchor)
+                                remove = True
+                                fill = True
+                            elif act.erase_to == 'end':
+                                cursor.movePosition(cursor.EndOfLine, cursor.KeepAnchor)
+                                remove = True
+                        if remove: 
+                            nspace=cursor.selectionEnd()-cursor.selectionStart() if fill else 0
+                            cursor.removeSelectedText()
+                            if nspace>0: cursor.insertText(' '*nspace) # replace text by space, to keep cursor position as specified
 
                     # Simulate a form feed by scrolling just past the last line.
                     elif act.action == 'scroll' and act.unit == 'page':
@@ -2141,12 +2159,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         cursor.deletePreviousChar()
 
                         if os.name == 'nt':
-                            cursor.select(QtGui.QTextCursor.Document)
+                            cursor.select(cursor.Document)
                             cursor.removeSelectedText()
 
                     elif act.action == 'carriage-return':
                         cursor.movePosition(
-                            cursor.StartOfLine, cursor.KeepAnchor)
+                            cursor.StartOfLine, cursor.MoveAnchor)
 
                     elif act.action == 'beep':
                         QtWidgets.QApplication.instance().beep()
@@ -2154,28 +2172,21 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     elif act.action == 'backspace':
                         if not cursor.atBlockStart():
                             cursor.movePosition(
-                                cursor.PreviousCharacter, cursor.KeepAnchor)
+                                cursor.PreviousCharacter, cursor.MoveAnchor)
 
                     elif act.action == 'newline':
                         cursor.movePosition(cursor.EndOfLine)
 
-                format = self._ansi_processor.get_format()
-
-                selection = cursor.selectedText()
-                if len(selection) == 0:
+                # simulate replacement mode
+                if substring is not None:
+                    format = self._ansi_processor.get_format()
+                    pos = cursor.position()
+                    cursor.movePosition(cursor.EndOfLine, cursor.KeepAnchor) # select remaining line
+                    remain=cursor.selectionEnd()-cursor.selectionStart()
+                    n=len(substring)
+                    if n<remain: cursor.setPosition(pos+remain-n+1)
+                    cursor.setPosition(pos,cursor.KeepAnchor)
                     cursor.insertText(substring, format)
-                elif substring is not None:
-                    # BS and CR are treated as a change in print
-                    # position, rather than a backwards character
-                    # deletion for output equivalence with (I)Python
-                    # terminal.
-                    if len(substring) >= len(selection):
-                        cursor.insertText(substring, format)
-                    else:
-                        old_text = selection[len(substring):]
-                        cursor.insertText(substring + old_text, format)
-                        cursor.movePosition(cursor.PreviousCharacter,
-                               cursor.KeepAnchor, len(old_text))
         else:
             cursor.insertText(text)
         cursor.endEditBlock()
