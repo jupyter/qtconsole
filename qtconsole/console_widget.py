@@ -2181,11 +2181,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 if substring is not None:
                     format = self._ansi_processor.get_format()
                     pos = cursor.position()
-                    remain=self._get_line_end_pos()-pos
+                    cursor.movePosition(cursor.EndOfLine, cursor.KeepAnchor) # select remaining line
+                    remain=cursor.selectionEnd()-cursor.selectionStart()
                     n=len(substring)
                     swallow=min(n,remain) 
-                    cursor.setPosition(pos+swallow,cursor.KeepAnchor)
-                    cursor.insertText(substring, format)
+                    cursor.setPosition(pos+swallow)
+                    cursor.setPosition(pos,cursor.KeepAnchor)
+                    cursor.insertText(substring,format)
         else:
             cursor.insertText(text)
         cursor.endEditBlock()
