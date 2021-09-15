@@ -144,7 +144,6 @@ class AnsiCodeProcessor(object):
         substring = SPECIAL_PATTERN.sub(self._replace_special, raw)
         if substring or self.actions:
             yield substring
-            self.actions = []
 
         if last_char is not None:
             self.actions.append(NewLineAction('newline'))

@@ -246,6 +246,31 @@ class TestConsoleWidget(unittest.TestCase):
             # clear all the text
             cursor.insertText('')
 
+    def test_erase_in_line(self):
+        """ Do control sequences for clearing the line work?
+        """
+        w = ConsoleWidget()
+        cursor = w._get_prompt_cursor()
+
+        test_inputs = ['Hello\x1b[1KBye',
+                       'Hello\x1b[0KBye',
+                       'Hello\r\x1b[0KBye',
+                       'Hello\r\x1b[1KBye',
+                       'Hello\r\x1b[2KBye',
+                       'Hello\x1b[2K\rBye']
+
+        expected_outputs = ['     Bye',
+                            'HelloBye',
+                            'Bye',
+                            'Byelo',
+                            'Bye',
+                            'Bye']
+        for i, text in enumerate(test_inputs):
+            w._insert_plain_text(cursor, text)
+            self.assert_text_equal(cursor, expected_outputs[i])
+            # clear all the text
+            cursor.insertText('')
+
     def test_link_handling(self):
         noKeys = QtCore.Qt
         noButton = QtCore.Qt.MouseButton(0)
