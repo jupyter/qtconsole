@@ -984,6 +984,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor = self._control.textCursor()
         if before_prompt and (self._reading or not self._executing):
             self._flush_pending_stream()
+            cursor._insert_mode=True
             cursor.setPosition(self._append_before_prompt_pos)
         else:
             if insert != self._insert_plain_text:
@@ -2180,13 +2181,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 # simulate replacement mode
                 if substring is not None:
                     format = self._ansi_processor.get_format()
-                    pos = cursor.position()
-                    cursor.movePosition(cursor.EndOfLine, cursor.KeepAnchor) # select remaining line
-                    remain=cursor.selectionEnd()-cursor.selectionStart()
-                    n=len(substring)
-                    swallow=min(n,remain) 
-                    cursor.setPosition(pos+swallow)
-                    cursor.setPosition(pos,cursor.KeepAnchor)
+                    if not (hasattr(cursor,'_insert_mode') and cursor._insert_mode):
+                        pos = cursor.position()
+                        remain=self._get_line_end_pos()-pos
+                        n=len(substring)
+                        swallow=min(n,remain)
+                        cursor.setPosition(pos+swallow,cursor.KeepAnchor)
                     cursor.insertText(substring,format)
         else:
             cursor.insertText(text)
