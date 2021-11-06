@@ -372,7 +372,7 @@ class JupyterWidget(IPythonWidget):
         # If a number was not specified, make a prompt number request.
         if number is None:
             msg_id = self.kernel_client.execute('', silent=True)
-            info = self._ExecutionRequest(msg_id, 'prompt')
+            info = self._ExecutionRequest(msg_id, 'prompt', True)
             self._request_info['execute'][msg_id] = info
             return
 
