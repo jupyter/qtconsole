@@ -144,8 +144,12 @@ class BaseFrontendMixin(object):
 
     def include_output(self, msg):
         """Return whether we should include a given output message"""
-        if self._hidden:
-            return False
+        if msg['parent_header']:
+            # If parent message is from hidden execution, don't include it.
+            msg_id = msg['parent_header']['msg_id']
+            info = self._request_info['execute'].get(msg_id)
+            if info and info.hidden:
+                return False
         from_here = self.from_here(msg)
         if msg['msg_type'] == 'execute_input':
             # only echo inputs not from here

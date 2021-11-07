@@ -135,6 +135,7 @@ class JupyterWidget(IPythonWidget):
 
         # Initialize language name.
         self.language_name = None
+        self._prompt_requested = False
 
     #---------------------------------------------------------------------------
     # 'BaseFrontendMixin' abstract interface
@@ -183,6 +184,7 @@ class JupyterWidget(IPythonWidget):
         msg_id = msg['parent_header'].get('msg_id')
         info = self._request_info['execute'].get(msg_id)
         if info and info.kind == 'prompt':
+            self._prompt_requested = False
             content = msg['content']
             if content['status'] == 'aborted':
                 self._show_interpreter_prompt()
@@ -371,8 +373,12 @@ class JupyterWidget(IPythonWidget):
         """
         # If a number was not specified, make a prompt number request.
         if number is None:
+            if self._prompt_requested:
+                # Already asked for prompt, avoid multiple prompts.
+                return
+            self._prompt_requested = True
             msg_id = self.kernel_client.execute('', silent=True)
-            info = self._ExecutionRequest(msg_id, 'prompt')
+            info = self._ExecutionRequest(msg_id, 'prompt', False)
             self._request_info['execute'][msg_id] = info
             return
 
