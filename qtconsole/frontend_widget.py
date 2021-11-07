@@ -569,10 +569,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """
         self.log.debug("shutdown: %s", msg.get('content', ''))
         restart = msg.get('content', {}).get('restart', False)
-        msg_id = msg['parent_header']['msg_id']
-        info = self._request_info['execute'].get(msg_id)
-        hidden = info and info.hidden
-        if not hidden and not self.from_here(msg):
+        if msg['parent_header']:
+            msg_id = msg['parent_header']['msg_id']
+            info = self._request_info['execute'].get(msg_id)
+            if info and info.hidden:
+                return
+        if not self.from_here(msg):
             # got shutdown reply, request came from session other than ours
             if restart:
                 # someone restarted the kernel, handle it
