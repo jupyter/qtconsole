@@ -378,7 +378,7 @@ class JupyterWidget(IPythonWidget):
                 return
             self._prompt_requested = True
             msg_id = self.kernel_client.execute('', silent=True)
-            info = self._ExecutionRequest(msg_id, 'prompt', True)
+            info = self._ExecutionRequest(msg_id, 'prompt', False)
             self._request_info['execute'][msg_id] = info
             return
 

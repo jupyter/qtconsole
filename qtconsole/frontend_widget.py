@@ -420,7 +420,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             silent=True, user_expressions={ local_uuid:expr })
         self._callback_dict[local_uuid] = callback
         self._request_info['execute'][msg_id] = self._ExecutionRequest(
-            msg_id, 'silent_exec_callback', True)
+            msg_id, 'silent_exec_callback', False)
 
     def _handle_exec_callback(self, msg):
         """Execute `callback` corresponding to `msg` reply, after ``_silent_exec_callback``
