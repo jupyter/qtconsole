@@ -456,9 +456,9 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         # still be pending.
         self._reading = False
         # Note:  If info is NoneType, this is ignored
-        if not info:
+        if not info or info.hidden:
             return
-        if info.kind == 'user' and not info.hidden:
+        if info.kind == 'user':
             # Make sure that all output from the SUB channel has been processed
             # before writing a new prompt.
             self.kernel_client.iopub_channel.flush()
@@ -479,10 +479,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             self._show_interpreter_prompt_for_reply(msg)
             self.executed.emit(msg)
             self._request_info['execute'].pop(msg_id)
-        elif info.kind == 'silent_exec_callback' and not info.hidden:
+        elif info.kind == 'silent_exec_callback':
             self._handle_exec_callback(msg)
             self._request_info['execute'].pop(msg_id)
-        elif not info.hidden:
+        else:
             raise RuntimeError("Unknown handler for %s" % info.kind)
 
     def _handle_error(self, msg):
