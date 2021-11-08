@@ -3,6 +3,22 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _5.2:
+
+5.2
+~~~
+
+5.2.0
+-----
+
+`5.2.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.2.0>`__
+
+Changes
++++++++
+
+- Fix hidden execution requests.
+- Fix ANSI code for erase line.
+
 .. _5.1:
 
 5.1
