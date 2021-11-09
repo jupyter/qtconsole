@@ -2183,9 +2183,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     format = self._ansi_processor.get_format()
                     if not (hasattr(cursor,'_insert_mode') and cursor._insert_mode):
                         pos = cursor.position()
-                        remain=self._get_line_end_pos()-pos
+                        remain=self._get_line_end_pos()-pos # could be negative ! As not taking int account last \n ?
                         n=len(substring)
-                        swallow=min(n,remain)
+                        swallow=max(0,min(n,remain))
                         cursor.setPosition(pos+swallow,cursor.KeepAnchor)
                     cursor.insertText(substring,format)
         else:
