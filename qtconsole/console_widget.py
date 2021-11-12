@@ -2185,7 +2185,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         pos = cursor.position()
                         remain = self._get_line_end_pos() - pos  # It could be negative! As not taking into account the last \n?
                         n=len(substring)
-                        swallow=max(0,min(n,remain))
+                        swallow = max(0, min(n, remain))
                         cursor.setPosition(pos+swallow,cursor.KeepAnchor)
                     cursor.insertText(substring,format)
         else:
