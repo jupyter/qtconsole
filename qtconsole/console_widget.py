@@ -2406,7 +2406,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if password:
             self._show_prompt('Warning: QtConsole does not support password mode, '\
                               'the text you type will be visible.', newline=True)
-        self._show_prompt(prompt, newline=False, separator=False)
+
+        if 'ipdb' not in prompt.lower():
+            # This is a prompt that asks for input from the user.
+            self._show_prompt(prompt, newline=False, separator=False)
+        else:
+            self._show_prompt(prompt, newline=False)
 
         if callback is None:
             self._reading_callback = None
