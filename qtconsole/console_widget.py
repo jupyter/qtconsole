@@ -2183,9 +2183,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     format = self._ansi_processor.get_format()
                     if not (hasattr(cursor,'_insert_mode') and cursor._insert_mode):
                         pos = cursor.position()
-                        remain=self._get_line_end_pos()-pos
+                        cursor2 = QtGui.QTextCursor(cursor)  # self._get_line_end_pos() is the previous line, don't use it
+                        cursor2.movePosition(cursor2.EndOfLine)
+                        remain = cursor2.position() - pos    # number of characters until end of line
                         n=len(substring)
-                        swallow=min(n,remain)
+                        swallow = min(n, remain)             # number of character to swallow
                         cursor.setPosition(pos+swallow,cursor.KeepAnchor)
                     cursor.insertText(substring,format)
         else:
