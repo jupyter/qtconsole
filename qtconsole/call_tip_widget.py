@@ -21,13 +21,7 @@ class CallTipWidget(QtWidgets.QLabel):
         assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super().__init__(None, QtCore.Qt.ToolTip)
 
-        # This necessary to avoid an error when the widget was already
-        # deleted.
-        # Fixes jupyter/qtconsole#507
-        try:
-            text_edit.destroyed.connect(lambda: self.deleteLater())
-        except RuntimeError:
-            pass
+        text_edit.destroyed.connect(self.deleteLater)
 
         self._hide_timer = QtCore.QBasicTimer()
         self._text_edit = text_edit
@@ -130,6 +124,16 @@ class CallTipWidget(QtWidgets.QLabel):
         self._text_edit.cursorPositionChanged.connect(
             self._cursor_position_changed)
         self._text_edit.installEventFilter(self)
+
+    def deleteLater(self):
+        """ Avoids an error when the widget has already been deleted.
+
+            Fixes jupyter/qtconsole#507.
+        """
+        try:
+            return super().deleteLater()
+        except RuntimeError:
+            pass
 
     #--------------------------------------------------------------------------
     # 'CallTipWidget' interface
