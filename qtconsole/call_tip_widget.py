@@ -131,6 +131,16 @@ class CallTipWidget(QtWidgets.QLabel):
             self._cursor_position_changed)
         self._text_edit.installEventFilter(self)
 
+    def deleteLater(self):
+        """ Avoids an error when the widget has already been deleted.
+
+            Fixes jupyter/qtconsole#507.
+        """
+        try:
+            return super().deleteLater()
+        except RuntimeError:
+            pass
+
     #--------------------------------------------------------------------------
     # 'CallTipWidget' interface
     #--------------------------------------------------------------------------
