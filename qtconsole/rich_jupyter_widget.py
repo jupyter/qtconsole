@@ -12,7 +12,7 @@ from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool
 from qtconsole.svg import save_svg, svg_to_clipboard, svg_to_image
 from .jupyter_widget import JupyterWidget
-
+from .styles import get_colors
 
 try:
     from IPython.lib.latextools import latex_to_png
@@ -216,15 +216,17 @@ class RichJupyterWidget(RichIPythonWidget):
         """ Append latex data to the widget."""
         png = None
 
+        fgcolor = get_colors(self.syntax_style)['fgcolor']
+
         if self._is_latex_math(latex):
-            png = latex_to_png(latex, wrap=False, backend='dvipng')
+            png = latex_to_png(latex, wrap=False, backend='dvipng', color=fgcolor)
 
         # Matplotlib only supports strings enclosed in dollar signs
         if png is None and latex.startswith('$') and latex.endswith('$'):
             # To avoid long and ugly errors, like the one reported in
             # spyder-ide/spyder#7619
             try:
-                png = latex_to_png(latex, wrap=False, backend='matplotlib')
+                png = latex_to_png(latex, wrap=False, backend='matplotlib', color=fgcolor)
             except Exception:
                 pass
 
