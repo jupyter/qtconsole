@@ -212,21 +212,24 @@ class RichJupyterWidget(RichIPythonWidget):
                 return True
         return False
 
+    def _get_colors(self, color):
+        return get_colors(self.syntax_style)[color]
+
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
         png = None
 
-        fgcolor = get_colors(self.syntax_style)['fgcolor']
-
         if self._is_latex_math(latex):
-            png = latex_to_png(latex, wrap=False, backend='dvipng', color=fgcolor)
+            png = latex_to_png(latex, wrap=False, backend='dvipng',
+                               color=self._get_colors('fgcolor'))
 
         # Matplotlib only supports strings enclosed in dollar signs
         if png is None and latex.startswith('$') and latex.endswith('$'):
             # To avoid long and ugly errors, like the one reported in
             # spyder-ide/spyder#7619
             try:
-                png = latex_to_png(latex, wrap=False, backend='matplotlib', color=fgcolor)
+                png = latex_to_png(latex, wrap=False, backend='matplotlib',
+                                   color=self._get_colors('fgcolor'))
             except Exception:
                 pass
 
