@@ -8,6 +8,14 @@ Changes in Jupyter Qt console
 5.2
 ~~~
 
+5.2.2
+-----
+
+`5.2.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.2.2>`__
+
+* Fix implicit int to float conversion for Python 3.10 compatibility.
+* Fix building documentation in ReadTheDocs.
+
 5.2.1
 -----
 
