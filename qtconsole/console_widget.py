@@ -1659,8 +1659,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         t = time.time()
         self._insert_plain_text(self._get_end_cursor(), text, flush=True)
         # Set the flush interval to equal the maximum time to update text.
-        self._pending_text_flush_interval.setInterval(max(100,
-                                                 (time.time()-t)*1000))
+        self._pending_text_flush_interval.setInterval(
+            int(max(100, (time.time() - t) * 1000))
+        )
 
     def _format_as_columns(self, items, separator='  '):
         """ Transform a list of strings into a single string with columns.
