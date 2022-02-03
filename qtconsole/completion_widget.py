@@ -49,14 +49,13 @@ class CompletionWidget(QtWidgets.QListWidget):
         """ Reimplemented to handle mouse input and to auto-hide when the
             text edit loses focus.
         """
-        if obj is self:
-            if event.type() == QtCore.QEvent.MouseButtonPress:
-                pos = self.mapToGlobal(event.pos())
-                target = QtWidgets.QApplication.widgetAt(pos)
-                if (target and self.isAncestorOf(target) or target is self):
-                    return False
-                else:
-                    self.cancel_completion()
+        if obj is self and event.type() == QtCore.QEvent.MouseButtonPress:
+            pos = self.mapToGlobal(event.pos())
+            target = QtWidgets.QApplication.widgetAt(pos)
+            if (target and self.isAncestorOf(target) or target is self):
+                return False
+            else:
+                self.cancel_completion()
 
         return super().eventFilter(obj, event)
 
@@ -124,10 +123,7 @@ class CompletionWidget(QtWidgets.QListWidget):
         for path_item in path_items:
             list_item = QtWidgets.QListWidgetItem()
             list_item.setData(QtCore.Qt.UserRole, path_item)
-            if common_prefix:
-                text = path_item.split(common_prefix)[-1]
-            else:
-                text = path_item
+            text = path_item.split(common_prefix)[-1] if common_prefix else path_item
             list_item.setText(text)
             self.addItem(list_item)
 
@@ -160,13 +156,10 @@ class CompletionWidget(QtWidgets.QListWidget):
         point = self._text_edit.cursorRect(cursor).center()
         point_size = self._text_edit.font().pointSize()
 
-        if sys.platform == 'darwin':
+        if sys.platform == 'darwin' or os.name != 'nt':
             delta = int((point_size * 1.20) ** 0.98)
-        elif os.name == 'nt':
-            delta = int((point_size * 1.20) ** 1.05)
         else:
-            delta = int((point_size * 1.20) ** 0.98)
-
+            delta = int((point_size * 1.20) ** 1.05)
         y = delta - (point_size / 2)
         point.setY(int(point.y() + y))
         point = self._text_edit.mapToGlobal(point)
@@ -198,12 +191,10 @@ class CompletionWidget(QtWidgets.QListWidget):
         point = self._get_top_left_position(cursor)
         self.move(point)
 
-        # Update current item
-        prefix = self._current_text_cursor().selection().toPlainText()
-        if prefix:
-            items = self.findItems(prefix, (QtCore.Qt.MatchStartsWith |
-                                            QtCore.Qt.MatchCaseSensitive))
-            if items:
+        if prefix := self._current_text_cursor().selection().toPlainText():
+            if items := self.findItems(
+                prefix, (QtCore.Qt.MatchStartsWith | QtCore.Qt.MatchCaseSensitive)
+            ):
                 self.setCurrentItem(items[0])
             else:
                 self.hide()

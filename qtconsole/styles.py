@@ -75,11 +75,7 @@ def dark_color(color):
     """Check whether a color is 'dark'.
 
     Currently, this is simply whether the luminance is <50%"""
-    rgb = hex_to_rgb(color)
-    if rgb:
-        return rgb_to_hls(*rgb)[1] < 128
-    else: # default to False
-        return False
+    return rgb_to_hls(*rgb)[1] < 128 if (rgb := hex_to_rgb(color)) else False
 
 def dark_style(stylename):
     """Guess whether the background of the style with name 'stylename'

@@ -29,14 +29,12 @@ def get_tokens_unprocessed(self, text, stack=('root',)):
     statetokens = tokendefs[statestack[-1]]
     while 1:
         for rexmatch, action, new_state in statetokens:
-            m = rexmatch(text, pos)
-            if m:
+            if m := rexmatch(text, pos):
                 if action is not None:
                     if type(action) is _TokenType:
                         yield pos, action, m.group()
                     else:
-                        for item in action(self, m):
-                            yield item
+                        yield from action(self, m)
                 pos = m.end()
                 if new_state is not None:
                     # state transition
@@ -85,7 +83,6 @@ def _lexpatch():
         RegexLexer.get_tokens_unprocessed = get_tokens_unprocessed
         yield
     finally:
-        pass
         RegexLexer.get_tokens_unprocessed = orig
 
 
@@ -120,10 +117,7 @@ class PygmentsHighlighter(QtGui.QSyntaxHighlighter):
         self._document = self.document()
         self._formatter = HtmlFormatter(nowrap=True)
         self.set_style('default')
-        if lexer is not None:
-            self._lexer = lexer
-        else:
-            self._lexer = Python3Lexer()
+        self._lexer = lexer if lexer is not None else Python3Lexer()
 
     def highlightBlock(self, string):
         """ Highlight a block of text.

@@ -86,16 +86,14 @@ class QtKillRing(QtCore.QObject):
     def kill_cursor(self, cursor):
         """ Kills the text selected by the give cursor.
         """
-        text = cursor.selectedText()
-        if text:
+        if text := cursor.selectedText():
             cursor.removeSelectedText()
             self.kill(text)
 
     def yank(self):
         """ Yank back the most recently killed text.
         """
-        text = self._ring.yank()
-        if text:
+        if text := self._ring.yank():
             self._skip_cursor = True
             cursor = self._text_edit.textCursor()
             cursor.insertText(text)
@@ -105,8 +103,7 @@ class QtKillRing(QtCore.QObject):
         """ Rotate the kill ring, then yank back the new top.
         """
         if self._prev_yank:
-            text = self._ring.rotate()
-            if text:
+            if text := self._ring.rotate():
                 self._skip_cursor = True
                 cursor = self._text_edit.textCursor()
                 cursor.movePosition(QtGui.QTextCursor.Left,

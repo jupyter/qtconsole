@@ -51,9 +51,8 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
 
     def stop_restarter(self):
         """Stop restarter mechanism."""
-        if self.autorestart:
-            if self._restarter is not None:
-                self._restarter.stop()
+        if self.autorestart and self._restarter is not None:
+            self._restarter.stop()
 
     def post_start_kernel(self, **kw):
         """Kernel restarted."""

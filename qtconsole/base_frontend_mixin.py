@@ -133,8 +133,7 @@ class BaseFrontendMixin(object):
             given message.
         """
         msg_type = msg['header']['msg_type']
-        handler = getattr(self, '_handle_' + msg_type, None)
-        if handler:
+        if handler := getattr(self, '_handle_' + msg_type, None):
             handler(msg)
 
     def from_here(self, msg):
@@ -155,8 +154,5 @@ class BaseFrontendMixin(object):
             # only echo inputs not from here
             return self.include_other_output and not from_here
 
-        if self.include_other_output:
-            return True
-        else:
-            return from_here
+        return True if self.include_other_output else from_here
 

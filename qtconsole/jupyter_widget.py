@@ -3,6 +3,7 @@
 This supports the additional functionality provided by Jupyter kernel.
 """
 
+
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
@@ -40,15 +41,7 @@ default_output_sep2 = ''
 # Base path for most payload sources.
 zmq_shell_source = 'ipykernel.zmqshell.ZMQInteractiveShell'
 
-if sys.platform.startswith('win'):
-    default_editor = 'notepad'
-else:
-    default_editor = ''
-
-#-----------------------------------------------------------------------------
-# JupyterWidget class
-#-----------------------------------------------------------------------------
-
+default_editor = 'notepad' if sys.platform.startswith('win') else ''
 class IPythonWidget(FrontendWidget):
     """Dummy class for config inheritance. Destroyed below."""
 
@@ -339,23 +332,9 @@ class JupyterWidget(IPythonWidget):
         content = msg['content']
 
         traceback = '\n'.join(content['traceback']) + '\n'
-        if False:
-            # FIXME: For now, tracebacks come as plain text, so we can't
-            # use the html renderer yet.  Once we refactor ultratb to
-            # produce properly styled tracebacks, this branch should be the
-            # default
-            traceback = traceback.replace(' ', '&nbsp;')
-            traceback = traceback.replace('\n', '<br/>')
-
-            ename = content['ename']
-            ename_styled = '<span class="error">%s</span>' % ename
-            traceback = traceback.replace(ename, ename_styled)
-
-            self._append_html(traceback)
-        else:
-            # This is the fallback for now, using plain text with ansi
-            # escapes
-            self._append_plain_text(traceback, before_prompt=not self.from_here(msg))
+        # This is the fallback for now, using plain text with ansi
+        # escapes
+        self._append_plain_text(traceback, before_prompt=not self.from_here(msg))
 
     def _process_execute_payload(self, item):
         """ Reimplemented to dispatch payloads to handler methods.
@@ -364,9 +343,8 @@ class JupyterWidget(IPythonWidget):
         if handler is None:
             # We have no handler for this type of payload, simply ignore it
             return False
-        else:
-            handler(item)
-            return True
+        handler(item)
+        return True
 
     def _show_interpreter_prompt(self, number=None):
         """ Reimplemented for IPython-style prompts.
