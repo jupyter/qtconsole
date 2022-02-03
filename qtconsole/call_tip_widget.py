@@ -143,8 +143,7 @@ class CallTipWidget(QtWidgets.QLabel):
         """Show inspection data as a tooltip"""
         data = content.get('data', {})
         text = data.get('text/plain', '')
-        match = re.match("(?:[^\n]*\n){%i}" % maxlines, text)
-        if match:
+        if match := re.match("(?:[^\n]*\n){%i}" % maxlines, text):
             text = text[:match.end()] + '\n[Documentation continues...]'
 
         return self.show_tip(self._format_tooltip(text))
@@ -186,10 +185,7 @@ class CallTipWidget(QtWidgets.QLabel):
             if point_.y() - tip_height < padding:
                 # If point is in upper half of screen, show tip below it.
                 # otherwise above it.
-                if 2*point.y() < screen_rect.height():
-                    vertical = 'bottom'
-                else:
-                    vertical = 'top'
+                vertical = 'bottom' if 2*point.y() < screen_rect.height() else 'top'
             else:
                 vertical = 'top'
         if point.x() + tip_width > screen_rect.width() + screen_rect.x():
@@ -197,10 +193,7 @@ class CallTipWidget(QtWidgets.QLabel):
             # If tip is still off-screen, check if point is in the right or
             # left half of the screen.
             if point_.x() - tip_width < padding:
-                if 2*point.x() < screen_rect.width():
-                    horizontal = 'Right'
-                else:
-                    horizontal = 'Left'
+                horizontal = 'Right' if 2*point.x() < screen_rect.width() else 'Left'
             else:
                 horizontal = 'Left'
         pos = getattr(cursor_rect, '%s%s' %(vertical, horizontal))

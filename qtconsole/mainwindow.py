@@ -328,7 +328,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if as_list:
             return master_widget
         assert(len(master_widget)<=1 )
-        if len(master_widget)==0:
+        if not master_widget:
             return None
 
         return master_widget[0]
@@ -355,9 +355,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # Get a list of all widget owning the same kernel and removed it from
         # the previous cadidate. (better using sets ?)
         master_widget_list = self.find_master_tab(tab, as_list=True)
-        slave_list = [widget for widget in filtered_widget_list if widget not in master_widget_list]
-
-        return slave_list
+        return [
+            widget
+            for widget in filtered_widget_list
+            if widget not in master_widget_list
+        ]
 
     # Populate the menu bar with common actions and shortcuts
     def add_menu_action(self, menu, action, defer_shortcut=False):
@@ -916,7 +918,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if reply == cancel:
             event.ignore()
             return
-        if reply == okay or reply == accept_role:
+        if reply in [okay, accept_role]:
             while self.tab_widget.count() >= 1:
                 # prevent further confirmations:
                 widget = self.active_frontend

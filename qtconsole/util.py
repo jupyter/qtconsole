@@ -32,8 +32,7 @@ class MetaQObjectHasTraits(MetaQObject, MetaHasTraits):
                     vinst = v()
                     vinst.name = k
                     classdict[k] = vinst
-        cls = MetaQObject.__new__(mcls, name, bases, classdict)
-        return cls
+        return MetaQObject.__new__(mcls, name, bases, classdict)
 
     def __init__(mcls, name, bases, classdict):
         # Note: super() did not work, so we explicitly call these.

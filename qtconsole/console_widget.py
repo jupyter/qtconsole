@@ -991,9 +991,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._flush_pending_stream()
             cursor.movePosition(QtGui.QTextCursor.End)
 
-        # Perform the insertion.
-        result = insert(cursor, input, *args, **kwargs)
-        return result
+        return insert(cursor, input, *args, **kwargs)
 
     def _append_block(self, block_format=None, before_prompt=False):
         """ Appends an new QTextBlock to the end of the console buffer.
@@ -1028,17 +1026,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Select and remove all text below the input buffer.
         cursor = self._get_prompt_cursor()
         prompt = self._continuation_prompt.lstrip()
-        if(self._temp_buffer_filled):
-            self._temp_buffer_filled = False
-            while cursor.movePosition(QtGui.QTextCursor.NextBlock):
-                temp_cursor = QtGui.QTextCursor(cursor)
-                temp_cursor.select(QtGui.QTextCursor.BlockUnderCursor)
-                text = temp_cursor.selection().toPlainText().lstrip()
-                if not text.startswith(prompt):
-                    break
-        else:
+        if not self._temp_buffer_filled:
             # We've reached the end of the input buffer and no text follows.
             return
+        self._temp_buffer_filled = False
+        while cursor.movePosition(QtGui.QTextCursor.NextBlock):
+            temp_cursor = QtGui.QTextCursor(cursor)
+            temp_cursor.select(QtGui.QTextCursor.BlockUnderCursor)
+            text = temp_cursor.selection().toPlainText().lstrip()
+            if not text.startswith(prompt):
+                break
         cursor.movePosition(QtGui.QTextCursor.Left) # Grab the newline.
         cursor.movePosition(QtGui.QTextCursor.End,
                             QtGui.QTextCursor.KeepAnchor)
@@ -1107,8 +1104,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self.paste_action.setEnabled(self.can_paste())
         self.paste_action.setShortcut(QtGui.QKeySequence.Paste)
 
-        anchor = self._control.anchorAt(pos)
-        if anchor:
+        if anchor := self._control.anchorAt(pos):
             menu.addSeparator()
             self.copy_link_action = menu.addAction(
                 'Copy Link Address', lambda: self.copy_anchor(anchor=anchor))
@@ -1134,13 +1130,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             Whether to treat the Command key as a (mutually exclusive) synonym
             for Control when in Mac OS.
         """
-        # Note that on Mac OS, ControlModifier corresponds to the Command key
-        # while MetaModifier corresponds to the Control key.
-        if sys.platform == 'darwin':
-            down = include_command and (modifiers & QtCore.Qt.ControlModifier)
-            return bool(down) ^ bool(modifiers & QtCore.Qt.MetaModifier)
-        else:
+        if sys.platform != 'darwin':
             return bool(modifiers & QtCore.Qt.ControlModifier)
+        down = include_command and (modifiers & QtCore.Qt.ControlModifier)
+        return bool(down) ^ bool(modifiers & QtCore.Qt.MetaModifier)
 
     def _create_control(self):
         """ Creates and connects the underlying text widget.
@@ -1748,9 +1741,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         prompt = self._get_input_buffer_cursor_prompt()
         if prompt is None:
             return -1
-        else:
-            cursor = self._control.textCursor()
-            return cursor.columnNumber() - len(prompt)
+        cursor = self._control.textCursor()
+        return cursor.columnNumber() - len(prompt)
 
     def _get_input_buffer_cursor_line(self):
         """ Get the text of the line of the input buffer that contains the
@@ -1759,10 +1751,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         prompt = self._get_input_buffer_cursor_prompt()
         if prompt is None:
             return None
-        else:
-            cursor = self._control.textCursor()
-            text = self._get_block_plain_text(cursor.block())
-            return text[len(prompt):]
+        cursor = self._control.textCursor()
+        text = self._get_block_plain_text(cursor.block())
+        return text[len(prompt):]
 
     def _get_input_buffer_cursor_pos(self):
         """Get the cursor position within the input buffer."""
@@ -1780,13 +1771,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if self._executing:
             return None
         cursor = self._control.textCursor()
-        if cursor.position() >= self._prompt_pos:
-            if cursor.blockNumber() == self._get_prompt_cursor().blockNumber():
-                return self._prompt
-            else:
-                return self._continuation_prompt
-        else:
+        if cursor.position() < self._prompt_pos:
             return None
+        if cursor.blockNumber() == self._get_prompt_cursor().blockNumber():
+            return self._prompt
+        else:
+            return self._continuation_prompt
 
     def _get_last_lines(self, text, num_lines, return_count=False):
         """ Get the last specified number of lines of text (like `tail -n`).
@@ -1806,10 +1796,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 pos = None
                 break
             i += 1
-        if return_count:
-            return text[pos:], i
-        else:
-            return text[pos:]
+        return (text[pos:], i) if return_count else text[pos:]
 
     def _get_last_lines_from_list(self, text_list, num_lines):
         """ Get the list of text clipped to last specified lines.
@@ -2203,8 +2190,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             must be in the input buffer), ensuring that continuation prompts are
             inserted as necessary.
         """
-        lines = text.splitlines(True)
-        if lines:
+        if lines := text.splitlines(True):
             if lines[-1].endswith('\n'):
                 # If the text ends with a newline, add a blank line so a new
                 # continuation prompt is produced.
@@ -2236,9 +2222,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         line = cursor.blockNumber()
         prompt_line = self._get_prompt_cursor().blockNumber()
         if line == prompt_line:
-            if position >= self._prompt_pos:
-                return position
-            return self._prompt_pos
+            return position if position >= self._prompt_pos else self._prompt_pos
         if line > prompt_line:
             cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
             prompt_pos = cursor.position() + len(self._continuation_prompt)
@@ -2501,14 +2485,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._append_plain_text(self._prompt)
             else:
                 self._append_html(self._prompt_html)
+        elif html:
+            self._prompt = self._append_html_fetching_plain_text(prompt)
+            self._prompt_html = prompt
         else:
-            if html:
-                self._prompt = self._append_html_fetching_plain_text(prompt)
-                self._prompt_html = prompt
-            else:
-                self._append_plain_text(prompt)
-                self._prompt = prompt
-                self._prompt_html = None
+            self._append_plain_text(prompt)
+            self._prompt = prompt
+            self._prompt_html = None
 
         self._flush_pending_stream()
         self._prompt_cursor.setPosition(self._get_end_pos() - 1)

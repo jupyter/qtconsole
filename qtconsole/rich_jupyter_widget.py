@@ -86,8 +86,7 @@ class RichJupyterWidget(RichIPythonWidget):
         """ Reimplemented to return a custom context menu for images.
         """
         format = self._control.cursorForPosition(pos).charFormat()
-        name = format.stringProperty(QtGui.QTextFormat.ImageName)
-        if name:
+        if name := format.stringProperty(QtGui.QTextFormat.ImageName):
             menu = QtWidgets.QMenu(self)
 
             menu.addAction('Copy Image', lambda: self._copy_image(name))
@@ -269,9 +268,8 @@ class RichJupyterWidget(RichIPythonWidget):
         """ Returns the QImage stored as the ImageResource with 'name'.
         """
         document = self._control.document()
-        image = document.resource(QtGui.QTextDocument.ImageResource,
+        return document.resource(QtGui.QTextDocument.ImageResource,
                                   QtCore.QUrl(name))
-        return image
 
     def _get_image_tag(self, match, path = None, format = "png"):
         """ Return (X)HTML mark-up for the image-tag given by match.
@@ -369,9 +367,9 @@ class RichJupyterWidget(RichIPythonWidget):
                 image = image.scaled(width, height,
                                      QtCore.Qt.IgnoreAspectRatio,
                                      QtCore.Qt.SmoothTransformation)
-            elif width and not height:
+            elif width:
                 image = image.scaledToWidth(width, QtCore.Qt.SmoothTransformation)
-            elif height and not width:
+            elif height:
                 image = image.scaledToHeight(height, QtCore.Qt.SmoothTransformation)
         except ValueError:
             self._insert_plain_text(cursor, 'Received invalid %s data.'%fmt)

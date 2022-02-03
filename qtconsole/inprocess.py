@@ -83,8 +83,5 @@ class QtInProcessRichJupyterWidget(RichJupyterWidget):
         shell = self.kernel_manager.kernel.shell
         status, indent_spaces = \
             shell.input_transformer_manager.check_complete(source)
-        if indent_spaces is None:
-            indent = ''
-        else:
-            indent = ' ' * indent_spaces
+        indent = '' if indent_spaces is None else ' ' * indent_spaces
         return status != 'incomplete', indent

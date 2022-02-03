@@ -161,7 +161,7 @@ def test_input(qtconsole, qtbot):
     qtbot.keyClick(control, QtCore.Qt.Key_Enter)
     qtbot.waitUntil(lambda: not shell._reading)
     qtbot.keyClick(control, 'z', modifier=QtCore.Qt.ControlModifier)
-    for i in range(10):
+    for _ in range(10):
         qtbot.keyClick(control, QtCore.Qt.Key_Backspace)
     qtbot.waitUntil(lambda: shell._prompt_html is not None,
                     timeout=SHELL_TIMEOUT)

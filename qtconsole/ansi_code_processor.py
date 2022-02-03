@@ -120,7 +120,7 @@ class AnsiCodeProcessor(object):
                 self.actions.append(BackSpaceAction('backspace'))
                 yield None
                 self.actions = []
-            elif g0 == '\n' or g0 == '\r\n':
+            elif g0 in ['\n', '\r\n']:
                 self.actions.append(NewLineAction('newline'))
                 yield g0
                 self.actions = []
@@ -141,8 +141,10 @@ class AnsiCodeProcessor(object):
                     self.set_osc_code(params)
 
         raw = string[start:]
-        substring = SPECIAL_PATTERN.sub(self._replace_special, raw)
-        if substring or self.actions:
+        if substring := SPECIAL_PATTERN.sub(self._replace_special, raw):
+            yield substring
+
+        elif self.actions:
             yield substring
 
         if last_char is not None:
@@ -166,8 +168,7 @@ class AnsiCodeProcessor(object):
             else:
                 self.set_sgr_code([0])
 
-        elif (command == 'J' or # ED - Erase Data
-              command == 'K'):  # EL - Erase in Line
+        elif command in ['J', 'K']:  # EL - Erase in Line
             code = params[0] if params else 0
             if 0 <= code <= 2:
                 area = 'screen' if command == 'J' else 'line'
@@ -179,8 +180,7 @@ class AnsiCodeProcessor(object):
                     erase_to = 'all'
                 self.actions.append(EraseAction('erase', area, erase_to))
 
-        elif (command == 'S' or # SU - Scroll Up
-              command == 'T'):  # SD - Scroll Down
+        elif command in ['S', 'T']:  # SD - Scroll Down
             dir = 'up' if command == 'S' else 'down'
             count = params[0] if params else 1
             self.actions.append(ScrollAction('scroll', dir, 'line', count))
