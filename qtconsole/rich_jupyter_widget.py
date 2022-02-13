@@ -11,6 +11,7 @@ from qtpy import QtCore, QtGui, QtWidgets
 from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool
 from pygments.util import ClassNotFound
+
 from qtconsole.svg import save_svg, svg_to_clipboard, svg_to_image
 from .jupyter_widget import JupyterWidget
 from .styles import get_colors
@@ -213,13 +214,13 @@ class RichJupyterWidget(RichIPythonWidget):
                 return True
         return False
 
-    def _get_colors(self, color):
-        """Get colors from the current syntax style if loadable"""
+    def _get_color(self, color):
+        """Get color from the current syntax style if loadable."""
         try:
             return get_colors(self.syntax_style)[color]
         except ClassNotFound:
-            # the syntax_style has been sideloaded (e.g. by spyder)
-            # in this case the overloading class should override this method
+            # The syntax_style has been sideloaded (e.g. by spyder).
+            # In this case the overloading class should override this method.
             return get_colors('default')[color]
 
     def _append_latex(self, latex, before_prompt=False, metadata=None):
@@ -228,7 +229,7 @@ class RichJupyterWidget(RichIPythonWidget):
 
         if self._is_latex_math(latex):
             png = latex_to_png(latex, wrap=False, backend='dvipng',
-                               color=self._get_colors('fgcolor'))
+                               color=self._get_color('fgcolor'))
 
         # Matplotlib only supports strings enclosed in dollar signs
         if png is None and latex.startswith('$') and latex.endswith('$'):
@@ -236,7 +237,7 @@ class RichJupyterWidget(RichIPythonWidget):
             # spyder-ide/spyder#7619
             try:
                 png = latex_to_png(latex, wrap=False, backend='matplotlib',
-                                   color=self._get_colors('fgcolor'))
+                                   color=self._get_color('fgcolor'))
             except Exception:
                 pass
 
