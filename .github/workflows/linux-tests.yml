@@ -49,7 +49,9 @@ jobs:
       - name: Install dependencies with pip
         if: matrix.INSTALL_TYPE == 'pip'
         shell: bash -l {0}
-        run: pip install -r requirements/requirements.txt
+        run: |
+          pip install -e .[test]
+          pip install PyQt5 coveralls pytest-cov
       - name: Show environment information
         shell: bash -l {0}
         run: |
