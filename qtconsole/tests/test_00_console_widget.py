@@ -23,10 +23,12 @@ def qtconsole(qtbot):
     console = JupyterQtConsoleApp()
     console.initialize(argv=[])
 
-    qtbot.addWidget(console.window)
     console.window.confirm_exit = False
     console.window.show()
-    return console
+
+    yield console
+
+    console.window.close()
 
 
 @flaky(max_runs=3)
