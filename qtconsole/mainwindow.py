@@ -36,6 +36,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     confirm_exit=True,
                     new_frontend_factory=None, slave_frontend_factory=None,
                     connection_frontend_factory=None,
+                    parent=None
                 ):
         """ Create a tabbed MainWindow for managing FrontendWidgets
 
@@ -53,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
             JupyterWidget instance, attached to the same kernel.
         """
 
-        super().__init__()
+        super().__init__(parent=parent)
         self._kernel_counter = 0
         self._external_kernel_counter = 0
         self._app = app

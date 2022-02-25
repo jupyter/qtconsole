@@ -259,8 +259,11 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
 
     def init_qt_app(self):
         # separate from qt_elements, because it must run first
-        self.app = QtWidgets.QApplication(['jupyter-qtconsole'])
-        self.app.setApplicationName('jupyter-qtconsole')
+        if QtWidgets.QApplication.instance() is None:
+            self.app = QtWidgets.QApplication(['jupyter-qtconsole'])
+            self.app.setApplicationName('jupyter-qtconsole')
+        else:
+            self.app = QtWidgets.QApplication.instance()
 
     def init_qt_elements(self):
         # Create the widget.

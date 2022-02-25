@@ -10,7 +10,7 @@ on:
 
 jobs:
   linux:
-    name: Linux Py${{ matrix.PYTHON_VERSION }}
+    name: Linux Py${{ matrix.PYTHON_VERSION }} - ${{ matrix.INSTALL_TYPE }}
     runs-on: ubuntu-latest
     env:
       CI: True
@@ -21,13 +21,20 @@ jobs:
       fail-fast: false
       matrix:
         PYTHON_VERSION: ['3.7', '3.8', '3.9']
+        INSTALL_TYPE: ['conda', 'pip']
     steps:
       - name: Checkout branch
         uses: actions/checkout@v1
-      - name: Install System Packages
+      - name: Install System Packages (conda)
+        if: matrix.INSTALL_TYPE == 'conda'
         run: |
           sudo apt-get update
           sudo apt-get install libegl1-mesa
+      - name: Install System Packages (pip)
+        if: matrix.INSTALL_TYPE == 'pip'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qq pyqt5-dev-tools
       - name: Install Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -35,17 +42,23 @@ jobs:
            auto-update-conda: false
            auto-activate-base: false
            python-version: ${{ matrix.PYTHON_VERSION }}
-      - name: Install dependencies
+      - name: Install dependencies with conda
+        if: matrix.INSTALL_TYPE == 'conda'
         shell: bash -l {0}
         run: conda env update --file requirements/environment.yml
+      - name: Install dependencies with pip
+        if: matrix.INSTALL_TYPE == 'pip'
+        shell: bash -l {0}
+        run: pip install -r requirements/requirements.txt
       - name: Show environment information
         shell: bash -l {0}
         run: |
           conda info
           conda list
+          pip list
       - name: Run tests
         shell: bash -l {0}
-        run: xvfb-run --auto-servernum pytest -x -vv --cov=qtconsole qtconsole
+        run: xvfb-run --auto-servernum pytest -x -vv -s --full-trace --cov=qtconsole qtconsole
       - name: Upload coverage to Codecov
         if: matrix.PYTHON_VERSION == '3.8'
         shell: bash -l {0}
