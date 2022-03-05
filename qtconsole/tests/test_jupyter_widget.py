@@ -2,12 +2,15 @@ import unittest
 import sys
 
 import pytest
+
 from qtpy import QtWidgets, QtGui
+from qtpy.QtTest import QTest
 
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
+from qtconsole.util import IsQt6
+
 from . import no_display
-from qtpy.QtTest import QTest
 
 
 @pytest.mark.skipif(no_display, reason="Doesn't work without a display")
@@ -70,7 +73,18 @@ class TestJupyterWidget(unittest.TestCase):
         ))
 
         # Check proper syntax highlighting
-        self.assertEqual(document.toHtml(), (
+        html = (
+            '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
+            '<html><head><meta name="qrichtext" content="1" /><meta charset="utf-8" /><style type="text/css">\n'
+            'p, li { white-space: pre-wrap; }\n'
+            '</style></head><body style=\" font-family:\'Monospace\'; font-size:9pt; font-weight:400; font-style:normal;\">\n'
+            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Header</p>\n'
+            '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">[other] In [</span><span style=" font-weight:700; color:#000080;">1</span><span style=" color:#000080;">]:</span> a = 1 + 1</p>\n'
+            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0...:</span> b = range(10)</p>\n'
+            '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:700; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
+        ) if IsQt6 else (
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
             '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
             'p, li { white-space: pre-wrap; }\n'
@@ -81,7 +95,8 @@ class TestJupyterWidget(unittest.TestCase):
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0...:</span> b = range(10)</p>\n'
             '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:600; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
-        ))
+        )
+        self.assertEqual(document.toHtml(), html)
 
     def test_copy_paste_prompt(self):
         """Test copy/paste removes partial and full prompts."""

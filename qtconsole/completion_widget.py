@@ -5,6 +5,8 @@ import sys
 
 from qtpy import QtCore, QtGui, QtWidgets
 
+from .util import IsQt6
+
 
 class CompletionWidget(QtWidgets.QListWidget):
     """ A widget for GUI tab completion.
@@ -132,7 +134,10 @@ class CompletionWidget(QtWidgets.QListWidget):
             self.addItem(list_item)
 
         height = self.sizeHint().height()
-        screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
+        if IsQt6:
+            screen_rect = self.screen().availableGeometry()
+        else:
+            screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
                 point.y() - height < 0):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())

@@ -3,9 +3,13 @@
 
 import inspect
 
+from qtpy import API_NAME
 from qtpy import QtCore, QtGui
 
 from traitlets import HasTraits, TraitType
+
+
+IsQt6 = API_NAME == "PyQt6"
 
 #-----------------------------------------------------------------------------
 # Metaclasses
