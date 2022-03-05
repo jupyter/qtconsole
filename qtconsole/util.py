@@ -9,7 +9,7 @@ from qtpy import QtCore, QtGui
 from traitlets import HasTraits, TraitType
 
 
-IsQt6 = API_NAME in ("PyQt6", "PySide6")
+IS_QT6 = API_NAME in ("PyQt6", "PySide6")
 
 #-----------------------------------------------------------------------------
 # Metaclasses

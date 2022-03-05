@@ -19,7 +19,6 @@ from qtconsole.rich_text import HtmlExporter
 from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
 
 from ipython_genutils.text import columnize
-
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
 
@@ -28,7 +27,7 @@ from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
 from .completion_plain import CompletionPlain
 from .kill_ring import QtKillRing
-from .util import IsQt6
+from .util import IS_QT6
 
 
 def is_letter_or_number(char):
@@ -436,7 +435,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Make middle-click paste safe.
         elif getattr(event, 'button', False) and \
                 etype == QtCore.QEvent.MouseButtonRelease and \
-                event.button() == (QtCore.Qt.MouseButton.MiddleButton if IsQt6 else QtCore.Qt.MidButton) and \
+                event.button() == (QtCore.Qt.MouseButton.MiddleButton if IS_QT6 else QtCore.Qt.MidButton) and \
                 obj == self._control.viewport():
             cursor = self._control.cursorForPosition(event.pos())
             self._control.setTextCursor(cursor)
@@ -469,7 +468,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         elif etype == QtCore.QEvent.MouseMove:
             anchor = self._control.anchorAt(event.pos())
-            if IsQt6:
+            if IS_QT6:
                 pos = event.globalPosition().toPoint()
             else:
                 pos = event.globalPos()

@@ -5,7 +5,7 @@ import sys
 
 from qtpy import QtCore, QtGui, QtWidgets
 
-from .util import IsQt6
+from .util import IS_QT6
 
 
 class CompletionWidget(QtWidgets.QListWidget):
@@ -134,7 +134,7 @@ class CompletionWidget(QtWidgets.QListWidget):
             self.addItem(list_item)
 
         height = self.sizeHint().height()
-        if IsQt6:
+        if IS_QT6:
             screen_rect = self.screen().availableGeometry()
         else:
             screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)

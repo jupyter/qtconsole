@@ -2,13 +2,12 @@ import unittest
 import sys
 
 import pytest
-
 from qtpy import QtWidgets, QtGui
 from qtpy.QtTest import QTest
 
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
-from qtconsole.util import IsQt6
+from qtconsole.util import IS_QT6
 
 from . import no_display
 
@@ -73,7 +72,8 @@ class TestJupyterWidget(unittest.TestCase):
         ))
 
         # Check proper syntax highlighting
-        html = (
+        if IS_QT6:
+            html = (
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
             '<html><head><meta name="qrichtext" content="1" /><meta charset="utf-8" /><style type="text/css">\n'
             'p, li { white-space: pre-wrap; }\n'
@@ -84,7 +84,9 @@ class TestJupyterWidget(unittest.TestCase):
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0...:</span> b = range(10)</p>\n'
             '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:700; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
-        ) if IsQt6 else (
+            )
+        else:
+            html = (
             '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
             '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
             'p, li { white-space: pre-wrap; }\n'
@@ -95,7 +97,8 @@ class TestJupyterWidget(unittest.TestCase):
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0...:</span> b = range(10)</p>\n'
             '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
             '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:600; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
-        )
+            )
+        
         self.assertEqual(document.toHtml(), html)
 
     def test_copy_paste_prompt(self):
