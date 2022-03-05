@@ -10,7 +10,7 @@ on:
 
 jobs:
   linux:
-    name: Linux Py${{ matrix.PYTHON_VERSION }} - ${{ matrix.INSTALL_TYPE }}
+    name: Linux Py${{ matrix.PYTHON_VERSION }} - ${{ matrix.INSTALL_TYPE }} - ${{ matrix.QT_LIB }}
     runs-on: ubuntu-latest
     env:
       CI: True
@@ -22,21 +22,19 @@ jobs:
       matrix:
         PYTHON_VERSION: ['3.7', '3.8', '3.9']
         INSTALL_TYPE: ['conda', 'pip']
+        QT_LIB: ['pyqt5', 'pyqt6']
+        exclude:
+          - INSTALL_TYPE: conda
+            QT_LIB: pyqt6
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v1
-      - name: Install System Packages (conda)
-        if: matrix.INSTALL_TYPE == 'conda'
+        uses: actions/checkout@v3
+      - name: Install System Packages
         run: |
           sudo apt-get update
-          sudo apt-get install libegl1-mesa
-      - name: Install System Packages (pip)
-        if: matrix.INSTALL_TYPE == 'pip'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -qq pyqt5-dev-tools
+          sudo apt-get install -y --no-install-recommends '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
       - name: Install Conda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v2.1.1
         with:
            activate-environment: test
            auto-update-conda: false
@@ -51,7 +49,7 @@ jobs:
         shell: bash -l {0}
         run: |
           pip install -e .[test]
-          pip install PyQt5 coveralls pytest-cov
+          pip install ${{ matrix.QT_LIB }} coveralls pytest-cov
       - name: Show environment information
         shell: bash -l {0}
         run: |
@@ -61,6 +59,8 @@ jobs:
       - name: Run tests
         shell: bash -l {0}
         run: xvfb-run --auto-servernum pytest -x -vv -s --full-trace --cov=qtconsole qtconsole
+        env:
+          QT_API: ${{ matrix.QT_LIB }}
       - name: Upload coverage to Codecov
         if: matrix.PYTHON_VERSION == '3.8'
         shell: bash -l {0}
