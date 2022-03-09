@@ -2,7 +2,6 @@ import unittest
 import sys
 
 import pytest
-
 from qtpy import QT6
 from qtpy import QtWidgets, QtGui
 from qtpy.QtTest import QTest

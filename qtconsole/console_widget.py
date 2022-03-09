@@ -28,7 +28,6 @@ from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
 from .completion_plain import CompletionPlain
 from .kill_ring import QtKillRing
-from .util import IS_QT6
 
 
 def is_letter_or_number(char):
