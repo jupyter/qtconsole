@@ -8,7 +8,6 @@ from qtpy.QtTest import QTest
 
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
-from qtconsole.util import IS_QT6
 
 from . import no_display
 
