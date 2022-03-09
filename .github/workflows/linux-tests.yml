@@ -64,6 +64,7 @@ jobs:
         run: xvfb-run --auto-servernum pytest -x -vv -s --full-trace --cov=qtconsole qtconsole
         env:
           QT_API: ${{ matrix.QT_LIB }}
+          PYTEST_QT_API: ${{ matrix.QT_LIB }}
       - name: Upload coverage to Codecov
         if: matrix.PYTHON_VERSION == '3.8'
         shell: bash -l {0}
