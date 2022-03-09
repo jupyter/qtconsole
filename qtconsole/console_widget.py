@@ -414,7 +414,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text widgets.
         """
         etype = event.type()
-        middle_button = QtCore.Qt.MiddleButton if QT6 else QtCore.Qt.MidButton
         if etype == QtCore.QEvent.KeyPress:
 
             # Re-map keys for all filtered widgets.
@@ -436,7 +435,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Make middle-click paste safe.
         elif getattr(event, 'button', False) and \
                 etype == QtCore.QEvent.MouseButtonRelease and \
-                event.button() == middle_button and \
+                event.button() == QtCore.Qt.MiddleButton and \
                 obj == self._control.viewport():
             cursor = self._control.cursorForPosition(event.pos())
             self._control.setTextCursor(cursor)
