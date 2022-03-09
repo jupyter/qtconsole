@@ -13,6 +13,7 @@ import time
 from unicodedata import category
 import webbrowser
 
+from qtpy import QT6
 from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
 
 from qtconsole.rich_text import HtmlExporter
@@ -414,7 +415,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text widgets.
         """
         etype = event.type()
-        middle_button = QtCore.Qt.MouseButton.MiddleButton if IS_QT6 else QtCore.Qt.MidButton
+        middle_button = QtCore.Qt.MiddleButton if QT6 else QtCore.Qt.MidButton
         if etype == QtCore.QEvent.KeyPress:
 
             # Re-map keys for all filtered widgets.
@@ -469,7 +470,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         elif etype == QtCore.QEvent.MouseMove:
             anchor = self._control.anchorAt(event.pos())
-            if IS_QT6:
+            if QT6:
                 pos = event.globalPosition().toPoint()
             else:
                 pos = event.globalPos()

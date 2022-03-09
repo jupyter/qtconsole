@@ -9,7 +9,6 @@ from qtpy.QtTest import QTest
 
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.qtconsoleapp import JupyterQtConsoleApp
-from qtconsole.util import IS_QT6
 
 from . import no_display
 
@@ -277,10 +276,10 @@ class TestConsoleWidget(unittest.TestCase):
             cursor.insertText('')
 
     def test_link_handling(self):
-        noButton = QtCore.Qt.MouseButton.NoButton if IS_QT6 else QtCore.Qt.MouseButton(0)
-        noButtons = QtCore.Qt.MouseButton.NoButton if IS_QT6 else QtCore.Qt.MouseButtons(0)
-        noModifiers = QtCore.Qt.KeyboardModifier.NoModifier if IS_QT6 else QtCore.Qt.KeyboardModifiers(0)
-        MouseMove = QtCore.QEvent.Type.MouseMove if IS_QT6 else QtCore.QEvent.MouseMove
+        noButton = QtCore.Qt.NoButton
+        noButtons = QtCore.Qt.NoButton
+        noModifiers = QtCore.Qt.NoModifier
+        MouseMove = QtCore.QEvent.MouseMove
         QMouseEvent = QtGui.QMouseEvent
 
         w = ConsoleWidget()
