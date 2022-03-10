@@ -3,6 +3,7 @@
 import os
 import sys
 
+from qtpy import QT6
 from qtpy import QtCore, QtGui, QtWidgets
 
 
@@ -132,7 +133,10 @@ class CompletionWidget(QtWidgets.QListWidget):
             self.addItem(list_item)
 
         height = self.sizeHint().height()
-        screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
+        if QT6:
+            screen_rect = self.screen().availableGeometry()
+        else:
+            screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
         if (screen_rect.size().height() + screen_rect.y() -
                 point.y() - height < 0):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())

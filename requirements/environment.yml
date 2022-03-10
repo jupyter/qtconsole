@@ -1,6 +1,5 @@
 channels:
-  - defaults
-  - spyder-ide
+  - conda-forge
 dependencies:
 # Main dependencies
 - pyqt

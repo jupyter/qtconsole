@@ -3,6 +3,7 @@ import re
 from unicodedata import category
 
 # System library imports
+from qtpy import QT6
 from qtpy import QtCore, QtGui, QtWidgets
 
 
@@ -171,7 +172,10 @@ class CallTipWidget(QtWidgets.QLabel):
         # location based trying to minimize the  area that goes off-screen.
         padding = 3  # Distance in pixels between cursor bounds and tip box.
         cursor_rect = text_edit.cursorRect(cursor)
-        screen_rect = QtWidgets.QApplication.instance().desktop().screenGeometry(text_edit)
+        if QT6:
+            screen_rect = text_edit.screen().geometry()
+        else:
+            screen_rect = QtWidgets.QApplication.instance().desktop().screenGeometry(text_edit)
         point = text_edit.mapToGlobal(cursor_rect.bottomRight())
         point.setY(point.y() + padding)
         tip_height = self.size().height()

@@ -22,7 +22,7 @@ jobs:
         PYTHON_VERSION: ['3.7', '3.8', '3.9']
     steps:
       - name: Checkout branch
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
       - name: Install Conda
         uses: conda-incubator/setup-miniconda@v2
         with:

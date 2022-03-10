@@ -13,13 +13,16 @@ import time
 from unicodedata import category
 import webbrowser
 
+from qtpy import QT6
 from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
 
-from traitlets.config.configurable import LoggingConfigurable
 from qtconsole.rich_text import HtmlExporter
 from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
+
 from ipython_genutils.text import columnize
+from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
+
 from .ansi_code_processor import QtAnsiCodeProcessor
 from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
@@ -432,7 +435,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Make middle-click paste safe.
         elif getattr(event, 'button', False) and \
                 etype == QtCore.QEvent.MouseButtonRelease and \
-                event.button() == QtCore.Qt.MidButton and \
+                event.button() == QtCore.Qt.MiddleButton and \
                 obj == self._control.viewport():
             cursor = self._control.cursorForPosition(event.pos())
             self._control.setTextCursor(cursor)
@@ -465,7 +468,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         elif etype == QtCore.QEvent.MouseMove:
             anchor = self._control.anchorAt(event.pos())
-            QtWidgets.QToolTip.showText(event.globalPos(), anchor)
+            if QT6:
+                pos = event.globalPosition().toPoint()
+            else:
+                pos = event.globalPos()
+            QtWidgets.QToolTip.showText(pos, anchor)
 
         return super().eventFilter(obj, event)
 
