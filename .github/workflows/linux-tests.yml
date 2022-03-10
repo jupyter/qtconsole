@@ -40,7 +40,7 @@ jobs:
            activate-environment: test
            auto-update-conda: false
            auto-activate-base: false
-           channels: conda-forge,defaults,spyder-ide
+           channels: conda-forge
            channel-priority: strict
            python-version: ${{ matrix.PYTHON_VERSION }}
       - name: Install dependencies with conda
