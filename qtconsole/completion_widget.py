@@ -137,14 +137,16 @@ class CompletionWidget(QtWidgets.QListWidget):
             screen_rect = self.screen().availableGeometry()
         else:
             screen_rect = QtWidgets.QApplication.desktop().availableGeometry(self)
-        if (screen_rect.size().height() + screen_rect.y() -
-                point.y() - self._height_max < 0):
+        screen_height = screen_rect.height()
+        height = int(min(self._height_max, screen_height - 50)) # -50px
+        if ((screen_height - point.y() - height) < 0):
             point = text_edit.mapToGlobal(text_edit.cursorRect().topRight())
-            point.setY(point.y() - self._height_max)
+            py = point.y()
+            point.setY(int(py - min(height, py - 10))) # -10px
         w = (self.sizeHintForColumn(0) +
              self.verticalScrollBar().sizeHint().width() +
              2 * self.frameWidth())
-        self.setGeometry(point.x(), point.y(), w, self._height_max)
+        self.setGeometry(point.x(), point.y(), w, height)
 
         # Move cursor to start of the prefix to replace it
         # when a item is selected
