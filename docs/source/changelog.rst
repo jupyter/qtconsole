@@ -3,6 +3,113 @@
 Changes in Jupyter Qt console
 =============================
 
+.. _5.2:
+
+5.2
+~~~
+
+5.2.2
+-----
+
+`5.2.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.2.2>`__
+
+* Fix implicit int to float conversion for Python 3.10 compatibility.
+* Fix building documentation in ReadTheDocs.
+
+5.2.1
+-----
+
+`5.2.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.2.1>`__
+
+* Fix error when deleting CallTipWidget.
+* Another fix for the 'Erase in Line' ANSI code.
+
+5.2.0
+-----
+
+`5.2.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.2.0>`__
+
+Changes
++++++++
+
+- Fix hidden execution requests.
+- Fix ANSI code for erase line.
+
+.. _5.1:
+
+5.1
+~~~
+
+5.1.1
+-----
+
+`5.1.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.1.1>`__
+
+* Improve handling of different keyboard combinations.
+* Move cursor to the beginning of buffer if on the same line.
+
+5.1.0
+-----
+
+`5.1.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.1.0>`__
+
+Additions
++++++++++
+
+- Two new keyboard shortcuts: Ctrl + Up/Down to go to the beginning/end
+  of the buffer.
+
+Changes
++++++++
+
+- Monkeypatch RegexLexer only while in use by qtconsole.
+- Import Empty from queue module.
+
+
+.. _5.0:
+
+5.0
+~~~
+
+5.0.3
+-----
+
+`5.0.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0.3>`__
+
+* Emit kernel_restarted signal only after a kernel crash.
+
+5.0.2
+-----
+
+`5.0.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0.2>`__
+
+* Fix launching issue with Big Sur
+* Remove partial prompt on copy
+
+5.0.1
+-----
+
+`5.0.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0.1>`__
+
+* Add python_requires to setup.py for Python 3.6+ compatibility
+
+5.0.0
+-----
+
+`5.0.0 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.0>`__
+
+Additions
++++++++++
+
+- Add option to set completion type while running.
+
+Changes
++++++++
+
+- Emit kernel_restarted after restarting kernel.
+- Drop support for Python 2.7 and 3.5.
+
+
 .. _4.7:
 
 4.7

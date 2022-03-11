@@ -1,12 +1,15 @@
 import unittest
+import sys
 
 import pytest
+from qtpy import QT6
+from qtpy import QtWidgets, QtGui
+from qtpy.QtTest import QTest
 
-from qtpy import QtWidgets
 from qtconsole.client import QtKernelClient
 from qtconsole.jupyter_widget import JupyterWidget
+
 from . import no_display
-from qtpy.QtTest import QTest
 
 
 @pytest.mark.skipif(no_display, reason="Doesn't work without a display")
@@ -39,6 +42,8 @@ class TestJupyterWidget(unittest.TestCase):
         w.syntax_style = 'monokai'
         self.assertEqual(w._ansi_processor.get_color(15).name(), '#ffffff')
 
+    @pytest.mark.skipif(not sys.platform.startswith('linux'),
+                        reason="Works only on Linux")
     def test_other_output(self):
         """ Test displaying output from other clients.
         """
@@ -67,15 +72,56 @@ class TestJupyterWidget(unittest.TestCase):
         ))
 
         # Check proper syntax highlighting
-        self.assertEqual(document.toHtml(), (
-            '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
-            '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
-            'p, li { white-space: pre-wrap; }\n'
-            '</style></head><body style=" font-family:\'Monospace\'; font-size:9pt; font-weight:400; font-style:normal;">\n'
-            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Header</p>\n'
-            '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
-            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">[other] In [</span><span style=" font-weight:600; color:#000080;">1</span><span style=" color:#000080;">]:</span> a = 1 + 1</p>\n'
-            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0...:</span> b = range(10)</p>\n'
-            '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
-            '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:600; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
-        ))
+        if QT6:
+            html = (
+                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
+                '<html><head><meta name="qrichtext" content="1" /><meta charset="utf-8" /><style type="text/css">\n'
+                'p, li { white-space: pre-wrap; }\n'
+                '</style></head><body style=\" font-family:\'Monospace\'; font-size:9pt; font-weight:400; font-style:normal;\">\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Header</p>\n'
+                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">[other] In [</span><span style=" font-weight:700; color:#000080;">1</span><span style=" color:#000080;">]:</span> a = 1 + 1</p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0...:</span> b = range(10)</p>\n'
+                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:700; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
+            )
+        else:
+            html = (
+                '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
+                '<html><head><meta name="qrichtext" content="1" /><style type="text/css">\n'
+                'p, li { white-space: pre-wrap; }\n'
+                '</style></head><body style=" font-family:\'Monospace\'; font-size:9pt; font-weight:400; font-style:normal;">\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Header</p>\n'
+                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">[other] In [</span><span style=" font-weight:600; color:#000080;">1</span><span style=" color:#000080;">]:</span> a = 1 + 1</p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0\xa0...:</span> b = range(10)</p>\n'
+                '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
+                '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:600; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
+            )
+        
+        self.assertEqual(document.toHtml(), html)
+
+    def test_copy_paste_prompt(self):
+        """Test copy/paste removes partial and full prompts."""
+        w = JupyterWidget(kind='rich')
+        w._show_interpreter_prompt(1)
+        control = w._control
+
+        code = "    if True:\n        print('a')"
+        w._set_input_buffer(code)
+        assert code not in control.toPlainText()
+
+        cursor = w._get_prompt_cursor()
+
+        pos = cursor.position()
+        cursor.setPosition(pos - 3)
+        cursor.movePosition(QtGui.QTextCursor.End,
+                            QtGui.QTextCursor.KeepAnchor)
+        control.setTextCursor(cursor)
+        control.hasFocus = lambda: True
+        w.copy()
+        clipboard = QtWidgets.QApplication.clipboard()
+        assert clipboard.text() == code
+        w.paste()
+        expected = "In [1]: if True:\n   ...:     print('a')"
+        assert expected in control.toPlainText()

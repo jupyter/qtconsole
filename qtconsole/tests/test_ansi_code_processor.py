@@ -31,6 +31,8 @@ class TestAnsiCodeProcessor(unittest.TestCase):
             else:
                 self.fail('Too many substrings.')
         self.assertEqual(i, 1, 'Too few substrings.')
+    
+    #test_erase_in_line() is in test_00_console_widget.py, because it needs the console
 
     def test_colors(self):
         """ Do basic controls sequences for colors work?

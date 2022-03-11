@@ -152,7 +152,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     _CallTipRequest = namedtuple('_CallTipRequest', ['id', 'pos'])
     _CompletionRequest = namedtuple('_CompletionRequest',
                                     ['id', 'code', 'pos'])
-    _ExecutionRequest = namedtuple('_ExecutionRequest', ['id', 'kind'])
+    _ExecutionRequest = namedtuple(
+        '_ExecutionRequest', ['id', 'kind', 'hidden'])
     _local_kernel = False
     _highlighter = Instance(FrontendHighlighter, allow_none=True)
 
@@ -166,7 +167,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         self._bracket_matcher = BracketMatcher(self._control)
         self._call_tip_widget = CallTipWidget(self._control)
         self._copy_raw_action = QtWidgets.QAction('Copy (Raw Text)', None)
-        self._hidden = False
         self._highlighter = FrontendHighlighter(self, lexer=self.lexer)
         self._kernel_manager = None
         self._kernel_client = None
@@ -215,11 +215,52 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         elif self._control.hasFocus():
             text = self._control.textCursor().selection().toPlainText()
             if text:
-                # Remove prompts.
-                lines = text.splitlines()
-                lines = map(self._highlighter.transform_classic_prompt, lines)
-                lines = map(self._highlighter.transform_ipy_prompt, lines)
-                text = '\n'.join(lines)
+                first_line_selection, *remaining_lines = text.splitlines()
+
+                # Get preceding text
+                cursor = self._control.textCursor()
+                cursor.setPosition(cursor.selectionStart())
+                cursor.setPosition(cursor.block().position(),
+                                   QtGui.QTextCursor.KeepAnchor)
+                preceding_text = cursor.selection().toPlainText()
+
+                def remove_prompts(line):
+                    """Remove all prompts from line."""
+                    line = self._highlighter.transform_classic_prompt(line)
+                    return self._highlighter.transform_ipy_prompt(line)
+
+                # Get first line promp len
+                first_line = preceding_text + first_line_selection
+                len_with_prompt = len(first_line)
+                first_line = remove_prompts(first_line)
+                prompt_len = len_with_prompt - len(first_line)
+
+                # Remove not selected part
+                if prompt_len < len(preceding_text):
+                    first_line = first_line[len(preceding_text) - prompt_len:]
+
+                # Remove partial prompt last line
+                if len(remaining_lines) > 0 and remaining_lines[-1]:
+                    cursor = self._control.textCursor()
+                    cursor.setPosition(cursor.selectionEnd())
+                    block = cursor.block()
+                    start_pos = block.position()
+                    length = block.length()
+                    cursor.setPosition(start_pos)
+                    cursor.setPosition(start_pos + length - 1,
+                                       QtGui.QTextCursor.KeepAnchor)
+                    last_line_full = cursor.selection().toPlainText()
+                    prompt_len = (
+                        len(last_line_full)
+                        - len(remove_prompts(last_line_full)))
+                    if len(remaining_lines[-1]) < prompt_len:
+                        # This is a partial prompt
+                        remaining_lines[-1] = ""
+
+                # Remove prompts for other lines.
+                remaining_lines = map(remove_prompts, remaining_lines)
+                text = '\n'.join([first_line, *remaining_lines])
+
                 # Needed to prevent errors when copying the prompt.
                 # See issue 264
                 try:
@@ -242,8 +283,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         See parent class :meth:`execute` docstring for full details.
         """
         msg_id = self.kernel_client.execute(source, hidden)
-        self._request_info['execute'][msg_id] = self._ExecutionRequest(msg_id, 'user')
-        self._hidden = hidden
+        self._request_info['execute'][msg_id] = self._ExecutionRequest(
+            msg_id, 'user', hidden)
         if not hidden:
             self.executing.emit(source)
 
@@ -378,7 +419,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         msg_id = self.kernel_client.execute('',
             silent=True, user_expressions={ local_uuid:expr })
         self._callback_dict[local_uuid] = callback
-        self._request_info['execute'][msg_id] = self._ExecutionRequest(msg_id, 'silent_exec_callback')
+        self._request_info['execute'][msg_id] = self._ExecutionRequest(
+            msg_id, 'silent_exec_callback', False)
 
     def _handle_exec_callback(self, msg):
         """Execute `callback` corresponding to `msg` reply, after ``_silent_exec_callback``
@@ -414,7 +456,9 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         # still be pending.
         self._reading = False
         # Note:  If info is NoneType, this is ignored
-        if info and info.kind == 'user' and not self._hidden:
+        if not info or info.hidden:
+            return
+        if info.kind == 'user':
             # Make sure that all output from the SUB channel has been processed
             # before writing a new prompt.
             self.kernel_client.iopub_channel.flush()
@@ -435,10 +479,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
             self._show_interpreter_prompt_for_reply(msg)
             self.executed.emit(msg)
             self._request_info['execute'].pop(msg_id)
-        elif info and info.kind == 'silent_exec_callback' and not self._hidden:
+        elif info.kind == 'silent_exec_callback':
             self._handle_exec_callback(msg)
             self._request_info['execute'].pop(msg_id)
-        elif info and not self._hidden:
+        else:
             raise RuntimeError("Unknown handler for %s" % info.kind)
 
     def _handle_error(self, msg):
@@ -450,7 +494,9 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """ Handle requests for raw_input.
         """
         self.log.debug("input: %s", msg.get('content', ''))
-        if self._hidden:
+        msg_id = msg['parent_header']['msg_id']
+        info = self._request_info['execute'].get(msg_id)
+        if info and info.hidden:
             raise RuntimeError('Request for raw input during hidden execution.')
 
         # Make sure that all output from the SUB channel has been processed
@@ -523,7 +569,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """
         self.log.debug("shutdown: %s", msg.get('content', ''))
         restart = msg.get('content', {}).get('restart', False)
-        if not self._hidden and not self.from_here(msg):
+        if msg['parent_header']:
+            msg_id = msg['parent_header']['msg_id']
+            info = self._request_info['execute'].get(msg_id)
+            if info and info.hidden:
+                return
+        if not self.from_here(msg):
             # got shutdown reply, request came from session other than ours
             if restart:
                 # someone restarted the kernel, handle it

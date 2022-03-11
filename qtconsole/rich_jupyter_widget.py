@@ -10,9 +10,11 @@ from qtpy import QtCore, QtGui, QtWidgets
 
 from ipython_genutils.path import ensure_dir_exists
 from traitlets import Bool
+from pygments.util import ClassNotFound
+
 from qtconsole.svg import save_svg, svg_to_clipboard, svg_to_image
 from .jupyter_widget import JupyterWidget
-
+from .styles import get_colors
 
 try:
     from IPython.lib.latextools import latex_to_png
@@ -212,19 +214,30 @@ class RichJupyterWidget(RichIPythonWidget):
                 return True
         return False
 
+    def _get_color(self, color):
+        """Get color from the current syntax style if loadable."""
+        try:
+            return get_colors(self.syntax_style)[color]
+        except ClassNotFound:
+            # The syntax_style has been sideloaded (e.g. by spyder).
+            # In this case the overloading class should override this method.
+            return get_colors('default')[color]
+
     def _append_latex(self, latex, before_prompt=False, metadata=None):
         """ Append latex data to the widget."""
         png = None
 
         if self._is_latex_math(latex):
-            png = latex_to_png(latex, wrap=False, backend='dvipng')
+            png = latex_to_png(latex, wrap=False, backend='dvipng',
+                               color=self._get_color('fgcolor'))
 
         # Matplotlib only supports strings enclosed in dollar signs
         if png is None and latex.startswith('$') and latex.endswith('$'):
             # To avoid long and ugly errors, like the one reported in
             # spyder-ide/spyder#7619
             try:
-                png = latex_to_png(latex, wrap=False, backend='matplotlib')
+                png = latex_to_png(latex, wrap=False, backend='matplotlib',
+                                   color=self._get_color('fgcolor'))
             except Exception:
                 pass
 

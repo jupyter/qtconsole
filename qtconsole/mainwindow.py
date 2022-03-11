@@ -36,6 +36,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     confirm_exit=True,
                     new_frontend_factory=None, slave_frontend_factory=None,
                     connection_frontend_factory=None,
+                    parent=None
                 ):
         """ Create a tabbed MainWindow for managing FrontendWidgets
 
@@ -53,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
             JupyterWidget instance, attached to the same kernel.
         """
 
-        super().__init__()
+        super().__init__(parent=parent)
         self._kernel_counter = 0
         self._external_kernel_counter = 0
         self._app = app
@@ -563,6 +564,44 @@ class MainWindow(QtWidgets.QMainWindow):
             triggered=self.clear_active_frontend)
         self.add_menu_action(self.view_menu, self.clear_action)
 
+        self.completion_menu = self.view_menu.addMenu("&Completion type")
+
+        completion_group = QtWidgets.QActionGroup(self)
+        active_frontend_completion = self.active_frontend.gui_completion
+        ncurses_completion_action = QtWidgets.QAction(
+            "&ncurses",
+            self,
+            triggered=lambda: self.set_completion_widget_active_frontend(
+                'ncurses'))
+        ncurses_completion_action.setCheckable(True)
+        ncurses_completion_action.setChecked(
+            active_frontend_completion == 'ncurses')
+        droplist_completion_action = QtWidgets.QAction(
+            "&droplist",
+            self,
+            triggered=lambda: self.set_completion_widget_active_frontend(
+                'droplist'))
+        droplist_completion_action.setCheckable(True)
+        droplist_completion_action.setChecked(
+            active_frontend_completion == 'droplist')
+        plain_commpletion_action = QtWidgets.QAction(
+            "&plain",
+            self,
+            triggered=lambda: self.set_completion_widget_active_frontend(
+                'plain'))
+        plain_commpletion_action.setCheckable(True)
+        plain_commpletion_action.setChecked(
+            active_frontend_completion == 'plain')
+
+        completion_group.addAction(ncurses_completion_action)
+        completion_group.addAction(droplist_completion_action)
+        completion_group.addAction(plain_commpletion_action)
+
+        self.completion_menu.addAction(ncurses_completion_action)
+        self.completion_menu.addAction(droplist_completion_action)
+        self.completion_menu.addAction(plain_commpletion_action)
+        self.completion_menu.setDefaultAction(ncurses_completion_action)
+
         self.pager_menu = self.view_menu.addMenu("&Pager")
 
         hsplit_action = QtWidgets.QAction(".. &Horizontal Split",
@@ -748,6 +787,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def set_paging_active_frontend(self, paging):
         self.active_frontend._set_paging(paging)
+
+    def set_completion_widget_active_frontend(self, gui_completion):
+        self.active_frontend._set_completion_widget(gui_completion)
 
     def get_available_syntax_styles(self):
         """Get a list with the syntax styles available."""

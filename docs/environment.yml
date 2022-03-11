@@ -1,9 +1,8 @@
 name: qtconsole_docs
 channels:
   - conda-forge
-  - defaults
 dependencies:
-  - python=3.5
+  - python
   - ipykernel
   - pexpect
   - pygments

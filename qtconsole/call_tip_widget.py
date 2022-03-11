@@ -3,6 +3,7 @@ import re
 from unicodedata import category
 
 # System library imports
+from qtpy import QT6
 from qtpy import QtCore, QtGui, QtWidgets
 
 
@@ -20,6 +21,8 @@ class CallTipWidget(QtWidgets.QLabel):
         """
         assert isinstance(text_edit, (QtWidgets.QTextEdit, QtWidgets.QPlainTextEdit))
         super().__init__(None, QtCore.Qt.ToolTip)
+
+        text_edit.destroyed.connect(self.deleteLater)
 
         self._hide_timer = QtCore.QBasicTimer()
         self._text_edit = text_edit
@@ -123,6 +126,16 @@ class CallTipWidget(QtWidgets.QLabel):
             self._cursor_position_changed)
         self._text_edit.installEventFilter(self)
 
+    def deleteLater(self):
+        """ Avoids an error when the widget has already been deleted.
+
+            Fixes jupyter/qtconsole#507.
+        """
+        try:
+            return super().deleteLater()
+        except RuntimeError:
+            pass
+
     #--------------------------------------------------------------------------
     # 'CallTipWidget' interface
     #--------------------------------------------------------------------------
@@ -159,7 +172,10 @@ class CallTipWidget(QtWidgets.QLabel):
         # location based trying to minimize the  area that goes off-screen.
         padding = 3  # Distance in pixels between cursor bounds and tip box.
         cursor_rect = text_edit.cursorRect(cursor)
-        screen_rect = QtWidgets.QApplication.instance().desktop().screenGeometry(text_edit)
+        if QT6:
+            screen_rect = text_edit.screen().geometry()
+        else:
+            screen_rect = QtWidgets.QApplication.instance().desktop().screenGeometry(text_edit)
         point = text_edit.mapToGlobal(cursor_rect.bottomRight())
         point.setY(point.y() + padding)
         tip_height = self.size().height()

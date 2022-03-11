@@ -33,7 +33,12 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
     client_class = DottedObjectName('qtconsole.client.QtKernelClient')
     autorestart = Bool(True, config=True)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._is_restarting = False
+
     def start_restarter(self):
+        """Start restarter mechanism."""
         if self.autorestart and self.has_kernel:
             if self._restarter is None:
                 self._restarter = QtKernelRestarter(
@@ -41,13 +46,22 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
                     parent=self,
                     log=self.log,
                 )
-                self._restarter.add_callback(self._handle_kernel_restarted)
+                self._restarter.add_callback(self._handle_kernel_restarting)
             self._restarter.start()
 
     def stop_restarter(self):
+        """Stop restarter mechanism."""
         if self.autorestart:
             if self._restarter is not None:
                 self._restarter.stop()
 
-    def _handle_kernel_restarted(self):
-        self.kernel_restarted.emit()
+    def post_start_kernel(self, **kw):
+        """Kernel restarted."""
+        super().post_start_kernel(**kw)
+        if self._is_restarting:
+            self.kernel_restarted.emit()
+            self._is_restarting = False
+
+    def _handle_kernel_restarting(self):
+        """Kernel has died, and will be restarted."""
+        self._is_restarting = True

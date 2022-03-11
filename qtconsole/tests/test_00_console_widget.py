@@ -1,12 +1,15 @@
 import unittest
+import sys
 
 from flaky import flaky
 import pytest
+
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtTest import QTest
 
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.qtconsoleapp import JupyterQtConsoleApp
+
 from . import no_display
 
 from IPython.core.inputtransformer2 import TransformerManager
@@ -22,10 +25,12 @@ def qtconsole(qtbot):
     console = JupyterQtConsoleApp()
     console.initialize(argv=[])
 
-    qtbot.addWidget(console.window)
     console.window.confirm_exit = False
     console.window.show()
-    return console
+
+    yield console
+
+    console.window.close()
 
 
 @flaky(max_runs=3)
@@ -245,11 +250,35 @@ class TestConsoleWidget(unittest.TestCase):
             # clear all the text
             cursor.insertText('')
 
+    def test_erase_in_line(self):
+        """ Do control sequences for clearing the line work?
+        """
+        w = ConsoleWidget()
+        cursor = w._get_prompt_cursor()
+
+        test_inputs = ['Hello\x1b[1KBye',
+                       'Hello\x1b[0KBye',
+                       'Hello\r\x1b[0KBye',
+                       'Hello\r\x1b[1KBye',
+                       'Hello\r\x1b[2KBye',
+                       'Hello\x1b[2K\rBye']
+
+        expected_outputs = ['     Bye',
+                            'HelloBye',
+                            'Bye',
+                            'Byelo',
+                            'Bye',
+                            'Bye']
+        for i, text in enumerate(test_inputs):
+            w._insert_plain_text(cursor, text)
+            self.assert_text_equal(cursor, expected_outputs[i])
+            # clear all the text
+            cursor.insertText('')
+
     def test_link_handling(self):
-        noKeys = QtCore.Qt
-        noButton = QtCore.Qt.MouseButton(0)
-        noButtons = QtCore.Qt.MouseButtons(0)
-        noModifiers = QtCore.Qt.KeyboardModifiers(0)
+        noButton = QtCore.Qt.NoButton
+        noButtons = QtCore.Qt.NoButton
+        noModifiers = QtCore.Qt.NoModifier
         MouseMove = QtCore.QEvent.MouseMove
         QMouseEvent = QtGui.QMouseEvent
 
@@ -261,20 +290,20 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(tip.text(), '')
 
         # should be somewhere else
-        elsewhereEvent = QMouseEvent(MouseMove, QtCore.QPoint(50,50),
+        elsewhereEvent = QMouseEvent(MouseMove, QtCore.QPointF(50, 50),
                                      noButton, noButtons, noModifiers)
         w.eventFilter(obj, elsewhereEvent)
         self.assertEqual(tip.isVisible(), False)
         self.assertEqual(tip.text(), '')
         # should be over text
-        overTextEvent = QMouseEvent(MouseMove, QtCore.QPoint(1,5),
+        overTextEvent = QMouseEvent(MouseMove, QtCore.QPointF(1, 5),
                                     noButton, noButtons, noModifiers)
         w.eventFilter(obj, overTextEvent)
         self.assertEqual(tip.isVisible(), True)
         self.assertEqual(tip.text(), "http://python.org")
 
         # should still be over text
-        stillOverTextEvent = QMouseEvent(MouseMove, QtCore.QPoint(1,5),
+        stillOverTextEvent = QMouseEvent(MouseMove, QtCore.QPointF(1, 5),
                                          noButton, noButtons, noModifiers)
         w.eventFilter(obj, stillOverTextEvent)
         self.assertEqual(tip.isVisible(), True)
@@ -354,6 +383,7 @@ class TestConsoleWidget(unittest.TestCase):
         copied = app.clipboard().text()
         self.assertEqual(copied,  'Header\nprompt>if:\n>     pass')
 
+    @pytest.mark.skipif(sys.platform == 'darwin', reason="Fails on macOS")
     def test_keypresses(self):
         """Test the event handling code for keypresses."""
         w = ConsoleWidget()

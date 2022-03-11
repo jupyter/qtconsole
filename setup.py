@@ -13,8 +13,8 @@ name = 'qtconsole'
 import sys
 
 v = sys.version_info
-if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
-    error = "ERROR: %s requires Python version 2.7 or 3.3 or above." % name
+if v[0] >= 3 and v[:2] < (3, 6):
+    error = "ERROR: %s requires Python version 3.7 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
 
@@ -66,6 +66,7 @@ setup_args = dict(
     license                       = 'BSD',
     platforms                     = "Linux, Mac OS X, Windows",
     keywords                      = ['Interactive', 'Interpreter', 'Shell'],
+    python_requires               = '>= 3.7',
     install_requires = [
         'traitlets',
         'ipython_genutils',
@@ -73,12 +74,11 @@ setup_args = dict(
         'jupyter_client>=4.1',
         'pygments',
         'ipykernel>=4.1', # not a real dependency, but require the reference kernel
-        'qtpy',
+        'qtpy>=2.0.1',
         'pyzmq>=17.1'
     ],
     extras_require = {
-        'test': ['pytest'],
-        'test:python_version=="2.7"': ['mock'],
+        'test': ['flaky', 'pytest', 'pytest-qt'],
         'doc': 'Sphinx>=1.3',
     },
     entry_points = {
@@ -92,11 +92,11 @@ setup_args = dict(
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
     ],
 )
 

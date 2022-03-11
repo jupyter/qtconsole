@@ -13,13 +13,16 @@ import time
 from unicodedata import category
 import webbrowser
 
+from qtpy import QT6
 from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
 
-from traitlets.config.configurable import LoggingConfigurable
 from qtconsole.rich_text import HtmlExporter
 from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
+
 from ipython_genutils.text import columnize
+from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
+
 from .ansi_code_processor import QtAnsiCodeProcessor
 from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
@@ -442,7 +445,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Make middle-click paste safe.
         elif getattr(event, 'button', False) and \
                 etype == QtCore.QEvent.MouseButtonRelease and \
-                event.button() == QtCore.Qt.MidButton and \
+                event.button() == QtCore.Qt.MiddleButton and \
                 obj == self._control.viewport():
             cursor = self._control.cursorForPosition(event.pos())
             self._control.setTextCursor(cursor)
@@ -475,7 +478,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         elif etype == QtCore.QEvent.MouseMove:
             anchor = self._control.anchorAt(event.pos())
-            QtWidgets.QToolTip.showText(event.globalPos(), anchor)
+            if QT6:
+                pos = event.globalPosition().toPoint()
+            else:
+                pos = event.globalPos()
+            QtWidgets.QToolTip.showText(pos, anchor)
 
         return super().eventFilter(obj, event)
 
@@ -787,6 +794,18 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
     font = property(_get_font, _set_font)
 
+    def _set_completion_widget(self, gui_completion):
+        """ Set gui completion widget.
+        """
+        if gui_completion == 'ncurses':
+            self._completion_widget = CompletionHtml(self)
+        elif gui_completion == 'droplist':
+            self._completion_widget = CompletionWidget(self)
+        elif gui_completion == 'plain':
+            self._completion_widget = CompletionPlain(self)
+
+        self.gui_completion = gui_completion
+
     def open_anchor(self, anchor):
         """ Open selected anchor in the default webbrowser
         """
@@ -982,6 +1001,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor = self._control.textCursor()
         if before_prompt and (self._reading or not self._executing):
             self._flush_pending_stream()
+            cursor._insert_mode=True
             cursor.setPosition(self._append_before_prompt_pos)
         else:
             if insert != self._insert_plain_text:
@@ -1226,6 +1246,21 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         alt_down = event.modifiers() & QtCore.Qt.AltModifier
         shift_down = event.modifiers() & QtCore.Qt.ShiftModifier
 
+        cmd_down = (
+            sys.platform == "darwin" and
+            self._control_key_down(event.modifiers(), include_command=True)
+        )
+        if cmd_down:
+            if key == QtCore.Qt.Key_Left:
+                key = QtCore.Qt.Key_Home
+            elif key == QtCore.Qt.Key_Right:
+                key = QtCore.Qt.Key_End
+            elif key == QtCore.Qt.Key_Up:
+                ctrl_down = True
+                key = QtCore.Qt.Key_Home
+            elif key == QtCore.Qt.Key_Down:
+                ctrl_down = True
+                key = QtCore.Qt.Key_End
         #------ Special modifier logic -----------------------------------------
 
         if key in (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter):
@@ -1356,6 +1391,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     QtWidgets.QApplication.instance().sendEvent(self._control, new_event)
                     intercepted = True
 
+            elif key == QtCore.Qt.Key_Down:
+                self._scroll_to_end()
+
+            elif key == QtCore.Qt.Key_Up:
+                self._control.verticalScrollBar().setValue(0)
         #------ Alt modifier ---------------------------------------------------
 
         elif alt_down:
@@ -1407,14 +1447,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._keyboard_quit()
                 intercepted = True
 
-            elif key == QtCore.Qt.Key_Up:
+            elif key == QtCore.Qt.Key_Up and not shift_down:
                 if self._reading or not self._up_pressed(shift_down):
                     intercepted = True
                 else:
                     prompt_line = self._get_prompt_cursor().blockNumber()
                     intercepted = cursor.blockNumber() <= prompt_line
 
-            elif key == QtCore.Qt.Key_Down:
+            elif key == QtCore.Qt.Key_Down and not shift_down:
                 if self._reading or not self._down_pressed(shift_down):
                     intercepted = True
                 else:
@@ -1431,7 +1471,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._indent(dedent=True)
                 intercepted = True
 
-            elif key == QtCore.Qt.Key_Left:
+            elif key == QtCore.Qt.Key_Left and not shift_down:
 
                 # Move to the previous line
                 line, col = cursor.blockNumber(), cursor.columnNumber()
@@ -1447,7 +1487,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 else:
                     intercepted = not self._in_buffer(position - 1)
 
-            elif key == QtCore.Qt.Key_Right:
+            elif key == QtCore.Qt.Key_Right and not shift_down:
                 #original_block_number = cursor.blockNumber()
                 if position == self._get_line_end_pos():
                     cursor.movePosition(QtGui.QTextCursor.NextBlock, mode=anchormode)
@@ -1544,7 +1584,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # position is still valid due to text truncation).
         if not (self._control_key_down(event.modifiers(), include_command=True)
                 or key in (QtCore.Qt.Key_PageUp, QtCore.Qt.Key_PageDown)
-                or (self._executing and not self._reading)):
+                or (self._executing and not self._reading)
+                or (event.text() == "" and not
+                    (not shift_down and key in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Down)))):
             self._keep_cursor_in_buffer()
 
         return intercepted
@@ -1634,8 +1676,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         t = time.time()
         self._insert_plain_text(self._get_end_cursor(), text, flush=True)
         # Set the flush interval to equal the maximum time to update text.
-        self._pending_text_flush_interval.setInterval(max(100,
-                                                 (time.time()-t)*1000))
+        self._pending_text_flush_interval.setInterval(
+            int(max(100, (time.time() - t) * 1000))
+        )
 
     def _format_as_columns(self, items, separator='  '):
         """ Transform a list of strings into a single string with columns.
@@ -2053,10 +2096,28 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor.endEditBlock()
         return text
 
+    def _viewport_at_end(self):
+        """Check if the viewport is at the end of the document."""
+        viewport = self._control.viewport()
+        end_scroll_pos = self._control.cursorForPosition(
+            QtCore.QPoint(viewport.width() - 1, viewport.height() - 1)
+            ).position()
+        end_doc_pos = self._get_end_pos()
+        return end_doc_pos - end_scroll_pos <= 1
+
+    def _scroll_to_end(self):
+        """Scroll to the end of the document."""
+        end_scroll = (self._control.verticalScrollBar().maximum()
+                      - self._control.verticalScrollBar().pageStep())
+        # Only scroll down
+        if end_scroll > self._control.verticalScrollBar().value():
+            self._control.verticalScrollBar().setValue(end_scroll)
+
     def _insert_plain_text(self, cursor, text, flush=False):
         """ Inserts plain text using the specified cursor, processing ANSI codes
             if enabled.
         """
+        should_autoscroll = self._viewport_at_end()
         # maximumBlockCount() can be different from self.buffer_size in
         # case input prompt is active.
         buffer_size = self._control.document().maximumBlockCount()
@@ -2078,12 +2139,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if buffer_size > 0:
             text = self._get_last_lines(text, buffer_size)
 
-        viewport = self._control.viewport()
-        end_scroll_pos = self._control.cursorForPosition(
-            QtCore.QPoint(viewport.width()-1, viewport.height()-1)
-            ).position()
-        end_doc_pos = self._get_end_pos()
-
         cursor.beginEditBlock()
         if self.ansi_codes:
             for substring in self._ansi_processor.split_string(text):
@@ -2092,9 +2147,27 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     # Unlike real terminal emulators, we don't distinguish
                     # between the screen and the scrollback buffer. A screen
                     # erase request clears everything.
-                    if act.action == 'erase' and act.area == 'screen':
-                        cursor.select(QtGui.QTextCursor.Document)
-                        cursor.removeSelectedText()
+                    if act.action == 'erase':
+                        remove = False
+                        fill = False
+                        if act.area == 'screen':
+                            cursor.select(cursor.Document)
+                            remove = True
+                        if act.area == 'line':
+                            if act.erase_to == 'all': 
+                                cursor.select(cursor.LineUnderCursor)
+                                remove = True
+                            elif act.erase_to == 'start':
+                                cursor.movePosition(cursor.StartOfLine, cursor.KeepAnchor)
+                                remove = True
+                                fill = True
+                            elif act.erase_to == 'end':
+                                cursor.movePosition(cursor.EndOfLine, cursor.KeepAnchor)
+                                remove = True
+                        if remove: 
+                            nspace=cursor.selectionEnd()-cursor.selectionStart() if fill else 0
+                            cursor.removeSelectedText()
+                            if nspace>0: cursor.insertText(' '*nspace) # replace text by space, to keep cursor position as specified
 
                     # Simulate a form feed by scrolling just past the last line.
                     elif act.action == 'scroll' and act.unit == 'page':
@@ -2105,12 +2178,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         cursor.deletePreviousChar()
 
                         if os.name == 'nt':
-                            cursor.select(QtGui.QTextCursor.Document)
+                            cursor.select(cursor.Document)
                             cursor.removeSelectedText()
 
                     elif act.action == 'carriage-return':
                         cursor.movePosition(
-                            cursor.StartOfLine, cursor.KeepAnchor)
+                            cursor.StartOfLine, cursor.MoveAnchor)
 
                     elif act.action == 'beep':
                         QtWidgets.QApplication.instance().beep()
@@ -2118,38 +2191,29 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     elif act.action == 'backspace':
                         if not cursor.atBlockStart():
                             cursor.movePosition(
-                                cursor.PreviousCharacter, cursor.KeepAnchor)
+                                cursor.PreviousCharacter, cursor.MoveAnchor)
 
                     elif act.action == 'newline':
                         cursor.movePosition(cursor.EndOfLine)
 
-                format = self._ansi_processor.get_format()
-
-                selection = cursor.selectedText()
-                if len(selection) == 0:
-                    cursor.insertText(substring, format)
-                elif substring is not None:
-                    # BS and CR are treated as a change in print
-                    # position, rather than a backwards character
-                    # deletion for output equivalence with (I)Python
-                    # terminal.
-                    if len(substring) >= len(selection):
-                        cursor.insertText(substring, format)
-                    else:
-                        old_text = selection[len(substring):]
-                        cursor.insertText(substring + old_text, format)
-                        cursor.movePosition(cursor.PreviousCharacter,
-                               cursor.KeepAnchor, len(old_text))
+                # simulate replacement mode
+                if substring is not None:
+                    format = self._ansi_processor.get_format()
+                    if not (hasattr(cursor,'_insert_mode') and cursor._insert_mode):
+                        pos = cursor.position()
+                        cursor2 = QtGui.QTextCursor(cursor)  # self._get_line_end_pos() is the previous line, don't use it
+                        cursor2.movePosition(cursor2.EndOfLine)
+                        remain = cursor2.position() - pos    # number of characters until end of line
+                        n=len(substring)
+                        swallow = min(n, remain)             # number of character to swallow
+                        cursor.setPosition(pos+swallow,cursor.KeepAnchor)
+                    cursor.insertText(substring,format)
         else:
             cursor.insertText(text)
         cursor.endEditBlock()
 
-        if end_doc_pos - end_scroll_pos <= 1:
-            end_scroll = (self._control.verticalScrollBar().maximum()
-                          - self._control.verticalScrollBar().pageStep())
-            # Only scroll down
-            if end_scroll > self._control.verticalScrollBar().value():
-                self._control.verticalScrollBar().setValue(end_scroll)
+        if should_autoscroll:
+            self._scroll_to_end()
 
     def _insert_plain_text_into_buffer(self, cursor, text):
         """ Inserts text into the input buffer using the specified cursor (which
@@ -2174,35 +2238,63 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 cursor.insertText(line)
             cursor.endEditBlock()
 
-    def _in_buffer(self, position=None):
-        """ Returns whether the current cursor (or, if specified, a position) is
-            inside the editing region.
+    def _in_buffer(self, position):
+        """
+        Returns whether the specified position is inside the editing region.
+        """
+        return position == self._move_position_in_buffer(position)
+
+    def _move_position_in_buffer(self, position):
+        """
+        Return the next position in buffer.
         """
         cursor = self._control.textCursor()
-        if position is None:
-            position = cursor.position()
-        else:
-            cursor.setPosition(position)
+        cursor.setPosition(position)
         line = cursor.blockNumber()
         prompt_line = self._get_prompt_cursor().blockNumber()
         if line == prompt_line:
-            return position >= self._prompt_pos
-        elif line > prompt_line:
+            if position >= self._prompt_pos:
+                return position
+            return self._prompt_pos
+        if line > prompt_line:
             cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
             prompt_pos = cursor.position() + len(self._continuation_prompt)
-            return position >= prompt_pos
-        return False
+            if position >= prompt_pos:
+                return position
+            return prompt_pos
+        return self._prompt_pos
 
     def _keep_cursor_in_buffer(self):
         """ Ensures that the cursor is inside the editing region. Returns
             whether the cursor was moved.
         """
-        moved = not self._in_buffer()
-        if moved:
-            cursor = self._control.textCursor()
-            cursor.movePosition(QtGui.QTextCursor.End)
+        cursor = self._control.textCursor()
+        endpos = cursor.selectionEnd()
+
+        if endpos < self._prompt_pos:
+            cursor.setPosition(endpos)
+            line = cursor.blockNumber()
+            prompt_line = self._get_prompt_cursor().blockNumber()
+            if line == prompt_line:
+                # Cursor is on prompt line, move to start of buffer
+                cursor.setPosition(self._prompt_pos)
+            else:
+                # Cursor is not in buffer, move to the end
+                cursor.movePosition(QtGui.QTextCursor.End)
             self._control.setTextCursor(cursor)
-        return moved
+            return True
+
+        startpos = cursor.selectionStart()
+
+        new_endpos = self._move_position_in_buffer(endpos)
+        new_startpos = self._move_position_in_buffer(startpos)
+        if new_endpos == endpos and new_startpos == startpos:
+            return False
+
+        cursor.setPosition(new_startpos)
+        cursor.setPosition(new_endpos, QtGui.QTextCursor.KeepAnchor)
+        self._control.setTextCursor(cursor)
+        return True
 
     def _keyboard_quit(self):
         """ Cancels the current editing task ala Ctrl-G in Emacs.
