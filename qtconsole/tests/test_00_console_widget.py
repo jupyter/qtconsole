@@ -3,11 +3,13 @@ import sys
 
 from flaky import flaky
 import pytest
+
 from qtpy import QtCore, QtGui, QtWidgets
 from qtpy.QtTest import QTest
 
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.qtconsoleapp import JupyterQtConsoleApp
+
 from . import no_display
 
 from IPython.core.inputtransformer2 import TransformerManager
@@ -23,10 +25,12 @@ def qtconsole(qtbot):
     console = JupyterQtConsoleApp()
     console.initialize(argv=[])
 
-    qtbot.addWidget(console.window)
     console.window.confirm_exit = False
     console.window.show()
-    return console
+
+    yield console
+
+    console.window.close()
 
 
 @flaky(max_runs=3)
@@ -272,10 +276,9 @@ class TestConsoleWidget(unittest.TestCase):
             cursor.insertText('')
 
     def test_link_handling(self):
-        noKeys = QtCore.Qt
-        noButton = QtCore.Qt.MouseButton(0)
-        noButtons = QtCore.Qt.MouseButtons(0)
-        noModifiers = QtCore.Qt.KeyboardModifiers(0)
+        noButton = QtCore.Qt.NoButton
+        noButtons = QtCore.Qt.NoButton
+        noModifiers = QtCore.Qt.NoModifier
         MouseMove = QtCore.QEvent.MouseMove
         QMouseEvent = QtGui.QMouseEvent
 
@@ -287,20 +290,20 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(tip.text(), '')
 
         # should be somewhere else
-        elsewhereEvent = QMouseEvent(MouseMove, QtCore.QPoint(50,50),
+        elsewhereEvent = QMouseEvent(MouseMove, QtCore.QPointF(50, 50),
                                      noButton, noButtons, noModifiers)
         w.eventFilter(obj, elsewhereEvent)
         self.assertEqual(tip.isVisible(), False)
         self.assertEqual(tip.text(), '')
         # should be over text
-        overTextEvent = QMouseEvent(MouseMove, QtCore.QPoint(1,5),
+        overTextEvent = QMouseEvent(MouseMove, QtCore.QPointF(1, 5),
                                     noButton, noButtons, noModifiers)
         w.eventFilter(obj, overTextEvent)
         self.assertEqual(tip.isVisible(), True)
         self.assertEqual(tip.text(), "http://python.org")
 
         # should still be over text
-        stillOverTextEvent = QMouseEvent(MouseMove, QtCore.QPoint(1,5),
+        stillOverTextEvent = QMouseEvent(MouseMove, QtCore.QPointF(1, 5),
                                          noButton, noButtons, noModifiers)
         w.eventFilter(obj, stillOverTextEvent)
         self.assertEqual(tip.isVisible(), True)

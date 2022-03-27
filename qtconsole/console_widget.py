@@ -13,13 +13,16 @@ import time
 from unicodedata import category
 import webbrowser
 
+from qtpy import QT6
 from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
 
-from traitlets.config.configurable import LoggingConfigurable
 from qtconsole.rich_text import HtmlExporter
 from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
+
 from ipython_genutils.text import columnize
+from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
+
 from .ansi_code_processor import QtAnsiCodeProcessor
 from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
@@ -432,7 +435,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Make middle-click paste safe.
         elif getattr(event, 'button', False) and \
                 etype == QtCore.QEvent.MouseButtonRelease and \
-                event.button() == QtCore.Qt.MidButton and \
+                event.button() == QtCore.Qt.MiddleButton and \
                 obj == self._control.viewport():
             cursor = self._control.cursorForPosition(event.pos())
             self._control.setTextCursor(cursor)
@@ -465,7 +468,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         elif etype == QtCore.QEvent.MouseMove:
             anchor = self._control.anchorAt(event.pos())
-            QtWidgets.QToolTip.showText(event.globalPos(), anchor)
+            if QT6:
+                pos = event.globalPosition().toPoint()
+            else:
+                pos = event.globalPos()
+            QtWidgets.QToolTip.showText(pos, anchor)
 
         return super().eventFilter(obj, event)
 
@@ -1659,8 +1666,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         t = time.time()
         self._insert_plain_text(self._get_end_cursor(), text, flush=True)
         # Set the flush interval to equal the maximum time to update text.
-        self._pending_text_flush_interval.setInterval(max(100,
-                                                 (time.time()-t)*1000))
+        self._pending_text_flush_interval.setInterval(
+            int(max(100, (time.time() - t) * 1000))
+        )
 
     def _format_as_columns(self, items, separator='  '):
         """ Transform a list of strings into a single string with columns.
@@ -2183,9 +2191,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     format = self._ansi_processor.get_format()
                     if not (hasattr(cursor,'_insert_mode') and cursor._insert_mode):
                         pos = cursor.position()
-                        remain=self._get_line_end_pos()-pos
+                        cursor2 = QtGui.QTextCursor(cursor)  # self._get_line_end_pos() is the previous line, don't use it
+                        cursor2.movePosition(cursor2.EndOfLine)
+                        remain = cursor2.position() - pos    # number of characters until end of line
                         n=len(substring)
-                        swallow=min(n,remain)
+                        swallow = min(n, remain)             # number of character to swallow
                         cursor.setPosition(pos+swallow,cursor.KeepAnchor)
                     cursor.insertText(substring,format)
         else:

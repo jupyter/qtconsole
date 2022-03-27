@@ -1,10 +1,9 @@
 channels:
-  - defaults
-  - spyder-ide
+  - conda-forge
 dependencies:
 # Main dependencies
 - pyqt
-- qtpy
+- qtpy >=2.0.1
 - traitlets
 - ipython_genutils
 - jupyter_core
