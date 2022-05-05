@@ -1,8 +1,9 @@
 import unittest
 import sys
+from packaging.version import parse
 
 import pytest
-from qtpy import PYQT6, PYSIDE6
+from qtpy import QT6, QT_VERSION
 from qtpy import QtWidgets, QtGui
 from qtpy.QtTest import QTest
 
@@ -73,7 +74,7 @@ class TestJupyterWidget(unittest.TestCase):
         ))
 
         # Check proper syntax highlighting
-        if PYSIDE6:
+        if QT6 and parse(QT_VERSION) < parse('6.3'):
             html = (
                 '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
                 '<html><head><meta name="qrichtext" content="1" /><meta charset="utf-8" /><style type="text/css">\n'
@@ -86,7 +87,7 @@ class TestJupyterWidget(unittest.TestCase):
                 '<p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br /></p>\n'
                 '<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style=" color:#000080;">In [</span><span style=" font-weight:700; color:#000080;">2</span><span style=" color:#000080;">]:</span> </p></body></html>'
             )
-        elif PYQT6:
+        elif QT6 and parse(QT_VERSION) >= parse('6.3'):
             html = (
                 '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
                 '<html><head><meta name="qrichtext" content="1" /><meta charset="utf-8" /><style type="text/css">\n'
