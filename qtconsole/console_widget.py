@@ -1692,15 +1692,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         return columnize(items, separator, displaywidth)
 
-    def _get_block_plain_text(self, block):
-        """ Given a QTextBlock, return its unformatted text.
-        """
-        cursor = QtGui.QTextCursor(block)
-        cursor.movePosition(QtGui.QTextCursor.StartOfBlock)
-        cursor.movePosition(QtGui.QTextCursor.EndOfBlock,
-                            QtGui.QTextCursor.KeepAnchor)
-        return cursor.selection().toPlainText()
-
     def _get_cursor(self):
         """ Get a cursor at the current insert position.
         """
@@ -1768,7 +1759,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             return None
         else:
             cursor = self._control.textCursor()
-            text = self._get_block_plain_text(cursor.block())
+            text = cursor.block().text()
             return text[len(prompt):]
 
     def _get_input_buffer_cursor_pos(self):

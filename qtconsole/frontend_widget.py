@@ -67,7 +67,7 @@ class FrontendHighlighter(PygmentsHighlighter):
         # paragraph break characters, non-breaking spaces, etc. Here we acquire
         # the string as plain text so we can compare it.
         current_block = self.currentBlock()
-        string = self._frontend._get_block_plain_text(current_block)
+        string = current_block.text()
 
         # Only highlight if we can identify a prompt, but make sure not to
         # highlight the prompt.
