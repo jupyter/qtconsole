@@ -6,9 +6,9 @@ common actions.
 
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
-from functools import partial
 import sys
 import webbrowser
+from functools import partial
 from threading import Thread
 
 from jupyter_core.paths import jupyter_runtime_dir
