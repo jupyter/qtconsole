@@ -207,7 +207,7 @@ def test_debug(qtconsole, qtbot):
     assert control.toPlainText().strip().split()[-1] == "abcd"
 
 
-@flaky(max_runs=3)
+@flaky(max_runs=15)
 def test_input_and_print(qtconsole, qtbot):
     """
     Test that we print correctly mixed input and print statements.
