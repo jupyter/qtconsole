@@ -2419,7 +2419,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             while self._reading:
                 QtCore.QCoreApplication.processEvents()
             return self._get_input_buffer(force=True).rstrip('\n')
-
         else:
             self._reading_callback = lambda: \
                 callback(self._get_input_buffer(force=True).rstrip('\n'))
@@ -2480,6 +2479,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             If set, a separator will be written before the prompt.
         """
         self._flush_pending_stream()
+
+        # This is necessary to solve out-of-order insertion of mixed stdin and
+        # stdout stream texts.
+        # Fixes spyder-ide/spyder#17710
+        QtCore.QCoreApplication.processEvents()
+
         cursor = self._get_end_cursor()
 
         # Save the current position to support _append*(before_prompt=True).
@@ -2504,6 +2509,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Write the prompt.
         if separator:
             self._append_plain_text(self._prompt_sep)
+
         if prompt is None:
             if self._prompt_html is None:
                 self._append_plain_text(self._prompt)
