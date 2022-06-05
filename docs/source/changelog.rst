@@ -8,6 +8,15 @@ Changes in Jupyter Qt console
 5.3
 ~~~
 
+5.3.1
+-----
+
+`5.3.1 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.3.1>`__
+
+* Fix segfault when performing code completion on Qt6.
+* Fix mixed input and print statements.
+* Fix switching syntax highlighting styles on PySide2 and PySide6.
+
 5.3.0
 -----
 
