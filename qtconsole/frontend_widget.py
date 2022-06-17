@@ -68,6 +68,9 @@ class FrontendHighlighter(PygmentsHighlighter):
         # the string as plain text so we can compare it.
         current_block = self.currentBlock()
         string = current_block.text()
+        # QTextBlock::text() can still return non-breaking spaces
+        # for the continuation prompt
+        string = string.replace("\xa0", " ")
 
         # Only highlight if we can identify a prompt, but make sure not to
         # highlight the prompt.
