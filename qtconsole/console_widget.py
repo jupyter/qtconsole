@@ -2483,7 +2483,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # This is necessary to solve out-of-order insertion of mixed stdin and
         # stdout stream texts.
         # Fixes spyder-ide/spyder#17710
-        QtCore.QCoreApplication.processEvents()
+        if not sys.platform == 'darwin':
+            QtCore.QCoreApplication.processEvents()
 
         cursor = self._get_end_cursor()
 

@@ -44,7 +44,4 @@ jobs:
           conda list
       - name: Run tests
         shell: bash -l {0}
-        run: |
-          # Disable tests for now because they hang completely
-          # pytest -x -vv --cov=qtconsole qtconsole
-          exit 0
+        run: pytest -x -vv --cov=qtconsole qtconsole
