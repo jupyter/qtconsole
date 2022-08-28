@@ -8,6 +8,15 @@ Changes in Jupyter Qt console
 5.3
 ~~~
 
+5.3.2
+-----
+
+`5.3.2 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.3.2>`__
+
+* Fix syntax highlighting with multiline inputs.
+* Don't call processEvents when showing input prompts on Mac because it's not
+  necessary.
+
 5.3.1
 -----
 
