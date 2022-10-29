@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: True
+      QTCONSOLE_TESTING: True
       PYTHON_VERSION: ${{ matrix.PYTHON_VERSION }}
       RUNNER_OS: 'ubuntu'
       COVERALLS_REPO_TOKEN: XWVhJf2AsO7iouBLuCsh0pPhwHy81Uz1v

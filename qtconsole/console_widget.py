@@ -2493,7 +2493,13 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # This is necessary to solve out-of-order insertion of mixed stdin and
         # stdout stream texts.
         # Fixes spyder-ide/spyder#17710
-        if not sys.platform == 'darwin':
+        if sys.platform == 'darwin':
+            # Although this makes our tests hang on Mac, users confirmed that
+            # it's needed on that platform too.
+            # Fixes spyder-ide/spyder#19888
+            if not os.environ.get('QTCONSOLE_TESTING'):
+                QtCore.QCoreApplication.processEvents()
+        else:
             QtCore.QCoreApplication.processEvents()
 
         cursor = self._get_end_cursor()
