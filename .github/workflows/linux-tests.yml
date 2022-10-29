@@ -54,7 +54,11 @@ jobs:
         shell: bash -l {0}
         run: |
           pip install -e .[test]
-          pip install ${{ matrix.QT_LIB }} coveralls pytest-cov
+          if [ ${{ matrix.QT_LIB }} = "pyqt6" ]; then
+            pip install pyqt6!=6.4.0 pyqt6-qt6!=6.4.0 coveralls pytest-cov
+          else
+            pip install ${{ matrix.QT_LIB }} coveralls pytest-cov
+          fi
       - name: Show environment information
         shell: bash -l {0}
         run: |
