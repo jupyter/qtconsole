@@ -57,7 +57,7 @@ if os.name == 'nt':
     except AttributeError:
         pass
 
-from qtpy import QtCore, QtGui, QtWidgets, QT_VERSION
+from qtpy import QtCore, QtGui, QtWidgets, QT_VERSION, QT6
 
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
@@ -415,7 +415,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     def initialize(self, argv=None):
         # Fixes launching issues with Big Sur
         # https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
-        if sys.platform == 'darwin':
+        if sys.platform == 'darwin' and not QT6:
             v_5_15_2 = QtCore.QVersionNumber.fromString('5.15.2')[0]
             v_current = QtCore.QVersionNumber.fromString(QT_VERSION)[0]
             if v_current < v_5_15_2:
