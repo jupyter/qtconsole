@@ -10,7 +10,7 @@ input, there is no real readline support, among other limitations.
 import os
 import signal
 import sys
-from packaging import parse
+from packaging.version import parse
 from warnings import warn
 
 # If run on Windows:
