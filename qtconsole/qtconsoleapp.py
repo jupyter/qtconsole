@@ -10,9 +10,9 @@ input, there is no real readline support, among other limitations.
 import os
 import signal
 import sys
-from packaging.version import parse
 from warnings import warn
 
+from packaging.version import parse
 # If run on Windows:
 #
 # 1. Install an exception hook which pops up a message box.
