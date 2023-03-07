@@ -10,6 +10,7 @@ input, there is no real readline support, among other limitations.
 import os
 import signal
 import sys
+from packaging import parse
 from warnings import warn
 
 # If run on Windows:
@@ -57,7 +58,7 @@ if os.name == 'nt':
     except AttributeError:
         pass
 
-from qtpy import QtCore, QtGui, QtWidgets, QT_VERSION, QT6
+from qtpy import QtCore, QtGui, QtWidgets, QT_VERSION
 
 from traitlets.config.application import boolean_flag
 from traitlets.config.application import catch_config_error
@@ -415,9 +416,9 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     def initialize(self, argv=None):
         # Fixes launching issues with Big Sur
         # https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
-        if sys.platform == 'darwin' and not QT6:
-            v_5_15_2 = QtCore.QVersionNumber.fromString('5.15.2')[0]
-            v_current = QtCore.QVersionNumber.fromString(QT_VERSION)[0]
+        if sys.platform == 'darwin':
+            v_5_15_2 = parse('5.15.2')
+            v_current = parse(QT_VERSION)
             if v_current < v_5_15_2:
                 os.environ['QT_MAC_WANTS_LAYER'] = '1'
         self._init_asyncio_patch()
