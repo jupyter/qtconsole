@@ -13,6 +13,7 @@ import sys
 from warnings import warn
 
 from packaging.version import parse
+
 # If run on Windows:
 #
 # 1. Install an exception hook which pops up a message box.
