@@ -62,6 +62,16 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
             self.kernel_restarted.emit()
             self._is_restarting = False
 
+    async def _async_post_start_kernel(self, **kw):
+        """
+        This is necessary for Jupyter-client 8+ because `start_kernel` doesn't
+        call `post_start_kernel` directly.
+        """
+        await super()._async_post_start_kernel(**kw)
+        if self._is_restarting:
+            self.kernel_restarted.emit()
+            self._is_restarting = False
+
     def _handle_kernel_restarting(self):
         """Kernel has died, and will be restarted."""
         self._is_restarting = True
