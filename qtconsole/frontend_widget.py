@@ -837,8 +837,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """
         # Calculate where the cursor should be *after* the change:
         position += added
-
-        document = self._control.document()
         if position == self._get_cursor().position():
             self._auto_call_tip()
 
