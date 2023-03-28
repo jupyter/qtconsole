@@ -26,6 +26,9 @@ class QtKernelRestarter(KernelRestarter, QtKernelRestarterMixin):
     def poll(self):
         super().poll()
 
+    def reset_count(self):
+        self._restart_count = 0
+
 
 class QtKernelManager(KernelManager, QtKernelManagerMixin):
     """A KernelManager with Qt signals for restart"""
@@ -61,6 +64,11 @@ class QtKernelManager(KernelManager, QtKernelManagerMixin):
         if self._is_restarting:
             self.kernel_restarted.emit()
             self._is_restarting = False
+
+    def reset_autorestart_count(self):
+        """Reset autorestart count."""
+        if self._restarter:
+            self._restarter.reset_count()
 
     async def _async_post_start_kernel(self, **kw):
         """

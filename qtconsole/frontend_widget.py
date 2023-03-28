@@ -538,6 +538,12 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         """
         self.log.warning("kernel restarted")
         self._kernel_restarted_message(died=died)
+
+        # This resets the autorestart counter so that the kernel can be
+        # auto-restarted before the next time it's polled to see if it's alive.
+        if self.kernel_manager:
+            self.kernel_manager.reset_autorestart_count()
+
         self.reset()
 
     def _handle_inspect_reply(self, rep):
