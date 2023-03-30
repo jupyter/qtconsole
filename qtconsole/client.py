@@ -47,7 +47,7 @@ class QtZMQSocketChannel(ThreadedZMQSocketChannel, SuperQObject):
 
     def closed(self):
         """Check if the channel is closed."""
-        return self.stream.closed()
+        return self.stream is None or self.stream.closed()
 
 
 class QtKernelClient(QtKernelClientMixin, ThreadedKernelClient):
