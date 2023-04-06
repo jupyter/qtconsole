@@ -45,6 +45,10 @@ class QtInProcessChannel(SuperQObject, InProcessChannel):
     def call_handlers(self, msg):
         self.message_received.emit(msg)
 
+    def closed(self):
+        """Check if the channel is closed."""
+        return not super().is_alive()
+
     def process_events(self):
         """ Process any pending GUI events.
         """
