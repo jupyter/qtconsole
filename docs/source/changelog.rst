@@ -8,6 +8,13 @@ Changes in Jupyter Qt console
 5.4
 ~~~
 
+5.4.3
+-----
+
+`5.4.3 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.4.3>`__
+
+* Add missing closed method to QtInProcessChannel.
+
 5.4.2
 -----
 
