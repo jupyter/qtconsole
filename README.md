@@ -18,8 +18,8 @@ and more.
 ![qtconsole](https://raw.githubusercontent.com/jupyter/qtconsole/master/docs/source/_images/qtconsole.png)
 
 ## Install Qtconsole
-The Qtconsole requires Python bindings for Qt, such as [PyQt5](http://www.riverbankcomputing.com/software/pyqt/intro),
-[PyQt4](https://www.riverbankcomputing.com/software/pyqt/download),
+The Qtconsole requires Python bindings for Qt, such as [PyQt6](https://pypi.org/project/PyQt6/), [PySide6](https://pypi.org/project/PySide6/), [PyQt5](http://www.riverbankcomputing.com/software/pyqt/intro),
+[PyQt4](https://www.riverbankcomputing.com/software/pyqt/download)
 or [PySide](http://pyside.github.io/docs/pyside).
 
 Although [pip](https://pypi.python.org/pypi/pip) and
