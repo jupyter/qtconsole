@@ -44,7 +44,7 @@ For example with Linux Debian's system package manager, use::
    sudo apt-get install python3-pyqt4 # PyQt4 on Python 3
    sudo apt-get install python-qt4    # PyQt4 on Python 2
 
-.. seealso::
+See also::
 
    `Installing Jupyter <https://jupyter.readthedocs.io/en/latest/install.html>`_
    The Qt console is part of the Jupyter ecosystem.
