@@ -3,9 +3,8 @@ Installation
 The Qt console requires Qt, such as
 `PyQt6 <https://pypi.org/project/PyQt6>`_,
 `PySide6 <https://pypi.org/project/PySide6>`_,
-`PyQt5 <https://www.riverbankcomputing.com/software/pyqt/intro>`_,
-`PyQt4 <https://www.riverbankcomputing.com/software/pyqt/download>`_, or
-`PySide <http://pyside.github.io/docs/pyside>`_.
+`PyQt5 <https://pypi.org/project/PyQt5>`_,
+`PySide2 <https://pypi.org/project/PySide2>`_.
 
 Although `pip <https://pypi.python.org/pypi/pip>`_ and
 `conda <http://conda.pydata.org/docs>`_ may be used to install the Qt console,
