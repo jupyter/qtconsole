@@ -40,8 +40,6 @@ or with pip::
 For example with Linux Debian's system package manager, use::
 
    sudo apt-get install python3-pyqt5 # PyQt5 on Python 3
-   sudo apt-get install python3-pyqt4 # PyQt4 on Python 3
-   sudo apt-get install python-qt4    # PyQt4 on Python 2
 
 See also::
 
