@@ -72,7 +72,7 @@ setup_args = dict(
         'jupyter_client>=4.1',
         'pygments',
         'ipykernel>=4.1', # not a real dependency, but require the reference kernel
-        'qtpy>=2.0.1',
+        'qtpy>=2.4.0',
         'pyzmq>=17.1',
         'packaging'
     ],
