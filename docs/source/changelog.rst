@@ -8,6 +8,13 @@ Changes in Jupyter Qt console
 5.4
 ~~~
 
+5.4.4
+-----
+
+`5.4.4 on GitHub <https://github.com/jupyter/qtconsole/milestones/5.4.4>`__
+
+* Improve compatibility with PyQt6/PySide6.
+
 5.4.3
 -----
 
