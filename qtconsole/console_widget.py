@@ -19,7 +19,6 @@ from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
 from qtconsole.rich_text import HtmlExporter
 from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
 
-from ipython_genutils.text import columnize
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
 
@@ -28,6 +27,7 @@ from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
 from .completion_plain import CompletionPlain
 from .kill_ring import QtKillRing
+from .util import columnize
 
 
 def is_letter_or_number(char):
