@@ -146,7 +146,6 @@ def compute_item_matrix(items, empty=None, *, separator_size=2, displaywith=80):
 
     Parameters
     ----------
-
     items
         list of strings to columnize
     empty : (default None)
