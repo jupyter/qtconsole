@@ -15,8 +15,8 @@ from traitlets.config import LoggingConfigurable
 import uuid
 
 from qtpy import QtCore
-from qtconsole.util import MetaQObjectHasTraits, SuperQObject
-from .util import import_item
+
+from qtconsole.util import MetaQObjectHasTraits, SuperQObject, import_item
 
 
 class CommManager(MetaQObjectHasTraits(

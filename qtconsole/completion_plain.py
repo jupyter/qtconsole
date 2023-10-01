@@ -4,6 +4,7 @@
 # Distributed under the terms of the Modified BSD License.
 
 from qtpy import QtCore, QtGui, QtWidgets
+
 from .util import columnize
 
 

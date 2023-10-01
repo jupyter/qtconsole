@@ -5,6 +5,7 @@
 
 
 from qtpy import QtCore, QtGui, QtWidgets
+
 from .util import compute_item_matrix
 
 #--------------------------------------------------------------------------

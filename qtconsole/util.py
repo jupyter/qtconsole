@@ -123,13 +123,14 @@ def _col_chunks(l, max_rows, row_first=False):
 
 
 def _find_optimal(rlist, row_first=False, separator_size=2, displaywidth=80):
-    """Calculate optimal info to columnize a list of string"""
+    """Calculate optimal info to columnize a list of strings."""
     for max_rows in range(1, len(rlist) + 1):
         col_widths = list(map(max, _col_chunks(rlist, max_rows, row_first)))
         sumlength = sum(col_widths)
         ncols = len(col_widths)
         if sumlength + separator_size * (ncols - 1) <= displaywidth:
             break
+
     return {
         "num_columns": ncols,
         "optimal_separator_width": (displaywidth - sumlength) // (ncols - 1)
@@ -159,21 +160,21 @@ def compute_item_matrix(items, row_first=False, empty=None, *args, **kwargs):
         Whether to compute columns for a row-first matrix instead of
         column-first (default).
     empty : (default None)
-        default value to fill list if needed
+        Default value to fill list if needed
     separator_size : int (default=2)
-        How much characters will be used as a separation between each columns.
+        How much characters will be used as a separation between each column.
     displaywidth : int (default=80)
         The width of the area onto which the columns should enter
 
     Returns
     -------
     strings_matrix
-        nested list of string, the outer most list contains as many list as
+        Nested list of strings, the outer most list contains as many list as
         rows, the innermost lists have each as many element as columns. If the
         total number of elements in `items` does not equal the product of
         rows*columns, the last element of some lists are filled with `None`.
     dict_info
-        some info to make columnize easier:
+        Some info to make columnize easier:
 
         num_columns
           number of columns
@@ -243,18 +244,21 @@ def columnize(items, row_first=False, separator="  ", displaywidth=80, spread=Fa
     """
     if not items:
         return "\n"
+
     matrix, info = compute_item_matrix(
         items,
         row_first=row_first,
         separator_size=len(separator),
         displaywidth=displaywidth,
     )
+
     if spread:
         separator = separator.ljust(int(info["optimal_separator_width"]))
     fmatrix = [filter(None, x) for x in matrix]
     sjoin = lambda x: separator.join(
         [y.ljust(w, " ") for y, w in zip(x, info["column_widths"])]
     )
+
     return "\n".join(map(sjoin, fmatrix)) + "\n"
 
 
@@ -285,6 +289,7 @@ def get_text_list(list_, last_sep=" and ", sep=", ", wrap_item_with=""):
         list_ = ["%s%s%s" % (wrap_item_with, item, wrap_item_with) for item in list_]
     if len(list_) == 1:
         return list_[0]
+
     return "%s%s%s" % (sep.join(i for i in list_[:-1]), last_sep, list_[-1])
 
 
@@ -304,8 +309,8 @@ def import_item(name):
     mod : module object
        The module that was imported.
     """
-
     parts = name.rsplit(".", 1)
+
     if len(parts) == 2:
         # called with 'foo.bar....'
         package, obj = parts
