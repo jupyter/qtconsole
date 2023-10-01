@@ -24,7 +24,7 @@ except ImportError:
 def _ensure_dir_exists(path, mode=0o755):
     """ensure that a directory exists
 
-    If it doesn't exist, try to create it and protect against a race condition
+    If it doesn't exists, try to create it and protect against a race condition
     if another process is doing the same.
 
     The default permissions are 755, which differ from os.makedirs default of 777.
