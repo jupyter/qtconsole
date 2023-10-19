@@ -67,7 +67,6 @@ setup_args = dict(
     python_requires               = '>= 3.7',
     install_requires = [
         'traitlets!=5.2.1,!=5.2.2',
-        'ipython_genutils',
         'jupyter_core',
         'jupyter_client>=4.1',
         'pygments',
