@@ -73,6 +73,7 @@ setup_args = dict(
         'qtpy>=2.4.0',
         'pyzmq>=17.1',
         'packaging'
+        'tornado==6.3.3'
     ],
     extras_require = {
         'test': ['flaky', 'pytest', 'pytest-qt'],
