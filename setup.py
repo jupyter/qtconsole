@@ -72,7 +72,7 @@ setup_args = dict(
         'ipykernel>=4.1', # not a real dependency, but require the reference kernel
         'qtpy>=2.4.0',
         'pyzmq>=17.1',
-        'packaging'
+        'packaging',
         'tornado==6.3.3'
     ],
     extras_require = {
