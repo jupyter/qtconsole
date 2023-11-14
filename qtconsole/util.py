@@ -141,7 +141,7 @@ def _get_or_default(mylist, i, *, default):
         return mylist[i]
 
 
-def compute_item_matrix(items, empty=None, *, separator_size=2, displaywith=80):
+def compute_item_matrix(items, empty=None, *, separator_size=2, displaywidth=80):
     """Returns a nested list, and info to columnize items
 
     Parameters
