@@ -189,9 +189,8 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
         # Configure actions.
         action = self._copy_raw_action
-        key = QtCore.Qt.CTRL | QtCore.Qt.SHIFT | QtCore.Qt.Key_C
         action.setEnabled(False)
-        action.setShortcut(QtGui.QKeySequence(key))
+        action.setShortcut(QtGui.QKeySequence("Ctrl+Shift+C"))
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.copy_raw)
         self.copy_available.connect(action.setEnabled)
