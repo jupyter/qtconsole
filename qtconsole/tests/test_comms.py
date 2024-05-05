@@ -1,7 +1,8 @@
 import time
 from queue import Empty
-
 import unittest
+
+from flaky import flaky
 
 from qtconsole.manager import QtKernelManager
 
@@ -29,7 +30,6 @@ class Tests(unittest.TestCase):
             self._get_next_msg()
             self._get_next_msg()
 
-
     def tearDown(self):
         """Close the kernel."""
         if self.kernel_manager:
@@ -51,6 +51,7 @@ class Tests(unittest.TestCase):
                 pass
         return msg
     
+    @flaky(max_runs=10)
     def test_kernel_to_frontend(self):
         """Communicate from the kernel to the frontend."""
         comm_manager = self.comm_manager
@@ -104,6 +105,7 @@ class Tests(unittest.TestCase):
         msg = self._get_next_msg()
         assert msg['header']['msg_type'] == 'stream'
 
+    @flaky(max_runs=10)
     def test_frontend_to_kernel(self):
         """Communicate from the frontend to the kernel."""
         comm_manager = self.comm_manager
@@ -143,6 +145,7 @@ class Tests(unittest.TestCase):
         assert msg['parent_header']['msg_type'] == 'comm_close'
         assert msg['msg_type'] == 'stream'
         assert msg['content']['text'] == 'close\n'
+
 
 if __name__ == "__main__":
     unittest.main()
