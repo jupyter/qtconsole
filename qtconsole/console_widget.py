@@ -1006,7 +1006,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         else:
             if insert != self._insert_plain_text:
                 self._flush_pending_stream()
-            cursor.movePosition(QtGui.QTextCursor.End)
 
         # Perform the insertion.
         result = insert(cursor, input, *args, **kwargs)
@@ -1660,10 +1659,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """ Flush the pending stream output and change the
         prompt position appropriately.
         """
-        cursor = self._control.textCursor()
-        cursor.movePosition(QtGui.QTextCursor.End)
         self._flush_pending_stream()
-        cursor.movePosition(QtGui.QTextCursor.End)
 
     def _flush_pending_stream(self):
         """ Flush out pending text into the widget. """
@@ -1674,7 +1670,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text = self._get_last_lines_from_list(text, buffer_size)
         text = ''.join(text)
         t = time.time()
-        self._insert_plain_text(self._get_end_cursor(), text, flush=True)
+        self._insert_plain_text(self._control.textCursor(), text, flush=True)
         # Set the flush interval to equal the maximum time to update text.
         self._pending_text_flush_interval.setInterval(
             int(max(100, (time.time() - t) * 1000))
@@ -2123,7 +2119,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                             cursor.select(QtGui.QTextCursor.Document)
                             remove = True
                         if act.area == 'line':
-                            if act.erase_to == 'all': 
+                            if act.erase_to == 'all':
                                 cursor.select(QtGui.QTextCursor.LineUnderCursor)
                                 remove = True
                             elif act.erase_to == 'start':
@@ -2137,7 +2133,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                                     QtGui.QTextCursor.EndOfLine,
                                     QtGui.QTextCursor.KeepAnchor)
                                 remove = True
-                        if remove: 
+                        if remove:
                             nspace=cursor.selectionEnd()-cursor.selectionStart() if fill else 0
                             cursor.removeSelectedText()
                             if nspace>0: cursor.insertText(' '*nspace) # replace text by space, to keep cursor position as specified
@@ -2181,11 +2177,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         remain = cursor2.position() - pos    # number of characters until end of line
                         n=len(substring)
                         swallow = min(n, remain)             # number of character to swallow
-                        cursor.setPosition(pos+swallow,QtGui.QTextCursor.KeepAnchor)
+                        cursor.setPosition(pos + swallow, QtGui.QTextCursor.KeepAnchor)
                     cursor.insertText(substring,format)
         else:
             cursor.insertText(text)
         cursor.endEditBlock()
+        self._control.setTextCursor(cursor)
 
         if should_autoscroll:
             self._scroll_to_end()
