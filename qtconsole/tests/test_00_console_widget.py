@@ -371,6 +371,27 @@ class TestConsoleWidget(unittest.TestCase):
             # clear all the text
             cursor.insertText('')
 
+    def test_carriage_return(self):
+        """ Does overwriting the currentt line with carriage return work?
+        """
+        w = ConsoleWidget()
+        test_inputs = ['Hello\n'
+                       'World\r',
+                       '*' * 10,
+                       '\r'
+                       '0', '1', '2', '3', '4',
+                       '5', '6', '7', '8', '9',
+                       '\r\n']
+
+        expected_output = "Hello\u20290123456789\u2029"
+
+        for text in test_inputs:
+            cursor = w._get_cursor()
+            w._insert_plain_text(cursor, text, flush = True)
+            w._flush_pending_stream() # emulate text being flushed
+
+        self.assert_text_equal(cursor, expected_output)
+
     def test_link_handling(self):
         noButton = QtCore.Qt.NoButton
         noButtons = QtCore.Qt.NoButton
