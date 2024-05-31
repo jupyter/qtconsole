@@ -297,6 +297,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self._reading_callback = None
         self._tab_width = 4
 
+        # Cursor position of where to insert text.
+        # Control characters allow this to move around on the current line.
+        self._insert_text_cursor = self._control.textCursor()
+
         # List of strings pending to be appended as plain text in the widget.
         # The text is not immediately inserted when available to not
         # choke the Qt event loop with paint events for the widget in
@@ -695,6 +699,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             # effect when using a QTextEdit. I believe this is a Qt bug.
             self._control.moveCursor(QtGui.QTextCursor.End)
 
+            # Advance where text is inserted
+            self._insert_text_cursor.movePosition(QtGui.QTextCursor.End)
+
     def export_html(self):
         """ Shows a dialog to export HTML/XML in various formats.
         """
@@ -710,6 +717,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         # There is no prompt now, so before_prompt_position is eof
         self._append_before_prompt_cursor.setPosition(
+            self._get_end_cursor().position())
+
+        self._insert_text_cursor.setPosition(
             self._get_end_cursor().position())
 
         # The maximum block count is only in effect during execution.
@@ -998,7 +1008,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         current prompt, if there is one.
         """
         # Determine where to insert the content.
-        cursor = self._control.textCursor()
+        cursor = self._insert_text_cursor
         if before_prompt and (self._reading or not self._executing):
             self._flush_pending_stream()
             cursor._insert_mode=True
@@ -1009,6 +1019,11 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         # Perform the insertion.
         result = insert(cursor, input, *args, **kwargs)
+
+        # Remove insert mode tag
+        if hasattr(cursor, "_insert_mode"):
+            del cursor._insert_mode
+
         return result
 
     def _append_block(self, block_format=None, before_prompt=False):
@@ -1670,7 +1685,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             text = self._get_last_lines_from_list(text, buffer_size)
         text = ''.join(text)
         t = time.time()
-        self._insert_plain_text(self._control.textCursor(), text, flush=True)
+        self._insert_plain_text(self._insert_text_cursor, text, flush=True)
         # Set the flush interval to equal the maximum time to update text.
         self._pending_text_flush_interval.setInterval(
             int(max(100, (time.time() - t) * 1000))
@@ -2182,7 +2197,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         else:
             cursor.insertText(text)
         cursor.endEditBlock()
-        self._control.setTextCursor(cursor)
 
         if should_autoscroll:
             self._scroll_to_end()
