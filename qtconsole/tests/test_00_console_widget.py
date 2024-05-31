@@ -375,21 +375,22 @@ class TestConsoleWidget(unittest.TestCase):
         """ Does overwriting the currentt line with carriage return work?
         """
         w = ConsoleWidget()
-        test_inputs = ['Hello\n'
+        test_inputs = ['Hello\n',
                        'World\r',
                        '*' * 10,
-                       '\r'
+                       '\r',
                        '0', '1', '2', '3', '4',
                        '5', '6', '7', '8', '9',
                        '\r\n']
 
         expected_output = "Hello\u20290123456789\u2029"
 
+        w._executing = True
         for text in test_inputs:
-            cursor = w._get_cursor()
-            w._insert_plain_text(cursor, text, flush = True)
+            w._append_plain_text(text, before_prompt = True)
             w._flush_pending_stream() # emulate text being flushed
 
+        cursor = w._get_cursor()
         self.assert_text_equal(cursor, expected_output)
 
     def test_link_handling(self):
