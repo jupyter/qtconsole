@@ -1011,9 +1011,27 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         cursor = self._insert_text_cursor
         if before_prompt and (self._reading or not self._executing):
             self._flush_pending_stream()
-            cursor._insert_mode=True
-            cursor.setPosition(self._append_before_prompt_pos)
+
+            # Jump to before prompt, if there is one
+            if cursor.position() >= self._append_before_prompt_pos \
+                    and self._append_before_prompt_pos != self._get_end_pos():
+                cursor.setPosition(self._append_before_prompt_pos)
+
+                # If we appending on the same line as the prompt, use insert mode
+                # If so, the character at self._append_before_prompt_pos will not be a newline
+                cursor.movePosition(QtGui.QTextCursor.Right,
+                                    QtGui.QTextCursor.KeepAnchor)
+                if cursor.selection().toPlainText() != '\n':
+                    cursor._insert_mode = True
+                cursor.movePosition(QtGui.QTextCursor.Left)
         else:
+            # Insert at current printing point
+            # If cursor is before prompt jump to end, but only if there
+            # is a prompt (before_prompt_pos != end)
+            if cursor.position() < self._append_before_prompt_pos \
+                    and self._append_before_prompt_pos != self._get_end_pos():
+                cursor.movePosition(QtGui.QTextCursor.End)
+
             if insert != self._insert_plain_text:
                 self._flush_pending_stream()
 
@@ -2104,12 +2122,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         if (self._executing and not flush and
                 self._pending_text_flush_interval.isActive() and
-                cursor.position() == self._get_end_pos()):
+                cursor.position() == self._insert_text_cursor.position()):
             # Queue the text to insert in case it is being inserted at end
             self._pending_insert_text.append(text)
             if buffer_size > 0:
                 self._pending_insert_text = self._get_last_lines_from_list(
-                                        self._pending_insert_text, buffer_size)
+                    self._pending_insert_text, buffer_size)
             return
 
         if self._executing and not self._pending_text_flush_interval.isActive():
@@ -2185,7 +2203,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 # simulate replacement mode
                 if substring is not None:
                     format = self._ansi_processor.get_format()
-                    if not (hasattr(cursor,'_insert_mode') and cursor._insert_mode):
+
+                    # Note that using _insert_mode means the \r ANSI sequence will not swallow characters.
+                    if not (hasattr(cursor, '_insert_mode') and cursor._insert_mode):
                         pos = cursor.position()
                         cursor2 = QtGui.QTextCursor(cursor)  # self._get_line_end_pos() is the previous line, don't use it
                         cursor2.movePosition(QtGui.QTextCursor.EndOfLine)
@@ -2193,7 +2213,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         n=len(substring)
                         swallow = min(n, remain)             # number of character to swallow
                         cursor.setPosition(pos + swallow, QtGui.QTextCursor.KeepAnchor)
-                    cursor.insertText(substring,format)
+                    cursor.insertText(substring, format)
         else:
             cursor.insertText(text)
         cursor.endEditBlock()
