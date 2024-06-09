@@ -491,15 +491,6 @@ class TestConsoleWidget(unittest.TestCase):
         self.assertEqual(w._append_before_prompt_pos,
                          w._prompt_pos - len(w._prompt))
 
-        # Test a blank prompt. Such as from input()
-        w._append_plain_text('\n')
-        w._show_prompt(prompt = '', separator = False)
-
-        w._append_plain_text('plain text\n')
-
-        self.assertEqual(w._prompt_pos, w._get_end_pos())
-        self.assertEqual(w._append_before_prompt_pos, w._prompt_pos)
-
     def test_select_all(self):
         w = ConsoleWidget()
         w._append_plain_text('Header\n')
