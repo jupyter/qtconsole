@@ -1028,7 +1028,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             # Insert at current printing point
             # If cursor is before prompt jump to end, but only if there
             # is a prompt (before_prompt_pos != end)
-            if cursor.position() < self._append_before_prompt_pos \
+            if cursor.position() <= self._append_before_prompt_pos \
                     and self._append_before_prompt_pos != self._get_end_pos():
                 cursor.movePosition(QtGui.QTextCursor.End)
 
@@ -2562,6 +2562,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         if move_forward:
             self._append_before_prompt_cursor.setPosition(
                 self._append_before_prompt_cursor.position() + 1)
+        else:
+            # cursor position was 0, set before prompt cursor
+            self._append_before_prompt_cursor.setPosition(0)
         self._prompt_started()
 
     #------ Signal handlers ----------------------------------------------------

@@ -371,48 +371,43 @@ class TestConsoleWidget(unittest.TestCase):
             # clear all the text
             cursor.insertText('')
 
-    def test_print_while_executing(self):
-        """ Does overwriting the currentt line with carriage return work?
+    def test_print_carriage_return(self):
+        """ Test that overwriting the current line works as intended,
+            before and after the cursor prompt.
         """
         w = ConsoleWidget()
-        test_inputs = ['Hello\n',
-                       'World\r',
-                       '*' * 10,
-                       '\r',
+
+        # Show a prompt
+        w._prompt = "prompt>"
+        w._prompt_sep = "\n"
+
+        w._show_prompt()
+        self.assert_text_equal(w._get_cursor(), '\u2029prompt>')
+
+        test_inputs = ['Hello\n', 'World\r',
+                       '*' * 10, '\r',
                        '0', '1', '2', '3', '4',
                        '5', '6', '7', '8', '9',
                        '\r\n']
 
-        expected_output = "Hello\u20290123456789\u2029"
+        for text in test_inputs:
+            w._append_plain_text(text, before_prompt = True)
+            w._flush_pending_stream() # emulate text being flushed
 
+        self.assert_text_equal(w._get_cursor(),
+            "Hello\u20290123456789\u2029\u2029prompt>")
+
+        # Print after prompt
         w._executing = True
-        for text in test_inputs:
-            w._append_plain_text(text, before_prompt = True)
-            w._flush_pending_stream() # emulate text being flushed
-
-        cursor = w._get_cursor()
-        self.assert_text_equal(cursor, expected_output)
-
-    def test_print_while_reading(self):
-        """ Does overwriting the currentt line with carriage return work?
-        """
-        w = ConsoleWidget()
-        test_inputs = ['Hello\n',
-                       'World\r',
-                       '*' * 10,
-                       '\r',
-                       '0', '1', '2', '3', '4',
-                       '5', '6', '7', '8', '9',
-                       '\r\n']
-
-        expected_output = "Hello\u20290123456789\u2029"
+        test_inputs = ['\nF', 'o', 'o',
+                       '\r', 'Bar', '\n']
 
         for text in test_inputs:
-            w._append_plain_text(text, before_prompt = True)
+            w._append_plain_text(text, before_prompt = False)
             w._flush_pending_stream() # emulate text being flushed
 
-        cursor = w._get_cursor()
-        self.assert_text_equal(cursor, expected_output)
+        self.assert_text_equal(w._get_cursor(),
+            "Hello\u20290123456789\u2029\u2029prompt>\u2029Bar\u2029")
 
     def test_link_handling(self):
         noButton = QtCore.Qt.NoButton
@@ -491,7 +486,7 @@ class TestConsoleWidget(unittest.TestCase):
                          w._prompt_pos - len(w._prompt))
 
         # insert some text before the prompt
-        w._append_plain_text('line', before_prompt=True)
+        w._append_plain_text('line', before_prompt = True)
         self.assertEqual(w._prompt_pos, w._get_end_pos())
         self.assertEqual(w._append_before_prompt_pos,
                          w._prompt_pos - len(w._prompt))
