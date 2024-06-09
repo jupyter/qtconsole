@@ -2519,6 +2519,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         cursor = self._get_end_cursor()
 
+        # Memorize end to check if we actually add any prompt characters
+        prior_end_pos = cursor.position()
+
         # Save the current position to support _append*(before_prompt=True).
         # We can't leave the cursor at the end of the document though, because
         # that would cause any further additions to move the cursor. Therefore,
@@ -2557,7 +2560,16 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 self._prompt_html = None
 
         self._flush_pending_stream()
-        self._prompt_cursor.setPosition(self._get_end_pos() - 1)
+
+        current_end_pos = self._get_end_pos()
+        if prior_end_pos != current_end_pos:
+            # Set the prompt cursor to end minus 1, so long as
+            # the prompt was not blank
+            self._prompt_cursor.setPosition(current_end_pos - 1)
+        else:
+            # The prompt didn't move end, i.e. the prompt inserted exactly 0 characters
+            # Move cursor to end
+            self._prompt_cursor.setPosition(current_end_pos)
 
         if move_forward:
             self._append_before_prompt_cursor.setPosition(
