@@ -812,7 +812,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.active_frontend.reset(clear=True)
         selectColor = styles.get_colors(syntax_style)
         self.active_frontend._execute("from IPython.core.ultratb import VerboseTB\n"+
-                                      "VerboseTB._tb_highlight = 'bg:%(select)s'\n"%selectColor+
+                                      f"VerboseTB._tb_highlight = 'bg:%{selectColor}'\n"+
                                       f"VerboseTB._tb_highlight_style = '{syntax_style}'", True)
         
 
