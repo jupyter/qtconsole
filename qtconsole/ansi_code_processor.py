@@ -298,7 +298,7 @@ class AnsiCodeProcessor(object):
         Based on: https://gist.github.com/MightyPork/1d9bd3a3fd4eb1a661011560f6921b5b
         """
         parsed_color = None
-        if color < 8:
+        if color < 16:
             # Adjust for intensity, if possible.
             if intensity > 0:
                 color += 8
