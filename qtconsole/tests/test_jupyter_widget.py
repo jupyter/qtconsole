@@ -34,7 +34,7 @@ class TestJupyterWidget(unittest.TestCase):
         w = JupyterWidget(kind='rich')
 
         # By default, the background is light. White text is rendered as black
-        self.assertEqual(w._ansi_processor.get_color(15).name(), '#ffffff')
+        self.assertEqual(w._ansi_processor.get_color(15).name(), '#000000')
 
         # Change to a dark colorscheme. White text is rendered as white
         w.syntax_style = 'monokai'
