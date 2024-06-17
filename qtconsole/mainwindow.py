@@ -811,8 +811,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.active_frontend._style_sheet_changed()
         self.active_frontend.reset(clear=True)
         self.active_frontend._execute(
-            f"from IPython.core.ultratb import VerboseTB;"
-            "VerboseTB._tb_highlight_style = '{syntax_style}'",
+f"""
+from IPython.core.ultratb import VerboseTB
+try:
+    VerboseTB._tb_highlight_style = '{syntax_style}'
+except AttributeError:
+    get_ipython().run_line_magic('colors', '{colors}')
+""",
             True)
         
 
