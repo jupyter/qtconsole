@@ -39,6 +39,9 @@ class TestJupyterWidget(unittest.TestCase):
         # Change to a dark colorscheme. White text is rendered as white
         w.syntax_style = 'monokai'
         self.assertEqual(w._ansi_processor.get_color(15).name(), '#ffffff')
+        
+        # Color code 40
+        self.assertEqual(w._ansi_processor.get_color(40).name(), '#37D737')
 
     @pytest.mark.skipif(not sys.platform.startswith('linux'),
                         reason="Works only on Linux")
