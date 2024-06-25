@@ -37,7 +37,7 @@ class TestJupyterWidget(unittest.TestCase):
         self.assertEqual(w._ansi_processor.get_color(15).name(), '#000000')
 
         # Color code 40
-        self.assertEqual(w._ansi_processor.get_color(40).name(), '#37D737')
+        self.assertEqual(w._ansi_processor.get_color(40).name(), '#00d700')
         
         # Change to a dark colorscheme. White text is rendered as white
         w.syntax_style = 'monokai'
