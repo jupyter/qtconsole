@@ -37,7 +37,7 @@ class TestAnsiCodeProcessor(unittest.TestCase):
     def test_colors(self):
         """ Do basic controls sequences for colors work?
         """
-        string = 'first\x1b[34mblue\x1b[0mlast'
+        string = 'first\x1b[34mblue\x1b[0mlast\033[33mYellow'
         i = -1
         for i, substring in enumerate(self.processor.split_string(string)):
             if i == 0:
@@ -49,6 +49,9 @@ class TestAnsiCodeProcessor(unittest.TestCase):
             elif i == 2:
                 self.assertEqual(substring, 'last')
                 self.assertEqual(self.processor.foreground_color, None)
+            elif i == 3:
+                self.assertEqual(substring, 'Yellow')
+                self.assertEqual(self.processor.foreground_color, 3)
             else:
                 self.fail('Too many substrings.')
         self.assertEqual(i, 2, 'Too few substrings.')
