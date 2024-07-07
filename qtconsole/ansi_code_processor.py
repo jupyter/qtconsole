@@ -300,7 +300,7 @@ class AnsiCodeProcessor(object):
         parsed_color = None
         if color < 16:
             # Adjust for intensity, if possible.
-            if intensity > 0:
+            if intensity > 0 and color < 8:
                 color += 8
             parsed_color = self.color_map.get(color, None)
         elif (color > 231):
