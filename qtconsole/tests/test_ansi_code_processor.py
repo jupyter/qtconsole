@@ -58,7 +58,7 @@ class TestAnsiCodeProcessor(unittest.TestCase):
 
             else:
                 self.fail('Too many substrings.')
-        self.assertEqual(i, 2, 'Too few substrings.')
+        self.assertEqual(i, 3, 'Too few substrings.')
 
     def test_colors_xterm(self):
         """ Do xterm-specific control sequences for colors work?
