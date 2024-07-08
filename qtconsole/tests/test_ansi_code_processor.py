@@ -2,13 +2,14 @@
 import unittest
 
 # Local imports
-from qtconsole.ansi_code_processor import AnsiCodeProcessor
+from qtconsole.ansi_code_processor import AnsiCodeProcessor, QtAnsiCodeProcessor
 
 
 class TestAnsiCodeProcessor(unittest.TestCase):
 
     def setUp(self):
         self.processor = AnsiCodeProcessor()
+        self.qt_processor = QtAnsiCodeProcessor()
 
     def test_clear(self):
         """ Do control sequences for clearing the console work?
@@ -50,8 +51,11 @@ class TestAnsiCodeProcessor(unittest.TestCase):
                 self.assertEqual(substring, 'last')
                 self.assertEqual(self.processor.foreground_color, None)
             elif i == 3:
+                foreground_color = self.processor.foreground_color
+                self.assertEqual(self.qt_processor.get_color(foreground_color).name(), '#ffd700')
                 self.assertEqual(substring, 'Yellow')
                 self.assertEqual(self.processor.foreground_color, 3)
+
             else:
                 self.fail('Too many substrings.')
         self.assertEqual(i, 2, 'Too few substrings.')
