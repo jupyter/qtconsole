@@ -61,7 +61,7 @@ class AnsiCodeProcessor(object):
 
     # Whether to increase intensity or set boldness for SGR code 1.
     # (Different terminals handle this in different ways.)
-    bold_text_enabled = False
+    bold_text_enabled = True
 
     # We provide an empty default color map because subclasses will likely want
     # to use a custom color format.
