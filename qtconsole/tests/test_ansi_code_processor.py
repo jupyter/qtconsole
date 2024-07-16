@@ -55,8 +55,6 @@ class TestAnsiCodeProcessor(unittest.TestCase):
                 self.assertEqual(substring, 'Yellow')
                 self.assertEqual(foreground_color, 3)
                 self.assertEqual(self.qt_processor.get_color(foreground_color).name(), '#ffd700')
-                
-
             else:
                 self.fail('Too many substrings.')
         self.assertEqual(i, 3, 'Too few substrings.')
