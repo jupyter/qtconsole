@@ -1,3 +1,4 @@
+import os
 import time
 from queue import Empty
 import unittest
@@ -11,6 +12,9 @@ class Tests(unittest.TestCase):
 
     def setUp(self):
         """Open a kernel."""
+        # Prevent tests assertions related with message type from failing
+        # due to a debug warning
+        os.environ['PYDEVD_DISABLE_FILE_VALIDATION'] = '1'
         self.kernel_manager = QtKernelManager()
         self.kernel_manager.start_kernel()
         self.kernel_client = self.kernel_manager.client()
