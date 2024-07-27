@@ -851,12 +851,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
             self._insert_plain_text_into_buffer(cursor, dedent(text))
 
-    def print_(self, printer = None):
+    def print_(self, printer=None):
         """ Print the contents of the ConsoleWidget to the specified QPrinter.
         """
-        if (not printer):
+        if not printer:
             printer = QtPrintSupport.QPrinter()
-            if(QtPrintSupport.QPrintDialog(printer).exec_() != QtPrintSupport.QPrintDialog.Accepted):
+            if QtPrintSupport.QPrintDialog(printer).exec_() != QtPrintSupport.QPrintDialog.Accepted:
                 return
         self._control.print_(printer)
 
@@ -1039,7 +1039,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         result = insert(cursor, input, *args, **kwargs)
 
         # Remove insert mode tag
-        if hasattr(cursor, "_insert_mode"):
+        if hasattr(cursor, '_insert_mode'):
             del cursor._insert_mode
 
         return result
@@ -1077,7 +1077,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Select and remove all text below the input buffer.
         cursor = self._get_prompt_cursor()
         prompt = self._continuation_prompt.lstrip()
-        if(self._temp_buffer_filled):
+        if self._temp_buffer_filled:
             self._temp_buffer_filled = False
             while cursor.movePosition(QtGui.QTextCursor.NextBlock):
                 temp_cursor = QtGui.QTextCursor(cursor)
@@ -1689,13 +1689,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         return False
 
     def _on_flush_pending_stream_timer(self):
-        """ Flush the pending stream output and change the
-        prompt position appropriately.
+        """ Flush pending text into the widget on console timer trigger.
         """
         self._flush_pending_stream()
 
     def _flush_pending_stream(self):
-        """ Flush out pending text into the widget. """
+        """ Flush pending text into the widget. Only applies to text that is pending
+            when the console is in the running state. Text printed when console is
+            not running is shown immediately, and does not wait to be flushed.
+        """
         text = self._pending_insert_text
         self._pending_insert_text = []
         buffer_size = self._control.document().maximumBlockCount()
@@ -2430,7 +2432,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         self._reading = True
         if password:
-            self._show_prompt('Warning: QtConsole does not support password mode, '\
+            self._show_prompt('Warning: QtConsole does not support password mode, '
                               'the text you type will be visible.', newline=True)
 
         if 'ipdb' not in prompt.lower():

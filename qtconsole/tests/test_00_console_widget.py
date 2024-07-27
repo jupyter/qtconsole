@@ -391,7 +391,7 @@ class TestConsoleWidget(unittest.TestCase):
                        '\r\n']
 
         for text in test_inputs:
-            w._append_plain_text(text, before_prompt = True)
+            w._append_plain_text(text, before_prompt=True)
             w._flush_pending_stream() # emulate text being flushed
 
         self.assert_text_equal(w._get_cursor(),
@@ -403,7 +403,7 @@ class TestConsoleWidget(unittest.TestCase):
                        '\r', 'Bar', '\n']
 
         for text in test_inputs:
-            w._append_plain_text(text, before_prompt = False)
+            w._append_plain_text(text, before_prompt=False)
             w._flush_pending_stream() # emulate text being flushed
 
         self.assert_text_equal(w._get_cursor(),
@@ -486,7 +486,7 @@ class TestConsoleWidget(unittest.TestCase):
                          w._prompt_pos - len(w._prompt))
 
         # insert some text before the prompt
-        w._append_plain_text('line', before_prompt = True)
+        w._append_plain_text('line', before_prompt=True)
         self.assertEqual(w._prompt_pos, w._get_end_pos())
         self.assertEqual(w._append_before_prompt_pos,
                          w._prompt_pos - len(w._prompt))
