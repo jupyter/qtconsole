@@ -190,10 +190,9 @@ class AnsiCodeProcessor(object):
             count = params[0] if params else 1
             self.actions.append(MoveAction('move', dir, 'line', count))
         elif (command == 'F'):  # Goes back to the begining of the n-th previous line
-            dir = 'up'
+            dir = 'leftup'
             count = params[0] if params else 1
             self.actions.append(MoveAction('move', dir, 'line', count))
-            self.actions.append(CarriageReturnAction('carriage-return'))
         
 
     def set_osc_code(self, params):
