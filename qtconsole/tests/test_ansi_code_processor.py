@@ -218,7 +218,7 @@ class TestAnsiCodeProcessor(unittest.TestCase):
                 self.assertEqual(action.count, 5)
             else:
                 self.fail('Too many substrings.')
-        self.assertEqual(i, 1, 'Too few substrings.')
+        self.assertEqual(i, 3, 'Too few substrings.')
 
 
 if __name__ == '__main__':
