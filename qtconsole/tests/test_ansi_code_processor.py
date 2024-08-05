@@ -183,8 +183,6 @@ class TestAnsiCodeProcessor(unittest.TestCase):
         self.assertEqual(actions, [[], ['carriage-return'], [], ['backspace']])
 
     def test_move_cursor_up(self):
-        """ Do control sequences for scrolling the buffer work?
-        """
         string = '\x1b[A\x1b[5A\x1b[F\x1b[5F'
         i = -1
         for i, substring in enumerate(self.processor.split_string(string)):
