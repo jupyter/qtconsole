@@ -728,7 +728,7 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
 
     def append_stream(self, text):
         """Appends text to the output stream."""
-        self._append_plain_text(text, before_prompt=True)
+        self._append_plain_text(text, before_prompt = True)
 
     def flush_clearoutput(self):
         """If a clearoutput is pending, execute it."""
