@@ -2154,6 +2154,19 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                             cursor.select(QtGui.QTextCursor.Document)
                             cursor.removeSelectedText()
 
+                    elif act.action == 'move' and act.unit == 'line':
+                        if act.dir == 'up':
+                            for i in range(act.count):
+                                cursor.movePosition(
+                                    QtGui.QTextCursor.Up)
+                        elif act.dir == 'leftup':
+                            for i in range(act.count):
+                                cursor.movePosition(
+                                    QtGui.QTextCursor.Up)
+                            cursor.movePosition(
+                            QtGui.QTextCursor.StartOfLine,
+                            QtGui.QTextCursor.MoveAnchor)
+
                     elif act.action == 'carriage-return':
                         cursor.movePosition(
                             QtGui.QTextCursor.StartOfLine,
