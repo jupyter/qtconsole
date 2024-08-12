@@ -1017,7 +1017,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     and self._append_before_prompt_pos != self._get_end_pos():
                 cursor.setPosition(self._append_before_prompt_pos)
 
-                # If we appending on the same line as the prompt, use insert mode
+                # If we're appending on the same line as the prompt, use insert mode
                 # If so, the character at self._append_before_prompt_pos will not be a newline
                 cursor.movePosition(QtGui.QTextCursor.Right,
                                     QtGui.QTextCursor.KeepAnchor)
@@ -1025,7 +1025,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     cursor._insert_mode = True
                 cursor.movePosition(QtGui.QTextCursor.Left)
         else:
-            # Insert at current printing point
+            # Insert at current printing point.
             # If cursor is before prompt jump to end, but only if there
             # is a prompt (before_prompt_pos != end)
             if cursor.position() <= self._append_before_prompt_pos \
@@ -1694,9 +1694,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self._flush_pending_stream()
 
     def _flush_pending_stream(self):
-        """ Flush pending text into the widget. Only applies to text that is pending
-            when the console is in the running state. Text printed when console is
-            not running is shown immediately, and does not wait to be flushed.
+        """
+        Flush pending text into the widget.
+
+        Only applies to text that is pending when the console is in the
+        running state. Text printed when console is not running is shown
+        immediately, and does not wait to be flushed.
         """
         text = self._pending_insert_text
         self._pending_insert_text = []
