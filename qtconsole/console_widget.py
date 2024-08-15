@@ -1017,7 +1017,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                     and self._append_before_prompt_pos != self._get_end_pos():
                 cursor.setPosition(self._append_before_prompt_pos)
 
-                # If we're appending on the same line as the prompt, use insert mode
+                # If we're appending on the same line as the prompt, use insert mode.
                 # If so, the character at self._append_before_prompt_pos will not be a newline
                 cursor.movePosition(QtGui.QTextCursor.Right,
                                     QtGui.QTextCursor.KeepAnchor)
@@ -1697,7 +1697,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         """
         Flush pending text into the widget.
 
-        Only applies to text that is pending when the console is in the
+        It only applies to text that is pending when the console is in the
         running state. Text printed when console is not running is shown
         immediately, and does not wait to be flushed.
         """
