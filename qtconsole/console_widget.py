@@ -2159,6 +2159,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                             for i in range(act.count):
                                 cursor.movePosition(
                                     QtGui.QTextCursor.Up)
+                        elif act.dir == 'down':
+                            for i in range(act.count):
+                                cursor.movePosition(
+                                    QtGui.QTextCursor.Down)
                         elif act.dir == 'leftup':
                             for i in range(act.count):
                                 cursor.movePosition(
