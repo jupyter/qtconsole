@@ -2220,9 +2220,9 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                                 QtGui.QTextCursor.MoveAnchor)
 
                     elif act.action == 'newline':
-                        if not cursor.movePosition(QtGui.QTextCursor.NextBlock):                            
-                            cursor.movePosition(QtGui.QTextCursor.EndOfLine)
+                        if not cursor.movePosition(QtGui.QTextCursor.NextBlock):
                             cursor.insertText('\n')
+                            cursor.movePosition(QtGui.QTextCursor.EndOfLine)
 
                 # simulate replacement mode
                 if substring is not None:
