@@ -122,7 +122,7 @@ class AnsiCodeProcessor(object):
                 self.actions = []
             elif g0 == '\n' or g0 == '\r\n':
                 self.actions.append(NewLineAction('newline'))
-                yield g0
+                yield None
                 self.actions = []
             else:
                 params = [ param for param in groups[1].split(';') if param ]
