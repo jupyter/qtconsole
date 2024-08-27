@@ -139,7 +139,7 @@ class TestAnsiCodeProcessor(unittest.TestCase):
         for split in self.processor.split_string(string):
             splits.append(split)
             actions.append([action.action for action in self.processor.actions])
-        self.assertEqual(splits, ['foo', None, 'bar',None, 'cat', None, None])
+        self.assertEqual(splits, ['foo', None, 'bar',None, 'cat', None, '\n'])
         self.assertEqual(actions, [[], ['carriage-return'], [], ['newline'], [], ['newline'], ['newline']])
 
     def test_beep(self):
