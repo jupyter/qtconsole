@@ -47,11 +47,11 @@ def is_whitespace(char):
 #-----------------------------------------------------------------------------
 class ShortcutManager(HasTraits):
         # Definimos traits para los shortcuts
-        shortcut_print = Unicode(QtGui.QKeySequence.Print).tag(config=True)
-        shortcut_select_all = Unicode(QtGui.QKeySequence.SelectAll).tag(config=True)
-        shortcut_cut = Unicode(QtGui.QKeySequence.Cut).tag(config=True)
-        shortcut_copy = Unicode(QtGui.QKeySequence.Copy).tag(config=True)
-        shortcut_paste = Unicode(QtGui.QKeySequence.Paste).tag(config=True)
+        shortcut_print = Unicode(QtGui.QKeySequence.Print.toString()).tag(config=True)
+        shortcut_select_all = Unicode(QtGui.QKeySequence.SelectAll.toString()).tag(config=True)
+        shortcut_cut = Unicode(QtGui.QKeySequence.Cut.toString()).tag(config=True)
+        shortcut_copy = Unicode(QtGui.QKeySequence.Copy.toString()).tag(config=True)
+        shortcut_paste = Unicode(QtGui.QKeySequence.Paste.toString()).tag(config=True)
 
         @observe('shortcut_print', 'shortcut_select_all','shortcut_cut','shortcut_copy','shortcut_paste')
         def _on_shortcut_changed(self, change):
