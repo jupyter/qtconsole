@@ -147,7 +147,7 @@ class AnsiCodeProcessor(object):
 
         if last_char is not None:
             self.actions.append(NewLineAction('newline'))
-            yield last_char
+            yield None
 
     def set_csi_code(self, command, params=[]):
         """ Set attributes based on CSI (Control Sequence Introducer) code.
