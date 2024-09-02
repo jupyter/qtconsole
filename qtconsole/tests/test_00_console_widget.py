@@ -392,9 +392,9 @@ class TestConsoleWidget(unittest.TestCase):
 
         for text in test_inputs:
             w._append_plain_text(text, before_prompt=True)
-            w._flush_pending_stream() # emulate text being flushed
+            #w._flush_pending_stream() # emulate text being flushed
 
-        self.assert_text_equal(w._get_line_start_cursor(),
+        self.assert_text_equal(w._get_cursor(),
             "Hello\u20290123456789\u2029\u2029prompt>")
 
         # Print after prompt
