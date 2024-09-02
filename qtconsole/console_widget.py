@@ -2220,7 +2220,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                                 QtGui.QTextCursor.MoveAnchor)
 
                     elif act.action == 'newline':
-                        if not cursor.movePosition(QtGui.QTextCursor.NextBlock):
+                        self.log.debug(self._prompt)
+                        if cursor.block() != cursor.document().lastBlock():
+                            cursor.movePosition(QtGui.QTextCursor.NextBlock)
+                        else:
                             cursor.movePosition(QtGui.QTextCursor.EndOfLine,
                                                 QtGui.QTextCursor.MoveAnchor)
                             cursor.insertText('\n')
