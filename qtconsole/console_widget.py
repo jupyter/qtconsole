@@ -401,15 +401,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
     def update_shortcuts(self, change):
         if change['name'] == 'shortcut_print':
-            self.open_action.setShortcut(change['new'])
+            self.print_action.setShortcut(change['new'])
         elif change['name'] == 'shortcut_select_all':
-            self.save_action.setShortcut(change['new'])
+            self.select_all_action.setShortcut(change['new'])
         elif change['name'] == 'shortcut_cut':
-            self.close_action.setShortcut(change['new'])
+            self.cut_action.setShortcut(change['new'])
         elif change['name'] == 'shortcut_copy':
-            self.new_action.setShortcut(change['new'])
+            self.copy_action.setShortcut(change['new'])
         elif change['name'] == 'shortcut_paste':
-            self.new_action.setShortcut(change['new'])
+            self.paste_action.setShortcut(change['new'])
 
     #---------------------------------------------------------------------------
     # Drag and drop support
