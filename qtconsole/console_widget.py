@@ -364,7 +364,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
             self.shortcut_manager.shortcut_select_all = "Ctrl+Shift+A"
-        action.setShortcut(self.shortcut_manager.shortcut_print)
+        action.setShortcut(self.shortcut_manager.shortcut_select_all)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.select_all_smart)
         self.addAction(action)
