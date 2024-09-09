@@ -2220,13 +2220,19 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                                 QtGui.QTextCursor.MoveAnchor)
 
                     elif act.action == 'newline':
-                        self.log.debug(self._prompt)
-                        if cursor.block() != cursor.document().lastBlock():
+                        if (
+                            cursor.block() != cursor.document().lastBlock()
+                            and not cursor.document()
+                            .toPlainText()
+                            .endswith(self._prompt)
+                        ):
                             cursor.movePosition(QtGui.QTextCursor.NextBlock)
                         else:
-                            cursor.movePosition(QtGui.QTextCursor.EndOfLine,
-                                                QtGui.QTextCursor.MoveAnchor)
-                            cursor.insertText('\n')
+                            cursor.movePosition(
+                                QtGui.QTextCursor.EndOfLine,
+                                QtGui.QTextCursor.MoveAnchor,
+                            )
+                            cursor.insertText("\n")
 
                 # simulate replacement mode
                 if substring is not None:
