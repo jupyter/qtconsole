@@ -21,8 +21,7 @@ from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
 
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
-from traitlets import HasTraits, Unicode, observe
-
+from traitlets import default, HasTraits, Unicode, observe
 
 from .ansi_code_processor import QtAnsiCodeProcessor
 from .completion_widget import CompletionWidget
@@ -45,17 +44,34 @@ def is_whitespace(char):
 #-----------------------------------------------------------------------------
 # Classes
 #-----------------------------------------------------------------------------
-class ShortcutManager(HasTraits):
-        # Define traits for shortcuts
-        shortcut_print = Unicode('Ctrl+P').tag(config=True)
-        shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
-        shortcut_cut = Unicode(QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()).tag(config=True)
-        shortcut_copy = Unicode(QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()).tag(config=True)
-        shortcut_paste = Unicode(QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()).tag(config=True)
 
-        @observe('shortcut_print', 'shortcut_select_all','shortcut_cut','shortcut_copy','shortcut_paste')
-        def _on_shortcut_changed(self, change):
-            print(f"Shortcut for {change['name']} changed to: {change['new']}")
+class ShortcutManager(HasTraits):
+    """Default shortcuts definition and changes event handler."""
+
+    # Define traits for shortcuts
+    shortcut_print = Unicode('Ctrl+P').tag(config=True)
+    shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
+    shortcut_cut = Unicode().tag(config=True)
+    shortcut_copy = Unicode().tag(config=True)
+    shortcut_paste = Unicode().tag(config=True)
+
+    @default('shortcut_cut')
+    def _default_shortcut_cut(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()
+
+    @default('shortcut_copy')
+    def _default_shortcut_copy(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
+
+    @default('shortcut_paste')
+    def _default_shortcut_paste(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
+
+    @observe('shortcut_print', 'shortcut_select_all','shortcut_cut','shortcut_copy','shortcut_paste')
+    def _on_shortcut_changed(self, change):
+        print(f"Shortcut for {change['name']} changed to: {change['new']}")
+
+
 
 class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtWidgets.QWidget)), {})):
     """ An abstract base class for console-type widgets. This class has
@@ -338,7 +354,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Configure actions.
         action = QtWidgets.QAction('Print', None)
         action.setEnabled(True)
-        printkey = self.shortcut_manager.shortcut_print
+        printkey = QtGui.QKeySequence(self.shortcut_manager.shortcut_print)
         if printkey.matches("Ctrl+P") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
@@ -359,7 +375,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         action = QtWidgets.QAction('Select All', None)
         action.setEnabled(True)
-        selectall = self.shortcut_manager.shortcut_select_all
+        selectall = QtGui.QKeySequence(self.shortcut_manager.shortcut_select_all)
         if selectall.matches("Ctrl+A") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
