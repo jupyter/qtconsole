@@ -19,6 +19,17 @@ from .pygments_highlighter import PygmentsHighlighter
 from .util import import_item
 
 
+class ShortcutManager(HasTraits):
+    """Default shortcuts definition and changes event handler."""
+
+    # Define traits for shortcuts
+    shortcut_copy_raw = Unicode('Ctrl+Shift+C').tag(config=True)
+    
+    @observe('shortcut_copy_raw')
+    def _on_shortcut_changed(self, change):
+        self.log.debug(f"Shortcut for {change['name']} changed to: {change['new']}")
+
+
 class FrontendHighlighter(PygmentsHighlighter):
     """ A PygmentsHighlighter that understands and ignores prompts.
     """
@@ -187,14 +198,18 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         self._call_tip_widget.setFont(self.font)
         self.font_changed.connect(self._call_tip_widget.setFont)
 
+        self.shortcut_manager = ShortcutManager()
+
         # Configure actions.
         action = self._copy_raw_action
         action.setEnabled(False)
-        action.setShortcut(QtGui.QKeySequence("Ctrl+Shift+C"))
+        action.setShortcut(self.shortcut_manager.shortcut_copy_raw)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.copy_raw)
         self.copy_available.connect(action.setEnabled)
         self.addAction(action)
+        self.copy_raw_action = action
+        self.shortcut_manager.observe(self.update_shortcuts, names=['shortcut_copy_raw'])
 
         # Connect signal handlers.
         document = self._control.document()
@@ -209,6 +224,10 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
     #---------------------------------------------------------------------------
+
+    def update_shortcuts(self, change):
+        if change['name'] == 'shortcut_copy_raw':
+            self.copy_raw_action.setShortcut(change['new'])
 
     def copy(self):
         """ Copy the currently selected text to the clipboard, removing prompts.
