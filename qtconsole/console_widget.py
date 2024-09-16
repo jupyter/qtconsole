@@ -54,6 +54,11 @@ class ShortcutManager(HasTraits):
     shortcut_cut = Unicode().tag(config=True)
     shortcut_copy = Unicode().tag(config=True)
     shortcut_paste = Unicode().tag(config=True)
+    shortcut_save = Unicode.tag(config=True)
+
+    @default('shortcut_save')
+    def _default_shortcut_save(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
 
     @default('shortcut_cut')
     def _default_shortcut_cut(self):
@@ -67,10 +72,9 @@ class ShortcutManager(HasTraits):
     def _default_shortcut_paste(self):
         return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
 
-    @observe('shortcut_print', 'shortcut_select_all','shortcut_cut','shortcut_copy','shortcut_paste')
+    @observe('shortcut_print', 'shortcut_select_all','shortcut_cut','shortcut_copy','shortcut_paste','shortcut_save')
     def _on_shortcut_changed(self, change):
-        print(f"Shortcut for {change['name']} changed to: {change['new']}")
-
+        self.log.debug(f"Shortcut for {change['name']} changed to: {change['new']}")
 
 
 class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtWidgets.QWidget)), {})):
@@ -367,11 +371,12 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self.shortcut_manager.observe(self.update_shortcuts, names=['shortcut_print'])
 
         action = QtWidgets.QAction('Save as HTML/XML', None)
-        action.setShortcut(QtGui.QKeySequence.Save)
+        action.setShortcut(self.shortcut_manager.shortcut_save)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.export_html)
         self.addAction(action)
         self.export_action = action
+        self.shortcut_manager.observe(self.update_shortcuts, names=['shortcut_save'])
 
         action = QtWidgets.QAction('Select All', None)
         action.setEnabled(True)
