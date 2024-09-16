@@ -54,7 +54,7 @@ class ShortcutManager(HasTraits):
     shortcut_cut = Unicode().tag(config=True)
     shortcut_copy = Unicode().tag(config=True)
     shortcut_paste = Unicode().tag(config=True)
-    shortcut_save = Unicode.tag(config=True)
+    shortcut_save = Unicode().tag(config=True)
 
     @default('shortcut_save')
     def _default_shortcut_save(self):
