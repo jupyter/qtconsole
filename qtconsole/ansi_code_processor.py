@@ -95,7 +95,7 @@ class AnsiCodeProcessor(object):
         # strings ending with \r are assumed to be ending in \r\n since
         # \n is appended to output strings automatically.  Accounting
         # for that, here.
-        last_char = None#'\n' if len(string) > 0 and string[-1] == '\n' else None
+        last_char = None
         string = string[:-1] if last_char is not None else string
 
         for match in ANSI_OR_SPECIAL_PATTERN.finditer(string):
