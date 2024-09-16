@@ -12,6 +12,9 @@ from qtpy import QtCore, QtGui, QtWidgets
 
 from qtconsole.base_frontend_mixin import BaseFrontendMixin
 from traitlets import Any, Bool, Instance, Unicode, DottedObjectName, default
+from traitlets.config.configurable import LoggingConfigurable
+from traitlets import Enum, Integer
+from traitlets import HasTraits, observe
 from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
