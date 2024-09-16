@@ -74,7 +74,7 @@ class ShortcutManager(HasTraits):
 
     @observe('shortcut_print', 'shortcut_select_all','shortcut_cut','shortcut_copy','shortcut_paste','shortcut_save')
     def _on_shortcut_changed(self, change):
-        self.log.debug(f"Shortcut for {change['name']} changed to: {change['new']}")
+        print(f"Shortcut for {change['name']} changed to: {change['new']}")
 
 
 class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtWidgets.QWidget)), {})):

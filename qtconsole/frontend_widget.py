@@ -30,7 +30,7 @@ class ShortcutManager(HasTraits):
     
     @observe('shortcut_copy_raw')
     def _on_shortcut_changed(self, change):
-        self.log.debug(f"Shortcut for {change['name']} changed to: {change['new']}")
+        print(f"Shortcut for {change['name']} changed to: {change['new']}")
 
 
 class FrontendHighlighter(PygmentsHighlighter):
