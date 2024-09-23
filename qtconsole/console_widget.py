@@ -21,14 +21,14 @@ from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
 
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
-from traitlets import default, HasTraits, Unicode, observe
+from traitlets import default, HasTraits, observe
 
 from .ansi_code_processor import QtAnsiCodeProcessor
 from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
 from .completion_plain import CompletionPlain
 from .kill_ring import QtKillRing
-from .util import columnize
+from .util import columnize, ShortcutManager
 
 
 def is_letter_or_number(char):
@@ -44,37 +44,6 @@ def is_whitespace(char):
 #-----------------------------------------------------------------------------
 # Classes
 #-----------------------------------------------------------------------------
-
-class ShortcutManager(HasTraits):
-    """Default shortcuts definition and changes event handler."""
-
-    # Define traits for shortcuts
-    shortcut_print = Unicode('Ctrl+P').tag(config=True)
-    shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
-    shortcut_cut = Unicode().tag(config=True)
-    shortcut_copy = Unicode().tag(config=True)
-    shortcut_paste = Unicode().tag(config=True)
-    shortcut_save = Unicode().tag(config=True)
-
-    @default('shortcut_save')
-    def _default_shortcut_save(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
-
-    @default('shortcut_cut')
-    def _default_shortcut_cut(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()
-
-    @default('shortcut_copy')
-    def _default_shortcut_copy(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
-
-    @default('shortcut_paste')
-    def _default_shortcut_paste(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
-
-    @observe('shortcut_print', 'shortcut_select_all','shortcut_cut','shortcut_copy','shortcut_paste','shortcut_save')
-    def _on_shortcut_changed(self, change):
-        print(f"Shortcut for {change['name']} changed to: {change['new']}")
 
 
 class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtWidgets.QWidget)), {})):
@@ -431,6 +400,8 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
             self.copy_action.setShortcut(change['new'])
         elif change['name'] == 'shortcut_paste':
             self.paste_action.setShortcut(change['new'])
+        elif change['name'] == 'shortcut_save':
+            self.export_action.setShortcut(change['new'])
 
     #---------------------------------------------------------------------------
     # Drag and drop support

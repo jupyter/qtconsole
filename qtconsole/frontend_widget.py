@@ -19,18 +19,7 @@ from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
 from .pygments_highlighter import PygmentsHighlighter
-from .util import import_item
-
-
-class ShortcutManager(HasTraits):
-    """Default shortcuts definition and changes event handler."""
-
-    # Define traits for shortcuts
-    shortcut_copy_raw = Unicode('Ctrl+Shift+C').tag(config=True)
-    
-    @observe('shortcut_copy_raw')
-    def _on_shortcut_changed(self, change):
-        print(f"Shortcut for {change['name']} changed to: {change['new']}")
+from .util import import_item, ShortcutManager
 
 
 class FrontendHighlighter(PygmentsHighlighter):

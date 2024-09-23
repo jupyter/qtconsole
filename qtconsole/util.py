@@ -5,7 +5,7 @@ import inspect
 
 from qtpy import QtCore, QtGui
 
-from traitlets import HasTraits, TraitType
+from traitlets import default, HasTraits, TraitType, Unicode, observe
 
 #-----------------------------------------------------------------------------
 # Metaclasses
@@ -43,6 +43,44 @@ class MetaQObjectHasTraits(MetaQObject, MetaHasTraits):
 #-----------------------------------------------------------------------------
 # Classes
 #-----------------------------------------------------------------------------
+
+class ShortcutManager(HasTraits):
+    """Default shortcuts definition and changes event handler."""
+
+    # Define traits for shortcuts
+    shortcut_print = Unicode('Ctrl+P').tag(config=True)
+    shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
+    shortcut_cut = Unicode().tag(config=True)
+    shortcut_copy = Unicode().tag(config=True)
+    shortcut_paste = Unicode().tag(config=True)
+    shortcut_save = Unicode().tag(config=True)
+    shortcut_copy_raw = Unicode('Ctrl+Shift+C').tag(config=True)
+
+
+    @default('shortcut_save')
+    def _default_shortcut_save(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
+
+    @default('shortcut_cut')
+    def _default_shortcut_cut(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()
+
+    @default('shortcut_copy')
+    def _default_shortcut_copy(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
+
+    @default('shortcut_paste')
+    def _default_shortcut_paste(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
+
+    @observe('shortcut_copy_raw')
+    def _on_shortcut_changed(self, change):
+        print(f"Shortcut for {change['name']} changed to: {change['new']}")
+
+    @observe('*')
+    def _on_shortcut_changed(self, change):
+        print(f"Shortcut for {change['name']} changed to: {change['new']}")
+
 
 def superQ(QClass):
     """ Permits the use of super() in class hierarchies that contain Qt classes.
