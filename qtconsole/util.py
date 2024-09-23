@@ -81,6 +81,8 @@ class ShortcutManager(HasTraits):
     def _on_shortcut_changed(self, change):
         print(f"Shortcut for {change['name']} changed to: {change['new']}")
 
+shortcut_manager = ShortcutManager()
+
 
 def superQ(QClass):
     """ Permits the use of super() in class hierarchies that contain Qt classes.

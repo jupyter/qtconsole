@@ -19,7 +19,7 @@ from .bracket_matcher import BracketMatcher
 from .call_tip_widget import CallTipWidget
 from .history_console_widget import HistoryConsoleWidget
 from .pygments_highlighter import PygmentsHighlighter
-from .util import import_item, ShortcutManager
+from .util import import_item, shortcut_manager
 
 
 class FrontendHighlighter(PygmentsHighlighter):
@@ -190,18 +190,16 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
         self._call_tip_widget.setFont(self.font)
         self.font_changed.connect(self._call_tip_widget.setFont)
 
-        self.shortcut_manager = ShortcutManager()
-
         # Configure actions.
         action = self._copy_raw_action
         action.setEnabled(False)
-        action.setShortcut(self.shortcut_manager.shortcut_copy_raw)
+        action.setShortcut(shortcut_manager.shortcut_copy_raw)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.copy_raw)
         self.copy_available.connect(action.setEnabled)
         self.addAction(action)
         self.copy_raw_action = action
-        self.shortcut_manager.observe(self.update_shortcuts, names=['shortcut_copy_raw'])
+        shortcut_manager.observe(self.update_shortcuts, names=['shortcut_copy_raw'])
 
         # Connect signal handlers.
         document = self._control.document()
