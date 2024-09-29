@@ -19,7 +19,6 @@ from qtconsole import styles
 from qtconsole.jupyter_widget import JupyterWidget
 from qtconsole.usage import gui_reference
 
-
 def background(f):
     """call a function in a simple thread, to prevent blocking"""
     t = Thread(target=f)
