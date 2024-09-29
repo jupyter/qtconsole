@@ -28,7 +28,7 @@ from .completion_widget import CompletionWidget
 from .completion_html import CompletionHtml
 from .completion_plain import CompletionPlain
 from .kill_ring import QtKillRing
-from .util import columnize, shortcut_manager
+from .util import columnize
 
 
 def is_letter_or_number(char):
@@ -62,6 +62,20 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
     #------ Configuration ------------------------------------------------------
 
+    shortcut_print = Unicode('Ctrl+P').tag(config=True)
+    shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
+    shortcut_cut = Unicode().tag(config=True)
+    shortcut_copy = Unicode().tag(config=True)
+    shortcut_paste = Unicode().tag(config=True)
+    shortcut_save = Unicode().tag(config=True)
+    def _shortcut_save_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
+    def _shortcut_cut_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()
+    def _shortcut_copy_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
+    def _shortcut_paste_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
     ansi_codes = Bool(True, config=True,
         help="Whether to process ANSI escape codes."
     )
@@ -325,39 +339,36 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # Configure actions.
         action = QtWidgets.QAction('Print', None)
         action.setEnabled(True)
-        printkey = QtGui.QKeySequence(shortcut_manager.shortcut_print)
+        printkey = QtGui.QKeySequence(self.shortcut_print)
         if printkey.matches("Ctrl+P") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
-            shortcut_manager.shortcut_print = "Ctrl+Shift+P"
-        action.setShortcut(shortcut_manager.shortcut_print)
+            self.shortcut_print = "Ctrl+Shift+P"
+        action.setShortcut(self.shortcut_print)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.print_)
         self.addAction(action)
         self.print_action = action
-        shortcut_manager.observe(self.update_shortcuts, names=['shortcut_print'])
 
         action = QtWidgets.QAction('Save as HTML/XML', None)
-        action.setShortcut(shortcut_manager.shortcut_save)
+        action.setShortcut(self.shortcut_save)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.export_html)
         self.addAction(action)
         self.export_action = action
-        shortcut_manager.observe(self.update_shortcuts, names=['shortcut_save'])
 
         action = QtWidgets.QAction('Select All', None)
         action.setEnabled(True)
-        selectall = QtGui.QKeySequence(shortcut_manager.shortcut_select_all)
+        selectall = QtGui.QKeySequence(self.shortcut_select_all)
         if selectall.matches("Ctrl+A") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
-            shortcut_manager.shortcut_select_all = "Ctrl+Shift+A"
-        action.setShortcut(shortcut_manager.shortcut_select_all)
+            self.shortcut_select_all = "Ctrl+Shift+A"
+        action.setShortcut(self.shortcut_select_all)
         action.setShortcutContext(QtCore.Qt.WidgetWithChildrenShortcut)
         action.triggered.connect(self.select_all_smart)
         self.addAction(action)
         self.select_all_action = action
-        shortcut_manager.observe(self.update_shortcuts, names=['shortcut_select_all'])
 
         self.increase_font_size = QtWidgets.QAction("Bigger Font",
                 self,
@@ -387,20 +398,23 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # in self._control when that widget was created.
         self.setAcceptDrops(True)
 
+    @observe('shortcut_print', 'shortcut_select_all', 'shortcut_cut', 'shortcut_copy',
+    'shortcut_paste', 'shortcut_save')
     def update_shortcuts(self, change):
-        if change['name'] == 'shortcut_print':
-            self.print_action.setShortcut(change['new'])
-        elif change['name'] == 'shortcut_select_all':
-            self.select_all_action.setShortcut(change['new'])
-        elif change['name'] == 'shortcut_cut':
-            self.cut_action.setShortcut(change['new'])
-        elif change['name'] == 'shortcut_copy':
-            self.copy_action.setShortcut(change['new'])
-        elif change['name'] == 'shortcut_paste':
-            self.paste_action.setShortcut(change['new'])
-        elif change['name'] == 'shortcut_save':
-            self.export_action.setShortcut(change['new'])
-
+        shortcut_actions = {
+        'shortcut_print': self.print_action,
+        'shortcut_select_all': self.select_all_action,
+        'shortcut_cut': self.cut_action,
+        'shortcut_copy': self.copy_action,
+        'shortcut_paste': self.paste_action,
+        'shortcut_save': self.export_action
+        }
+        action = shortcut_actions.get(change['name'])    
+        if action:
+            action.setShortcut(change['new'])
+            self.log.debug(f"Shortcut for {change['name']} updated to: {change['new']}")
+        else:
+            self.log.debug(f"No action found for shortcut {change['name']}")
     #---------------------------------------------------------------------------
     # Drag and drop support
     #---------------------------------------------------------------------------
@@ -1166,18 +1180,15 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
         self.cut_action = menu.addAction('Cut', self.cut)
         self.cut_action.setEnabled(self.can_cut())
-        self.cut_action.setShortcut(shortcut_manager.shortcut_cut)
-        shortcut_manager.observe(self.update_shortcuts, names=['shortcut_cut'])
+        self.cut_action.setShortcut(self.shortcut_cut)
 
         self.copy_action = menu.addAction('Copy', self.copy)
         self.copy_action.setEnabled(self.can_copy())
-        self.copy_action.setShortcut(shortcut_manager.shortcut_copy)
-        shortcut_manager.observe(self.update_shortcuts, names=['shortcut_copy'])
+        self.copy_action.setShortcut(self.shortcut_copy)
 
         self.paste_action = menu.addAction('Paste', self.paste)
         self.paste_action.setEnabled(self.can_paste())
-        self.paste_action.setShortcut(shortcut_manager.shortcut_paste)
-        shortcut_manager.observe(self.update_shortcuts, names=['shortcut_paste'])
+        self.paste_action.setShortcut(self.shortcut_paste)
 
         anchor = self._control.anchorAt(pos)
         if anchor:
