@@ -18,6 +18,11 @@ from qtpy import QtGui, QtCore, QtWidgets
 from qtconsole import styles
 from qtconsole.jupyter_widget import JupyterWidget
 from qtconsole.usage import gui_reference
+from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
+
+from traitlets.config.configurable import LoggingConfigurable
+from traitlets import Bool, Enum, Integer, Unicode
+from traitlets import default, HasTraits, observe
 
 def background(f):
     """call a function in a simple thread, to prevent blocking"""
@@ -26,7 +31,77 @@ def background(f):
     return t
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtWidgets.QMainWindow)), {})):
+
+    shortcut_new_kernel_tab = Unicode('Ctrl+T').tag(config=True)
+    shortcut_slave_kernel_tab = Unicode('Ctrl+Shift+T').tag(config=True)
+    shortcut_existing_kernel_tab = Unicode('Alt+T').tag(config=True)
+    shortcut_close = Unicode().tag(config=True)
+    def _shortcut_close_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Close).toString()
+    shortcut_save = Unicode().tag(config=True)
+    def _shortcut_save_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
+    shortcut_print = Unicode('Ctrl+P').tag(config=True)
+    shortcut_quit = Unicode().tag(config=True)
+    def _shortcut_quit_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Quit).toString()
+    shortcut_undo = Unicode().tag(config=True)
+    def _shortcut_undo_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Undo).toString()
+    shortcut_redo = Unicode().tag(config=True)
+    def _shortcut_redo_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Redo).toString()
+    shortcut_cut = Unicode().tag(config=True)
+    def _shortcut_cut_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()
+    shortcut_copy = Unicode().tag(config=True)
+    def _shortcut_copy_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
+    shortcut_copy_raw = Unicode('Ctrl+Shift+C').tag(config=True)
+    shortcut_paste = Unicode().tag(config=True)
+    def _shortcut_paste_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
+    shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
+    shortcut_ctrl_shift_m = Unicode('Ctrl+Shift+M').tag(config=True)
+    shortcut_full_screen = Unicode().tag(config=True)
+    #def _shortcut_full_screen_default(self):
+    #    fs_key = "Ctrl+Meta+F" if sys.platform == 'darwin' else "F11"
+    #    return fs_key
+    shortcut_zoom_in = Unicode().tag(config=True)
+    def _shortcut_zoom_in_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn).toString()
+    shortcut_zoom_out = Unicode().tag(config=True)
+    def _shortcut_zoom_out_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomOut).toString()
+    shortcut_reset_font_size = Unicode('Ctrl+0').tag(config=True)
+    shortcut_clear = Unicode('Ctrl+L').tag(config=True)
+    ctrl = "Meta" if sys.platform == 'darwin' else "Ctrl"
+    shortcut_interrupt_kernel = Unicode('Ctrl+C').tag(config=True)
+    def _shortcut_interrupt_kernel_default(self):
+        return self.ctrl+'+C'
+    shortcut_restart_kernel = Unicode('Ctrl+Period').tag(config=True)
+    def _shortcut_restart_kernel_default(self):
+        return self.ctrl+'+.'
+    shortcut_minimize = Unicode('Ctrl+M').tag(config=True)
+    shortcut_prev_tab = Unicode().tag(config=True)
+    def _shortcut_prev_tab_default(self):
+        prev_key = "Ctrl+Alt+Left" if sys.platform == 'darwin' else "Ctrl+PgUp"
+        return prev_key
+    shortcut_next_tab = Unicode().tag(config=True)
+    def _shortcut_next_tab_default(self):
+        next_key = "Ctrl+Alt+Right" if sys.platform == 'darwin' else "Ctrl+PgDown"
+        return next_key
+    shortcut_rename_window = Unicode('Alt+R').tag(config=True)
+    shortcut_rename_current_tab = Unicode('Ctrl+R').tag(config=True)
+
+    @observe('shortcut_full_screen')
+    def update_shortcuts(self, change):
+        shortcut_actions = {
+        'shortcut_full_screen': self.full_screen_act
+        }
+        self.full_screen_act.setShortcut(change['new'])
+        self.log.debug(f"Shortcut for {change['name']} updated to: {change['new']}")
 
     #---------------------------------------------------------------------------
     # 'object' interface
@@ -390,19 +465,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.new_kernel_tab_act = QtWidgets.QAction("New Tab with &New kernel",
             self,
-            shortcut="Ctrl+T",
+            shortcut=self.shortcut_new_kernel_tab,
             triggered=self.create_tab_with_new_frontend)
         self.add_menu_action(self.file_menu, self.new_kernel_tab_act)
 
         self.slave_kernel_tab_act = QtWidgets.QAction("New Tab with Sa&me kernel",
             self,
-            shortcut="Ctrl+Shift+T",
+            shortcut=self.shortcut_slave_kernel_tab,
             triggered=self.create_tab_with_current_kernel)
         self.add_menu_action(self.file_menu, self.slave_kernel_tab_act)
 
         self.existing_kernel_tab_act = QtWidgets.QAction("New Tab with &Existing kernel",
                                                      self,
-                                                     shortcut="Alt+T",
+                                                     shortcut=self.shortcut_existing_kernel_tab,
                                                      triggered=self.create_tab_with_existing_kernel)
         self.add_menu_action(self.file_menu, self.existing_kernel_tab_act)
 
@@ -410,28 +485,28 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.close_action=QtWidgets.QAction("&Close Tab",
             self,
-            shortcut=QtGui.QKeySequence.Close,
+            shortcut=self.shortcut_close,
             triggered=self.close_active_frontend
             )
         self.add_menu_action(self.file_menu, self.close_action)
 
         self.export_action=QtWidgets.QAction("&Save to HTML/XHTML",
             self,
-            shortcut=QtGui.QKeySequence.Save,
+            shortcut=self.shortcut_save,
             triggered=self.export_action_active_frontend
             )
         self.add_menu_action(self.file_menu, self.export_action, True)
 
         self.file_menu.addSeparator()
 
-        printkey = QtGui.QKeySequence(QtGui.QKeySequence.Print)
+        printkey = QtGui.QKeySequence(self.shortcut_print)
         if printkey.matches("Ctrl+P") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
-            printkey = "Ctrl+Shift+P"
+            self.shortcut_print = "Ctrl+Shift+P"
         self.print_action = QtWidgets.QAction("&Print",
             self,
-            shortcut=printkey,
+            shortcut=self.shortcut_print,
             triggered=self.print_action_active_frontend)
         self.add_menu_action(self.file_menu, self.print_action, True)
 
@@ -443,7 +518,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.quit_action = QtWidgets.QAction("&Quit",
                 self,
-                shortcut=QtGui.QKeySequence.Quit,
+                shortcut=self.shortcut_quit,
                 triggered=self.close,
             )
             self.add_menu_action(self.file_menu, self.quit_action)
@@ -454,7 +529,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.undo_action = QtWidgets.QAction("&Undo",
             self,
-            shortcut=QtGui.QKeySequence.Undo,
+            shortcut=self.shortcut_undo,
             statusTip="Undo last action if possible",
             triggered=self.undo_active_frontend
             )
@@ -462,7 +537,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.redo_action = QtWidgets.QAction("&Redo",
             self,
-            shortcut=QtGui.QKeySequence.Redo,
+            shortcut=self.shortcut_redo,
             statusTip="Redo last action if possible",
             triggered=self.redo_active_frontend)
         self.add_menu_action(self.edit_menu, self.redo_action)
@@ -471,42 +546,42 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.cut_action = QtWidgets.QAction("&Cut",
             self,
-            shortcut=QtGui.QKeySequence.Cut,
+            shortcut=self.shortcut_cut,
             triggered=self.cut_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.cut_action, True)
 
         self.copy_action = QtWidgets.QAction("&Copy",
             self,
-            shortcut=QtGui.QKeySequence.Copy,
+            shortcut=self.shortcut_copy,
             triggered=self.copy_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.copy_action, True)
 
         self.copy_raw_action = QtWidgets.QAction("Copy (&Raw Text)",
             self,
-            shortcut="Ctrl+Shift+C",
+            shortcut=self.shortcut_copy_raw,
             triggered=self.copy_raw_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.copy_raw_action, True)
 
         self.paste_action = QtWidgets.QAction("&Paste",
             self,
-            shortcut=QtGui.QKeySequence.Paste,
+            shortcut=self.shortcut_paste,
             triggered=self.paste_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.paste_action, True)
 
         self.edit_menu.addSeparator()
 
-        selectall = QtGui.QKeySequence(QtGui.QKeySequence.SelectAll)
+        selectall = QtGui.QKeySequence(self.shortcut_select_all)
         if selectall.matches("Ctrl+A") and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
-            selectall = "Ctrl+Shift+A"
+            self.shortcut_select_all = "Ctrl+Shift+A"
         self.select_all_action = QtWidgets.QAction("Select Cell/&All",
             self,
-            shortcut=selectall,
+            shortcut=self.shortcut_select_all,
             triggered=self.select_all_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.select_all_action, True)
@@ -519,38 +594,38 @@ class MainWindow(QtWidgets.QMainWindow):
             # disable on OSX, where there is always a menu bar
             self.toggle_menu_bar_act = QtWidgets.QAction("Toggle &Menu Bar",
                 self,
-                shortcut="Ctrl+Shift+M",
+                shortcut=self.shortcut_ctrl_shift_m,
                 statusTip="Toggle visibility of menubar",
                 triggered=self.toggle_menu_bar)
             self.add_menu_action(self.view_menu, self.toggle_menu_bar_act)
-
-        fs_key = "Ctrl+Meta+F" if sys.platform == 'darwin' else "F11"
+        
         self.full_screen_act = QtWidgets.QAction("&Full Screen",
             self,
-            shortcut=fs_key,
+            shortcut=self.shortcut_full_screen,
             statusTip="Toggle between Fullscreen and Normal Size",
             triggered=self.toggleFullScreen)
+        
         self.add_menu_action(self.view_menu, self.full_screen_act)
 
         self.view_menu.addSeparator()
 
         self.increase_font_size = QtWidgets.QAction("Zoom &In",
             self,
-            shortcut=QtGui.QKeySequence.ZoomIn,
+            shortcut=self.shortcut_zoom_in,
             triggered=self.increase_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.increase_font_size, True)
 
         self.decrease_font_size = QtWidgets.QAction("Zoom &Out",
             self,
-            shortcut=QtGui.QKeySequence.ZoomOut,
+            shortcut=self.shortcut_zoom_out,
             triggered=self.decrease_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.decrease_font_size, True)
 
         self.reset_font_size = QtWidgets.QAction("Zoom &Reset",
             self,
-            shortcut="Ctrl+0",
+            shortcut=self.shortcut_reset_font_size,
             triggered=self.reset_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.reset_font_size, True)
@@ -559,7 +634,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.clear_action = QtWidgets.QAction("&Clear Screen",
             self,
-            shortcut='Ctrl+L',
+            shortcut=self.shortcut_clear,
             statusTip="Clear the console",
             triggered=self.clear_active_frontend)
         self.add_menu_action(self.view_menu, self.clear_action)
@@ -641,19 +716,17 @@ class MainWindow(QtWidgets.QMainWindow):
         # keep the signal shortcuts to ctrl, rather than
         # platform-default like we do elsewhere.
 
-        ctrl = "Meta" if sys.platform == 'darwin' else "Ctrl"
-
         self.interrupt_kernel_action = QtWidgets.QAction("&Interrupt current Kernel",
             self,
             triggered=self.interrupt_kernel_active_frontend,
-            shortcut=ctrl+"+C",
+            shortcut=self.shortcut_interrupt_kernel,
             )
         self.add_menu_action(self.kernel_menu, self.interrupt_kernel_action)
 
         self.restart_kernel_action = QtWidgets.QAction("&Restart current Kernel",
             self,
             triggered=self.restart_kernel_active_frontend,
-            shortcut=ctrl+"+.",
+            shortcut=self.shortcut_restart_kernel,
             )
         self.add_menu_action(self.kernel_menu, self.restart_kernel_action)
 
@@ -675,13 +748,13 @@ class MainWindow(QtWidgets.QMainWindow):
             # add min/maximize actions to OSX, which lacks default bindings.
             self.minimizeAct = QtWidgets.QAction("Mini&mize",
                 self,
-                shortcut="Ctrl+m",
+                shortcut=self.shortcut_minimize,
                 statusTip="Minimize the window/Restore Normal Size",
                 triggered=self.toggleMinimized)
             # maximize is called 'Zoom' on OSX for some reason
             self.maximizeAct = QtWidgets.QAction("&Zoom",
                 self,
-                shortcut="Ctrl+Shift+M",
+                shortcut=self.shortcut_ctrl_shift_m,
                 statusTip="Maximize the window/Restore Normal Size",
                 triggered=self.toggleMaximized)
 
@@ -689,25 +762,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.add_menu_action(self.window_menu, self.maximizeAct)
             self.window_menu.addSeparator()
 
-        prev_key = "Ctrl+Alt+Left" if sys.platform == 'darwin' else "Ctrl+PgUp"
         self.prev_tab_act = QtWidgets.QAction("Pre&vious Tab",
             self,
-            shortcut=prev_key,
+            shortcut=self.shortcut_prev_tab,
             statusTip="Select previous tab",
             triggered=self.prev_tab)
         self.add_menu_action(self.window_menu, self.prev_tab_act)
 
-        next_key = "Ctrl+Alt+Right" if sys.platform == 'darwin' else "Ctrl+PgDown"
         self.next_tab_act = QtWidgets.QAction("Ne&xt Tab",
             self,
-            shortcut=next_key,
+            shortcut=self.shortcut_next_tab,
             statusTip="Select next tab",
             triggered=self.next_tab)
         self.add_menu_action(self.window_menu, self.next_tab_act)
 
         self.rename_window_act = QtWidgets.QAction("Rename &Window",
                                                self,
-                                               shortcut="Alt+R",
+                                               shortcut=self.shortcut_rename_window,
                                                statusTip="Rename window",
                                                triggered=self.set_window_title)
         self.add_menu_action(self.window_menu, self.rename_window_act)
@@ -715,7 +786,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.rename_current_tab_act = QtWidgets.QAction("&Rename Current Tab",
                                                     self,
-                                                    shortcut="Ctrl+R",
+                                                    shortcut=self.shortcut_rename_current_tab,
                                                     statusTip="Rename current tab",
                                                     triggered=self.set_tab_title)
         self.add_menu_action(self.window_menu, self.rename_current_tab_act)
