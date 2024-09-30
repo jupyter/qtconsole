@@ -65,9 +65,9 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
     shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
     shortcut_ctrl_shift_m = Unicode('Ctrl+Shift+M').tag(config=True)
     shortcut_full_screen = Unicode().tag(config=True)
-    #def _shortcut_full_screen_default(self):
-    #    fs_key = "Ctrl+Meta+F" if sys.platform == 'darwin' else "F11"
-    #    return fs_key
+    def _shortcut_full_screen_default(self):
+        fs_key = "Ctrl+Meta+F" if sys.platform == 'darwin' else "F11"
+        return fs_key
     shortcut_zoom_in = Unicode().tag(config=True)
     def _shortcut_zoom_in_default(self):
         return QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn).toString()
