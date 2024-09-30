@@ -140,7 +140,7 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     """
     examples = _examples
 
-    classes = [JupyterWidget] + JupyterConsoleApp.classes
+    classes = [JupyterWidget, MainWindow] + JupyterConsoleApp.classes
     flags = Dict(flags)
     aliases = Dict(aliases)
     frontend_flags = Any(qt_flags)
