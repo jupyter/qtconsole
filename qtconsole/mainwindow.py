@@ -94,14 +94,22 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
         return next_key
     shortcut_rename_window = Unicode('Alt+R').tag(config=True)
     shortcut_rename_current_tab = Unicode('Ctrl+R').tag(config=True)
-
-    @observe('shortcut_full_screen')
+    shortcut_actions = {}
+    @observe('shortcut_clear')
     def update_shortcuts(self, change):
-        shortcut_actions = {
-        'shortcut_full_screen': self.full_screen_act
-        }
-        self.full_screen_act.setShortcut(change['new'])
-        self.log.debug(f"Shortcut for {change['name']} updated to: {change['new']}")
+        action = self.shortcut_actions.get(change['name'])    
+        if action:
+            action.setShortcut(change['new'])
+            self.log.debug(f"Shortcut for {change['name']} updated to: {change['new']}")
+        else:
+            self.log.debug(f"No action found for shortcut {change['name']}")
+
+    def update_all_shortcuts(self):
+        for shortcut, action in self.shortcut_actions.items():
+            if action:
+                ns = getattr(self, shortcut, None)
+                action.setShortcut(ns)
+                self.log.debug(f"Shortcut for {action} set to {shortcut} shortcut {ns}")
 
     #---------------------------------------------------------------------------
     # 'object' interface
@@ -468,18 +476,21 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             shortcut=self.shortcut_new_kernel_tab,
             triggered=self.create_tab_with_new_frontend)
         self.add_menu_action(self.file_menu, self.new_kernel_tab_act)
+        self.shortcut_actions['shortcut_new_kernel_tab'] = self.new_kernel_tab_act
 
         self.slave_kernel_tab_act = QtWidgets.QAction("New Tab with Sa&me kernel",
             self,
             shortcut=self.shortcut_slave_kernel_tab,
             triggered=self.create_tab_with_current_kernel)
         self.add_menu_action(self.file_menu, self.slave_kernel_tab_act)
+        self.shortcut_actions['shortcut_slave_kernel_tab'] = self.slave_kernel_tab_act
 
         self.existing_kernel_tab_act = QtWidgets.QAction("New Tab with &Existing kernel",
                                                      self,
                                                      shortcut=self.shortcut_existing_kernel_tab,
                                                      triggered=self.create_tab_with_existing_kernel)
         self.add_menu_action(self.file_menu, self.existing_kernel_tab_act)
+        self.shortcut_actions['shortcut_existing_kernel_tab'] = self.existing_kernel_tab_act
 
         self.file_menu.addSeparator()
 
@@ -489,6 +500,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.close_active_frontend
             )
         self.add_menu_action(self.file_menu, self.close_action)
+        self.shortcut_actions['shortcut_close'] = self.close_action
 
         self.export_action=QtWidgets.QAction("&Save to HTML/XHTML",
             self,
@@ -496,6 +508,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.export_action_active_frontend
             )
         self.add_menu_action(self.file_menu, self.export_action, True)
+        self.shortcut_actions['shortcut_save'] = self.export_action
 
         self.file_menu.addSeparator()
 
@@ -509,6 +522,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             shortcut=self.shortcut_print,
             triggered=self.print_action_active_frontend)
         self.add_menu_action(self.file_menu, self.print_action, True)
+        self.shortcut_actions['shortcut_print'] = self.print_action
 
         if sys.platform != 'darwin':
             # OSX always has Quit in the Application menu, only add it
@@ -522,6 +536,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
                 triggered=self.close,
             )
             self.add_menu_action(self.file_menu, self.quit_action)
+            self.shortcut_actions['shortcut_quit'] = self.quit_action
 
 
     def init_edit_menu(self):
@@ -534,6 +549,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.undo_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.undo_action)
+        self.shortcut_actions['shortcut_undo'] = self.undo_action
 
         self.redo_action = QtWidgets.QAction("&Redo",
             self,
@@ -541,6 +557,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             statusTip="Redo last action if possible",
             triggered=self.redo_active_frontend)
         self.add_menu_action(self.edit_menu, self.redo_action)
+        self.shortcut_actions['shortcut_redo'] = self.redo_action
 
         self.edit_menu.addSeparator()
 
@@ -550,6 +567,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.cut_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.cut_action, True)
+        self.shortcut_actions['shortcut_cut'] = self.cut_action
 
         self.copy_action = QtWidgets.QAction("&Copy",
             self,
@@ -557,6 +575,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.copy_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.copy_action, True)
+        self.shortcut_actions['shortcut_copy'] = self.copy_action
 
         self.copy_raw_action = QtWidgets.QAction("Copy (&Raw Text)",
             self,
@@ -564,6 +583,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.copy_raw_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.copy_raw_action, True)
+        self.shortcut_actions['shortcut_copy_raw'] = self.copy_raw_action
 
         self.paste_action = QtWidgets.QAction("&Paste",
             self,
@@ -571,6 +591,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.paste_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.paste_action, True)
+        self.shortcut_actions['shortcut_paste'] = self.paste_action
 
         self.edit_menu.addSeparator()
 
@@ -585,6 +606,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.select_all_active_frontend
             )
         self.add_menu_action(self.edit_menu, self.select_all_action, True)
+        self.shortcut_actions['shortcut_select_all'] = self.select_all_action
 
 
     def init_view_menu(self):
@@ -598,6 +620,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
                 statusTip="Toggle visibility of menubar",
                 triggered=self.toggle_menu_bar)
             self.add_menu_action(self.view_menu, self.toggle_menu_bar_act)
+            self.shortcut_actions['shortcut_ctrl_shift_m'] = self.toggle_menu_bar_act
         
         self.full_screen_act = QtWidgets.QAction("&Full Screen",
             self,
@@ -606,6 +629,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.toggleFullScreen)
         
         self.add_menu_action(self.view_menu, self.full_screen_act)
+        self.shortcut_actions['shortcut_full_screen'] = self.full_screen_act
 
         self.view_menu.addSeparator()
 
@@ -615,6 +639,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.increase_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.increase_font_size, True)
+        self.shortcut_actions['shortcut_zoom_in'] = self.increase_font_size
 
         self.decrease_font_size = QtWidgets.QAction("Zoom &Out",
             self,
@@ -622,6 +647,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.decrease_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.decrease_font_size, True)
+        self.shortcut_actions['shortcut_zoom_out'] = self.decrease_font_size
 
         self.reset_font_size = QtWidgets.QAction("Zoom &Reset",
             self,
@@ -629,6 +655,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             triggered=self.reset_font_size_active_frontend
             )
         self.add_menu_action(self.view_menu, self.reset_font_size, True)
+        self.shortcut_actions['shortcut_reset_font_size'] = self.reset_font_size
 
         self.view_menu.addSeparator()
 
@@ -638,6 +665,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             statusTip="Clear the console",
             triggered=self.clear_active_frontend)
         self.add_menu_action(self.view_menu, self.clear_action)
+        self.shortcut_actions['shortcut_clear'] = self.clear_action
 
         self.completion_menu = self.view_menu.addMenu("&Completion type")
 
@@ -722,6 +750,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             shortcut=self.shortcut_interrupt_kernel,
             )
         self.add_menu_action(self.kernel_menu, self.interrupt_kernel_action)
+        self.shortcut_actions['shortcut_interrupt_kernel'] = self.interrupt_kernel_action
 
         self.restart_kernel_action = QtWidgets.QAction("&Restart current Kernel",
             self,
@@ -729,6 +758,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             shortcut=self.shortcut_restart_kernel,
             )
         self.add_menu_action(self.kernel_menu, self.restart_kernel_action)
+        self.shortcut_actions['shortcut_restart_kernel'] = self.restart_kernel_action
 
         self.kernel_menu.addSeparator()
 
@@ -759,7 +789,9 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
                 triggered=self.toggleMaximized)
 
             self.add_menu_action(self.window_menu, self.minimizeAct)
+            self.shortcut_actions['shortcut_minimize'] = self.minimizeAct
             self.add_menu_action(self.window_menu, self.maximizeAct)
+            self.shortcut_actions['shortcut_ctrl_shift_m'] = self.maximizeAct
             self.window_menu.addSeparator()
 
         self.prev_tab_act = QtWidgets.QAction("Pre&vious Tab",
@@ -768,6 +800,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             statusTip="Select previous tab",
             triggered=self.prev_tab)
         self.add_menu_action(self.window_menu, self.prev_tab_act)
+        self.shortcut_actions['shortcut_prev_tab'] = self.prev_tab_act
 
         self.next_tab_act = QtWidgets.QAction("Ne&xt Tab",
             self,
@@ -775,6 +808,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
             statusTip="Select next tab",
             triggered=self.next_tab)
         self.add_menu_action(self.window_menu, self.next_tab_act)
+        self.shortcut_actions['shortcut_next_tab'] = self.next_tab_act
 
         self.rename_window_act = QtWidgets.QAction("Rename &Window",
                                                self,
@@ -782,6 +816,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
                                                statusTip="Rename window",
                                                triggered=self.set_window_title)
         self.add_menu_action(self.window_menu, self.rename_window_act)
+        self.shortcut_actions['shortcut_rename_window'] = self.rename_window_act
 
 
         self.rename_current_tab_act = QtWidgets.QAction("&Rename Current Tab",
@@ -790,6 +825,7 @@ class MainWindow(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(Qt
                                                     statusTip="Rename current tab",
                                                     triggered=self.set_tab_title)
         self.add_menu_action(self.window_menu, self.rename_current_tab_act)
+        self.shortcut_actions['shortcut_rename_current_tab'] = self.rename_current_tab_act
 
     def init_help_menu(self):
         # please keep the Help menu in Mac Os even if empty. It will
