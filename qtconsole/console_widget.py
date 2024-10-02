@@ -68,6 +68,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     shortcut_copy = Unicode().tag(config=True)
     shortcut_paste = Unicode().tag(config=True)
     shortcut_save = Unicode().tag(config=True)
+    shortcut_zoom_in = Unicode().tag(config=True)
+    shortcut_zoom_out = Unicode().tag(config=True)
+    shortcut_reset_font_size = Unicode('Ctrl+0').tag(config=True)
+    shortcut_actions = {}
     def _shortcut_save_default(self):
         return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
     def _shortcut_cut_default(self):
@@ -76,6 +80,10 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
     def _shortcut_paste_default(self):
         return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
+    def _shortcut_zoom_in_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn).toString()
+    def _shortcut_zoom_out_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomOut).toString()
     ansi_codes = Bool(True, config=True,
         help="Whether to process ANSI escape codes."
     )
@@ -349,6 +357,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         action.triggered.connect(self.print_)
         self.addAction(action)
         self.print_action = action
+        self.shortcut_actions['shortcut_print']=self.print_action
 
         action = QtWidgets.QAction('Save as HTML/XML', None)
         action.setShortcut(self.shortcut_save)
@@ -356,6 +365,7 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         action.triggered.connect(self.export_html)
         self.addAction(action)
         self.export_action = action
+        self.shortcut_actions['shortcut_save']=self.export_action
 
         action = QtWidgets.QAction('Select All', None)
         action.setEnabled(True)
@@ -369,30 +379,34 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         action.triggered.connect(self.select_all_smart)
         self.addAction(action)
         self.select_all_action = action
+        self.shortcut_actions['shortcut_select_all']=self.select_all_action
 
         self.increase_font_size = QtWidgets.QAction("Bigger Font",
                 self,
-                shortcut=QtGui.QKeySequence.ZoomIn,
+                shortcut=self.shortcut_zoom_in,
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
                 statusTip="Increase the font size by one point",
                 triggered=self._increase_font_size)
         self.addAction(self.increase_font_size)
+        self.shortcut_actions['shortcut_zoom_in']=self.increase_font_size
 
         self.decrease_font_size = QtWidgets.QAction("Smaller Font",
                 self,
-                shortcut=QtGui.QKeySequence.ZoomOut,
+                shortcut=self.shortcut_zoom_out,
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
                 statusTip="Decrease the font size by one point",
                 triggered=self._decrease_font_size)
         self.addAction(self.decrease_font_size)
+        self.shortcut_actions['shortcut_zoom_out']=self.decrease_font_size
 
         self.reset_font_size = QtWidgets.QAction("Normal Font",
                 self,
-                shortcut="Ctrl+0",
+                shortcut=self.shortcut_reset_font_size,
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
                 statusTip="Restore the Normal font size",
                 triggered=self.reset_font)
         self.addAction(self.reset_font_size)
+        self.shortcut_actions['shortcut_reset_font_size']=self.reset_font_size
 
         # Accept drag and drop events here. Drops were already turned off
         # in self._control when that widget was created.
@@ -1181,14 +1195,17 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self.cut_action = menu.addAction('Cut', self.cut)
         self.cut_action.setEnabled(self.can_cut())
         self.cut_action.setShortcut(self.shortcut_cut)
+        self.shortcut_actions['shortcut_cut']=self.cut_action
 
         self.copy_action = menu.addAction('Copy', self.copy)
         self.copy_action.setEnabled(self.can_copy())
         self.copy_action.setShortcut(self.shortcut_copy)
+        self.shortcut_actions['shortcut_copy']=self.copy_action
 
         self.paste_action = menu.addAction('Paste', self.paste)
         self.paste_action.setEnabled(self.can_paste())
         self.paste_action.setShortcut(self.shortcut_paste)
+        self.shortcut_actions['shortcut_paste']=self.paste_action
 
         anchor = self._control.anchorAt(pos)
         if anchor:
