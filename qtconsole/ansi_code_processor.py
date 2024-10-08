@@ -92,9 +92,6 @@ class AnsiCodeProcessor(object):
         self.actions = []
         start = 0
 
-        # strings ending with \r are assumed to be ending in \r\n since
-        # \n is appended to output strings automatically.  Accounting
-        # for that, here.
         last_char = None
         string = string[:-1] if last_char is not None else string
 
