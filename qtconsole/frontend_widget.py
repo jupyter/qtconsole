@@ -215,11 +215,6 @@ class FrontendWidget(HistoryConsoleWidget, BaseFrontendMixin):
     # 'ConsoleWidget' public interface
     #---------------------------------------------------------------------------
 
-    @observe('shortcut_copy_raw')
-    def update_shortcuts(self, change):
-        if change['name'] == 'shortcut_copy_raw':
-            self.copy_raw_action.setShortcut(change['new'])
-
     def copy(self):
         """ Copy the currently selected text to the clipboard, removing prompts.
         """

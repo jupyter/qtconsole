@@ -412,23 +412,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         # in self._control when that widget was created.
         self.setAcceptDrops(True)
 
-    @observe('shortcut_print', 'shortcut_select_all', 'shortcut_cut', 'shortcut_copy',
-    'shortcut_paste', 'shortcut_save')
-    def update_shortcuts(self, change):
-        shortcut_actions = {
-        'shortcut_print': self.print_action,
-        'shortcut_select_all': self.select_all_action,
-        'shortcut_cut': self.cut_action,
-        'shortcut_copy': self.copy_action,
-        'shortcut_paste': self.paste_action,
-        'shortcut_save': self.export_action
-        }
-        action = shortcut_actions.get(change['name'])    
-        if action:
-            action.setShortcut(change['new'])
-            self.log.debug(f"Shortcut for {change['name']} updated to: {change['new']}")
-        else:
-            self.log.debug(f"No action found for shortcut {change['name']}")
     #---------------------------------------------------------------------------
     # Drag and drop support
     #---------------------------------------------------------------------------
