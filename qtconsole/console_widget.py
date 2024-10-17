@@ -2192,18 +2192,22 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                         if act.dir == 'up':
                             for i in range(act.count):
                                 cursor.movePosition(
-                                    QtGui.QTextCursor.Up)
+                                    QtGui.QTextCursor.Up
+                                )
                         elif act.dir == 'down':
                             for i in range(act.count):
                                 cursor.movePosition(
-                                    QtGui.QTextCursor.Down)
+                                    QtGui.QTextCursor.Down
+                                )
                         elif act.dir == 'leftup':
                             for i in range(act.count):
                                 cursor.movePosition(
-                                    QtGui.QTextCursor.Up)
+                                    QtGui.QTextCursor.Up
+                                )
                             cursor.movePosition(
-                            QtGui.QTextCursor.StartOfLine,
-                            QtGui.QTextCursor.MoveAnchor)
+                                QtGui.QTextCursor.StartOfLine,
+                                QtGui.QTextCursor.MoveAnchor
+                            )
 
                     elif act.action == 'carriage-return':
                         cursor.movePosition(
