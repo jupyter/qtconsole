@@ -5,8 +5,7 @@ import inspect
 
 from qtpy import QtCore, QtGui
 
-from traitlets import default, HasTraits, TraitType, Unicode, observe
-
+from traitlets import HasTraits, TraitType
 #-----------------------------------------------------------------------------
 # Metaclasses
 #-----------------------------------------------------------------------------
