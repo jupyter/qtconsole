@@ -183,6 +183,9 @@ class TestAnsiCodeProcessor(unittest.TestCase):
         self.assertEqual(actions, [[], ['carriage-return'], [], ['backspace']])
 
     def test_move_cursor_up(self):
+        """Are the ANSI commands for the cursor movement actions
+        (movement up and to the beginning of the line) processed correctly?
+        """
         string = '\x1b[A\x1b[5A\x1b[F\x1b[5F'
         i = -1
         for i, substring in enumerate(self.processor.split_string(string)):
