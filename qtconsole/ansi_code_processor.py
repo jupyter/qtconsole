@@ -182,15 +182,17 @@ class AnsiCodeProcessor(object):
             count = params[0] if params else 1
             self.actions.append(ScrollAction('scroll', dir, 'line', count))
 
-        elif (command == 'A'):  # Move N lines Up
+        elif command == 'A':  # Move N lines Up
             dir = 'up'
             count = params[0] if params else 1
             self.actions.append(MoveAction('move', dir, 'line', count))
-        elif (command == 'B'):  # Move N lines Down
+
+        elif command == 'B':  # Move N lines Down
             dir = 'down'
             count = params[0] if params else 1
             self.actions.append(MoveAction('move', dir, 'line', count))
-        elif (command == 'F'):  # Goes back to the begining of the n-th previous line
+
+        elif command == 'F':  # Goes back to the begining of the n-th previous line
             dir = 'leftup'
             count = params[0] if params else 1
             self.actions.append(MoveAction('move', dir, 'line', count))
