@@ -239,32 +239,32 @@ class JupyterQtConsoleApp(JupyterApp, JupyterConsoleApp):
     shortcut_rename_current_tab = Unicode('Ctrl+R', config=True)
     def _get_shortcuts(self):
         shortcuts = {
-        'shortcut_new_kernel_tab' : self.shortcut_new_kernel_tab
-        'shortcut_slave_kernel_tab' : self.shortcut_slave_kernel_tab
-        'shortcut_existing_kernel_tab' : self.shortcut_existing_kernel_tab
-        'shortcut_close' : self.shortcut_close
-        'shortcut_save' : self.shortcut_save
-        'shortcut_print' : self.shortcut_print
-        'shortcut_quit' : self.shortcut_quit
-        'shortcut_undo' : self.shortcut_undo
-        'shortcut_redo' : self.shortcut_redo
-        'shortcut_cut' : self.shortcut_cut
-        'shortcut_copy' : self.shortcut_copy
-        'shortcut_copy_raw' : self.shortcut_copy_raw
-        'shortcut_paste' : self.shortcut_paste
-        'shortcut_select_all' : self.shortcut_select_all
-        'shortcut_ctrl_shift_m' : self.shortcut_ctrl_shift_m
-        'shortcut_full_screen' : self.shortcut_full_screen
-        'shortcut_zoom_in' : self.shortcut_zoom_in
-        'shortcut_zoom_out' : self.shortcut_zoom_out
-        'shortcut_reset_font_size' : self.shortcut_reset_font_size
-        'shortcut_clear' : self.shortcut_clear
-        'shortcut_interrupt_kernel' : self.shortcut_interrupt_kernel
-        'shortcut_restart_kernel' : self.shortcut_restart_kernel
-        'shortcut_minimize' : self.shortcut_minimize
-        'shortcut_prev_tab' : self.shortcut_prev_tab
-        'shortcut_next_tab' : self.shortcut_next_tab
-        'shortcut_rename_window' : self.shortcut_rename_window
+        'shortcut_new_kernel_tab' : self.shortcut_new_kernel_tab,
+        'shortcut_slave_kernel_tab' : self.shortcut_slave_kernel_tab,
+        'shortcut_existing_kernel_tab' : self.shortcut_existing_kernel_tab,
+        'shortcut_close' : self.shortcut_close,
+        'shortcut_save' : self.shortcut_save,
+        'shortcut_print' : self.shortcut_print,
+        'shortcut_quit' : self.shortcut_quit,
+        'shortcut_undo' : self.shortcut_undo,
+        'shortcut_redo' : self.shortcut_redo,
+        'shortcut_cut' : self.shortcut_cut,
+        'shortcut_copy' : self.shortcut_copy,
+        'shortcut_copy_raw' : self.shortcut_copy_raw,
+        'shortcut_paste' : self.shortcut_paste,
+        'shortcut_select_all' : self.shortcut_select_all,
+        'shortcut_ctrl_shift_m' : self.shortcut_ctrl_shift_m,
+        'shortcut_full_screen' : self.shortcut_full_screen,
+        'shortcut_zoom_in' : self.shortcut_zoom_in,
+        'shortcut_zoom_out' : self.shortcut_zoom_out,
+        'shortcut_reset_font_size' : self.shortcut_reset_font_size,
+        'shortcut_clear' : self.shortcut_clear,
+        'shortcut_interrupt_kernel' : self.shortcut_interrupt_kernel,
+        'shortcut_restart_kernel' : self.shortcut_restart_kernel,
+        'shortcut_minimize' : self.shortcut_minimize,
+        'shortcut_prev_tab' : self.shortcut_prev_tab,
+        'shortcut_next_tab' : self.shortcut_next_tab,
+        'shortcut_rename_window' : self.shortcut_rename_window,
         'shortcut_rename_current_tab' : self.shortcut_rename_current_tab
         }
         return shortcuts
