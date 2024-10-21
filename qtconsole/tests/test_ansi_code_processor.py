@@ -186,10 +186,10 @@ class TestAnsiCodeProcessor(unittest.TestCase):
         """Are the ANSI commands for the cursor movement actions
         (movement up and to the beginning of the line) processed correctly?
         """
-        #This line moves the cursor up once, then moves it up five more lines.
-        #Next, it moves the cursor to the beginning of the previous line, and
-        #finally moves it to the beginning of the fifth line above the current 
-        #position
+        # This line moves the cursor up once, then moves it up five more lines.
+        # Next, it moves the cursor to the beginning of the previous line, and
+        # finally moves it to the beginning of the fifth line above the current 
+        # position
         string = '\x1b[A\x1b[5A\x1b[F\x1b[5F'
         i = -1
         for i, substring in enumerate(self.processor.split_string(string)):
