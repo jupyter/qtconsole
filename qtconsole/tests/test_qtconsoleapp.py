@@ -18,47 +18,53 @@ from IPython.core.inputtransformer2 import TransformerManager
 
 SHELL_TIMEOUT = 20000
 
-@pytest.mark.skipif(no_display, reason="Doesn't work without a display")
-class TestTraitletsConfig(unittest.TestCase):
+def test_shortcut_traitlets():
+    """ Verify that the traitlets are initialized correctly.
+    """
 
-    @classmethod
-    def setUpClass(cls):
-        """ Create the application for the test cases.
-        """
-        cls._app = QtWidgets.QApplication.instance()
-        if cls._app is None:
-            cls._app = QtWidgets.QApplication([])
-        cls._app.setQuitOnLastWindowClosed(False)
+    # Simulate startup
+    app = JupyterQtConsoleApp()
+    app.initialize()
+    # Check if the shortcuts traitlet has the expected value
+    assert app.shortcut_full_screen == "F11"
+    assert app.shortcut_copy == "Ctrl+C"
+    assert app.shortcut_paste == "Ctrl+V"
+    assert app.shortcut_cut == "Ctrl+X"
+    assert app.shortcut_clear == "Ctrl+L"
+    assert app.shortcut_new_kernel_tab == "Ctrl+T"
+    assert app.shortcut_slave_kernel_tab == "Ctrl+Shift+T"
+    assert app.shortcut_existing_kernel_tab == "Alt+T"
+    assert app.shortcut_save == "Ctrl+S"
+    assert app.shortcut_print == "Ctrl+P"
+    assert app.shortcut_undo == "Ctrl+Z"
+    assert app.shortcut_redo == "Ctrl+Y"
+    assert app.shortcut_copy_raw == "Ctrl+Shift+C"
+    assert app.shortcut_select_all == "Ctrl+A"
+    assert app.shortcut_ctrl_shift_m == "Ctrl+Shift+M"
+    assert app.shortcut_zoom_in == "Ctrl++"
+    assert app.shortcut_zoom_out == "Ctrl+-"
+    assert app.shortcut_reset_font_size == "Ctrl+0"
+    assert app.shortcut_interrupt_kernel == "Ctrl+C"
+    assert app.shortcut_restart_kernel == "Ctrl+."
+    assert app.shortcut_minimize == "Ctrl+M"
+    assert app.shortcut_prev_tab == "Ctrl+PgUp"
+    assert app.shortcut_next_tab == "Ctrl+PgDown"
+    assert app.shortcut_rename_window == "Alt+R"
+    assert app.shortcut_rename_current_tab == "Ctrl+R"
+    assert app.shortcut_close == "Ctrl+F4"
 
-    @classmethod
-    def tearDownClass(cls):
-        """ Exit the application.
-        """
-        QtWidgets.QApplication.quit()
 
-    def test_custom_shortcut_manager(self):
-        """ Verify that the shortcuts traitlets are set with a custom value.
-        """
-        # Simulate startup with a command-line argument that changes 'shortcut_full_screen'
-        test_args = ["test", "--JupyterQtConsoleApp.shortcut_full_screen=F11"]
-        sys.argv = test_args
-
-        # Initialize the application with the simulated arguments
-        app = JupyterQtConsoleApp()
-        app.initialize()
-
-        # Check if the shortcut_full_screen traitlet has the expected value
-        self.assertEqual(app.shortcut_full_screen, "F11")
-
-    def test_other_traitlets(self):
-        """ Verify that other traitlets are also set correctly.
-        """
-        # Simulate startup with a command-line argument that changes 'shortcut_full_screen'
-        test_args = ["test", "--JupyterQtConsoleApp.shortcut_full_screen=F10"]
-        sys.argv = test_args
-
-        app = JupyterQtConsoleApp()
-        app.initialize()
-
-        # Check if the shortcut_full_screen traitlet has the expected value
-        self.assertEqual(app.shortcut_full_screen, "F10")
+@pytest.mark.parametrize(
+    "shortcut", ["full_screen", "copy", "cut", "paste", "print", "clear",
+    "restart_kernel", "close", "minimize"])
+def test_custom_shortcut_manager(shortcut):
+    """ Verify that the shortcuts traitlets are set with a custom value.
+    """
+    # Simulate startup with a command-line argument that changes shortcuts
+    test_args = ["test", f"--JupyterQtConsoleApp.shortcut_{shortcut}=Ctrl+O"]
+    sys.argv = test_args
+    # Initialize the application with the simulated arguments
+    app = JupyterQtConsoleApp()
+    app.initialize()
+    # Check if the shortcut traitlet has the expected value
+    assert getattr(app, f"shortcut_{shortcut}") == "Ctrl+O"
