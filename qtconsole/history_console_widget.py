@@ -1,10 +1,13 @@
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
+import os
+import os.path
 
-from qtpy import QtGui
+from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
 
 from traitlets import Bool
 from .console_widget import ConsoleWidget
+from .history_list_widget import HistoryListWidget
 
 
 class HistoryConsoleWidget(ConsoleWidget):
@@ -31,6 +34,14 @@ class HistoryConsoleWidget(ConsoleWidget):
         self._history_edits = {}
         self._history_index = 0
         self._history_prefix = ''
+        self.droplist_history = QtWidgets.QAction("Normal Font",
+                self,
+                shortcut="Ctrl+O",
+                shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
+                statusTip="Restore the Normal font size",
+                triggered=self._show_history_droplist)
+        self.addAction(self.droplist_history)
+        self._history_list_widget = HistoryListWidget(self, super().gui_completion_height)
 
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
@@ -142,6 +153,64 @@ class HistoryConsoleWidget(ConsoleWidget):
 
         return True
 
+    def _show_history_droplist(self):
+        cursor = self._get_cursor()
+        prompt_cursor = self._get_prompt_cursor()
+        if self._get_cursor().blockNumber() == prompt_cursor.blockNumber():
+            
+            # Set a search prefix based on the cursor position.
+            pos = self._get_input_buffer_cursor_pos()
+            input_buffer = self.input_buffer
+            # use the *shortest* of the cursor column and the history prefix
+            # to determine if the prefix has changed
+            n = min(pos, len(self._history_prefix))
+
+            # prefix changed, restart search from the beginning
+            if (self._history_prefix[:n] != input_buffer[:n]):
+                self._history_index = len(self._history)
+
+            # the only time we shouldn't set the history prefix
+            # to the line up to the cursor is if we are already
+            # in a simple scroll (no prefix),
+            # and the cursor is at the end of the first line
+
+            # check if we are at the end of the first line
+            c = self._get_cursor()
+            current_pos = c.position()
+            c.movePosition(QtGui.QTextCursor.EndOfBlock)
+            at_eol = (c.position() == current_pos)
+
+            if self._history_index == len(self._history) or \
+                not (self._history_prefix == '' and at_eol) or \
+                not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):
+                self._history_prefix = input_buffer[:pos]
+
+            # Perform the search.
+            items = self._history#self._get_edited_history(self._history_index)
+            if (self._history_prefix):
+                items = [item for item in items if item.startswith(self._history_prefix)]
+
+            self._history_list_widget.cancel_completion()
+
+            if len(items) == 1:
+                cursor.setPosition(self._control.textCursor().position(),
+                                  QtGui.QTextCursor.KeepAnchor)
+                cursor.insertText(items[0])
+
+            elif len(items) > 1:
+                current_pos = self._control.textCursor().position()
+                prefix = os.path.commonprefix(items)
+                if prefix:
+                    cursor.setPosition(current_pos, QtGui.QTextCursor.KeepAnchor)
+                    cursor.insertText(prefix)
+                    current_pos = cursor.position()
+
+                self._history_list_widget.show_items(cursor, items,
+                                                   prefix_length=len(prefix))
+
+
+
+
     #---------------------------------------------------------------------------
     # 'HistoryConsoleWidget' public interface
     #---------------------------------------------------------------------------
@@ -164,7 +233,9 @@ class HistoryConsoleWidget(ConsoleWidget):
         replace = False
         while index > 0:
             index -= 1
+            #self.log.debug(f"Historia 5 recientes{history[-5:]}")
             history = self._get_edited_history(index)
+            self.log.debug(f"Historia 5 recientes{history[-5:]}")
             if history == self.input_buffer:
                 continue
             if (as_prefix and history.startswith(substring)) \
@@ -238,6 +309,7 @@ class HistoryConsoleWidget(ConsoleWidget):
     def _get_edited_history(self, index):
         """ Retrieves a history item, possibly with temporary edits.
         """
+        self.log.debug(f"Historia 5 recientes{self._history[-5:]}")
         if index in self._history_edits:
             return self._history_edits[index]
         elif index == len(self._history):
@@ -248,6 +320,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         """ Replace the current history with a sequence of history items.
         """
         self._history = list(history)
+        self.log.debug(f"Historia 5 recientes{history[-5:]}")
         self._history_edits = {}
         self._history_index = len(self._history)
 

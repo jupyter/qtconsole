@@ -100,7 +100,7 @@ class HistoryListWidget(QtWidgets.QListWidget):
     #--------------------------------------------------------------------------
     # 'HistoryListWidget' interface
     #--------------------------------------------------------------------------
-"""
+
     def show_items(self, cursor, items, prefix_length=0):
         """ Shows the completion widget with 'items' at the position specified
             by 'cursor'.
@@ -154,7 +154,7 @@ class HistoryListWidget(QtWidgets.QListWidget):
         self.setCurrentRow(0)
         self.raise_()
         self.show()
-"""
+
     #--------------------------------------------------------------------------
     # Protected interface
     #--------------------------------------------------------------------------
