@@ -28,7 +28,7 @@ def test_shortcut_traitlets():
         app = JupyterQtConsoleApp()
         app.initialize()
         # Check if the shortcuts traitlet has the expected value
-        assert app.shortcut_full_screen == "F11"
+        assert app.shortcut_full_screen == ("Ctrl+Meta+F" if sys.platform == 'darwin' else "F11")
         assert app.shortcut_copy == "Ctrl+C"
         assert app.shortcut_paste == "Ctrl+V"
         assert app.shortcut_cut == "Ctrl+X"
@@ -53,7 +53,7 @@ def test_shortcut_traitlets():
         assert app.shortcut_next_tab == "Ctrl+PgDown"
         assert app.shortcut_rename_window == "Alt+R"
         assert app.shortcut_rename_current_tab == "Ctrl+R"
-        assert app.shortcut_close == "Ctrl+F4"
+        assert app.shortcut_close == ("Ctrl+W" if sys.platform == 'darwin' else "Ctrl+F4")
 
 
 @pytest.mark.parametrize(
