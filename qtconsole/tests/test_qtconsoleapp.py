@@ -53,7 +53,7 @@ def test_shortcut_traitlets():
         assert app.shortcut_next_tab == "Ctrl+PgDown"
         assert app.shortcut_rename_window == "Alt+R"
         assert app.shortcut_rename_current_tab == "Ctrl+R"
-        assert app.shortcut_close == ("Ctrl+W" if sys.platform == 'darwin' else "Ctrl+F4")
+        assert app.shortcut_close == ("Ctrl+W" if sys.platform.startswith('linux') else "Ctrl+F4")
 
 
 @pytest.mark.parametrize(
