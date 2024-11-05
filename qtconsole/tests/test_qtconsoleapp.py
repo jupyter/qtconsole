@@ -46,7 +46,7 @@ def test_shortcut_traitlets():
         assert app.shortcut_zoom_in == "Ctrl++"
         assert app.shortcut_zoom_out == "Ctrl+-"
         assert app.shortcut_reset_font_size == "Ctrl+0"
-        assert app.shortcut_interrupt_kernel == "Ctrl+C"
+        assert app.shortcut_interrupt_kernel == ("Meta+C" if sys.platform == 'darwin' else "Ctrl+C")
         assert app.shortcut_restart_kernel == "Ctrl+."
         assert app.shortcut_minimize == "Ctrl+M"
         assert app.shortcut_prev_tab == "Ctrl+PgUp"
