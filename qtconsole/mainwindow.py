@@ -431,7 +431,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.file_menu.addSeparator()
 
         printkey = QtGui.QKeySequence(self._shortcuts['shortcut_print'])
-        if printkey.matches("Ctrl+P") and sys.platform != 'darwin':
+        if printkey.matches("Ctrl+P") == 2 and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
             self._shortcuts['shortcut_print'] = "Ctrl+Shift+P"
@@ -505,7 +505,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.edit_menu.addSeparator()
 
         selectall = QtGui.QKeySequence(self._shortcuts['shortcut_select_all'])
-        if selectall.matches("Ctrl+A") and sys.platform != 'darwin':
+        if selectall.matches("Ctrl+A") == 2 and sys.platform != 'darwin':
             # Only override the default if there is a collision.
             # Qt ctrl = cmd on OSX, so the match gets a false positive on OSX.
             self._shortcuts['shortcut_select_all'] = "Ctrl+Shift+A"
