@@ -39,7 +39,7 @@ def test_shortcut_traitlets():
         assert app.shortcut_save == "Ctrl+S"
         assert app.shortcut_print == "Ctrl+P"
         assert app.shortcut_undo == "Ctrl+Z"
-        assert app.shortcut_redo == "Ctrl+Shift+Z"
+        assert app.shortcut_redo == ("Ctrl+Shift+Z" if sys.platform == 'darwin' else "Ctrl+Y")
         assert app.shortcut_copy_raw == "Ctrl+Shift+C"
         assert app.shortcut_select_all == "Ctrl+A"
         assert app.shortcut_ctrl_shift_m == "Ctrl+Shift+M"
@@ -49,7 +49,7 @@ def test_shortcut_traitlets():
         assert app.shortcut_interrupt_kernel == ("Meta+C" if sys.platform == 'darwin' else "Ctrl+C")
         assert app.shortcut_restart_kernel == ("Meta+." if sys.platform == 'darwin' else "Ctrl+.")
         assert app.shortcut_minimize == "Ctrl+M"
-        assert app.shortcut_prev_tab == "Ctrl+PgUp"
+        assert app.shortcut_prev_tab == ("Ctrl+Alt+Left" if sys.platform == 'darwin' else "Ctrl+PgUp")
         assert app.shortcut_next_tab == "Ctrl+PgDown"
         assert app.shortcut_rename_window == "Alt+R"
         assert app.shortcut_rename_current_tab == "Ctrl+R"
