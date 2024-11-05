@@ -23,35 +23,37 @@ def test_shortcut_traitlets():
     """ Verify that the traitlets are initialized correctly.
     """
     # Simulate startup
-    app = JupyterQtConsoleApp()
-    app.initialize()
-    # Check if the shortcuts traitlet has the expected value
-    assert app.shortcut_full_screen == "F11"
-    assert app.shortcut_copy == "Ctrl+C"
-    assert app.shortcut_paste == "Ctrl+V"
-    assert app.shortcut_cut == "Ctrl+X"
-    assert app.shortcut_clear == "Ctrl+L"
-    assert app.shortcut_new_kernel_tab == "Ctrl+T"
-    assert app.shortcut_slave_kernel_tab == "Ctrl+Shift+T"
-    assert app.shortcut_existing_kernel_tab == "Alt+T"
-    assert app.shortcut_save == "Ctrl+S"
-    assert app.shortcut_print == "Ctrl+P"
-    assert app.shortcut_undo == "Ctrl+Z"
-    assert app.shortcut_redo == "Ctrl+Y"
-    assert app.shortcut_copy_raw == "Ctrl+Shift+C"
-    assert app.shortcut_select_all == "Ctrl+A"
-    assert app.shortcut_ctrl_shift_m == "Ctrl+Shift+M"
-    assert app.shortcut_zoom_in == "Ctrl++"
-    assert app.shortcut_zoom_out == "Ctrl+-"
-    assert app.shortcut_reset_font_size == "Ctrl+0"
-    assert app.shortcut_interrupt_kernel == "Ctrl+C"
-    assert app.shortcut_restart_kernel == "Ctrl+."
-    assert app.shortcut_minimize == "Ctrl+M"
-    assert app.shortcut_prev_tab == "Ctrl+PgUp"
-    assert app.shortcut_next_tab == "Ctrl+PgDown"
-    assert app.shortcut_rename_window == "Alt+R"
-    assert app.shortcut_rename_current_tab == "Ctrl+R"
-    assert app.shortcut_close == "Ctrl+F4"
+    test_args = ["test", ""]
+    with patch("sys.argv", test_args):
+        app = JupyterQtConsoleApp()
+        app.initialize()
+        # Check if the shortcuts traitlet has the expected value
+        assert app.shortcut_full_screen == "F11"
+        assert app.shortcut_copy == "Ctrl+C"
+        assert app.shortcut_paste == "Ctrl+V"
+        assert app.shortcut_cut == "Ctrl+X"
+        assert app.shortcut_clear == "Ctrl+L"
+        assert app.shortcut_new_kernel_tab == "Ctrl+T"
+        assert app.shortcut_slave_kernel_tab == "Ctrl+Shift+T"
+        assert app.shortcut_existing_kernel_tab == "Alt+T"
+        assert app.shortcut_save == "Ctrl+S"
+        assert app.shortcut_print == "Ctrl+P"
+        assert app.shortcut_undo == "Ctrl+Z"
+        assert app.shortcut_redo == "Ctrl+Y"
+        assert app.shortcut_copy_raw == "Ctrl+Shift+C"
+        assert app.shortcut_select_all == "Ctrl+A"
+        assert app.shortcut_ctrl_shift_m == "Ctrl+Shift+M"
+        assert app.shortcut_zoom_in == "Ctrl++"
+        assert app.shortcut_zoom_out == "Ctrl+-"
+        assert app.shortcut_reset_font_size == "Ctrl+0"
+        assert app.shortcut_interrupt_kernel == "Ctrl+C"
+        assert app.shortcut_restart_kernel == "Ctrl+."
+        assert app.shortcut_minimize == "Ctrl+M"
+        assert app.shortcut_prev_tab == "Ctrl+PgUp"
+        assert app.shortcut_next_tab == "Ctrl+PgDown"
+        assert app.shortcut_rename_window == "Alt+R"
+        assert app.shortcut_rename_current_tab == "Ctrl+R"
+        assert app.shortcut_close == "Ctrl+F4"
 
 
 @pytest.mark.parametrize(
