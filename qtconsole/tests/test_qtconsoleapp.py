@@ -57,8 +57,8 @@ def test_shortcut_traitlets():
 
 
 @pytest.mark.parametrize(
-    "shortcut", ["full_screen", "copy", "cut", "paste", "print", "clear",
-    "save", "close", "select_all"])
+    "shortcut", ["undo", "redo", "copy", "cut", "paste", "print", "clear",
+    "quit", "close", "select_all"])
 def test_custom_shortcut_manager(shortcut):
     """ Verify that the shortcuts traitlets are set with a custom value.
     """
@@ -68,5 +68,7 @@ def test_custom_shortcut_manager(shortcut):
         # Initialize the application with the simulated arguments
         app = JupyterQtConsoleApp()
         app.initialize()
+        window = app.window
         # Check if the shortcut traitlet has the expected value
         assert getattr(app, f"shortcut_{shortcut}") == "Ctrl+O"
+        assert getattr(window, f"{shortcut}_action").shortcut().toString() == "Ctrl+O"
