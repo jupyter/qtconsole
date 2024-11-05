@@ -39,7 +39,7 @@ def test_shortcut_traitlets():
         assert app.shortcut_save == "Ctrl+S"
         assert app.shortcut_print == "Ctrl+P"
         assert app.shortcut_undo == "Ctrl+Z"
-        assert app.shortcut_redo == "Ctrl+Y"
+        assert app.shortcut_redo == "Ctrl+Shift+Z"
         assert app.shortcut_copy_raw == "Ctrl+Shift+C"
         assert app.shortcut_select_all == "Ctrl+A"
         assert app.shortcut_ctrl_shift_m == "Ctrl+Shift+M"
