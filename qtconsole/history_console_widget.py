@@ -154,7 +154,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         return True
 
     def _show_history_droplist(self):
-        cursor = self._get_cursor()
+        # Perform the search.
         prompt_cursor = self._get_prompt_cursor()
         if self._get_cursor().blockNumber() == prompt_cursor.blockNumber():
             
@@ -184,31 +184,36 @@ class HistoryConsoleWidget(ConsoleWidget):
                 not (self._history_prefix == '' and at_eol) or \
                 not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):
                 self._history_prefix = input_buffer[:pos]
+        items = self._history
+        if (self._history_prefix):
+            items = [item for item in items if item.startswith(self._history_prefix)]
 
-            # Perform the search.
-            items = self._history#self._get_edited_history(self._history_index)
-            if (self._history_prefix):
-                items = [item for item in items if item.startswith(self._history_prefix)]
+        cursor = self._get_cursor()
+        pos = len(self._history_prefix)
+        cursor_pos = self._get_input_buffer_cursor_pos()
+        cursor.movePosition(QtGui.QTextCursor.Left,
+                            n=(cursor_pos - pos))
+        # This line actually applies the move to control's cursor
+        self._control.setTextCursor(cursor)
 
-            self._history_list_widget.cancel_completion()
-
-            if len(items) == 1:
-                cursor.setPosition(self._control.textCursor().position(),
-                                  QtGui.QTextCursor.KeepAnchor)
-                cursor.insertText(items[0])
-
-            elif len(items) > 1:
-                current_pos = self._control.textCursor().position()
-                prefix = os.path.commonprefix(items)
-                if prefix:
-                    cursor.setPosition(current_pos, QtGui.QTextCursor.KeepAnchor)
-                    cursor.insertText(prefix)
-                    current_pos = cursor.position()
-
-                self._history_list_widget.show_items(cursor, items,
-                                                   prefix_length=len(prefix))
-
-
+        offset = cursor_pos - pos
+        # Move the local cursor object to the start of the match and
+        # complete.
+        cursor.movePosition(QtGui.QTextCursor.Left, n=offset)
+        self._history_list_widget.cancel_completion()
+        if len(items) == 1:
+            cursor.setPosition(self._control.textCursor().position(),
+                              QtGui.QTextCursor.KeepAnchor)
+            cursor.insertText(items[0])
+        elif len(items) > 1:
+            current_pos = self._control.textCursor().position()
+            prefix = os.path.commonprefix(items)
+            if prefix:
+                cursor.setPosition(current_pos, QtGui.QTextCursor.KeepAnchor)
+                cursor.insertText(prefix)
+                current_pos = cursor.position()
+            self._history_list_widget.show_items(cursor, items,
+                                               prefix_length=len(prefix))
 
 
     #---------------------------------------------------------------------------
