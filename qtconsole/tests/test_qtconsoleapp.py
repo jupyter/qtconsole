@@ -10,6 +10,7 @@ from qtpy.QtTest import QTest
 
 from qtconsole.console_widget import ConsoleWidget
 from qtconsole.qtconsoleapp import JupyterQtConsoleApp
+from unittest.mock import patch
 
 from . import no_display
 
@@ -21,7 +22,6 @@ SHELL_TIMEOUT = 20000
 def test_shortcut_traitlets():
     """ Verify that the traitlets are initialized correctly.
     """
-
     # Simulate startup
     app = JupyterQtConsoleApp()
     app.initialize()
@@ -62,9 +62,9 @@ def test_custom_shortcut_manager(shortcut):
     """
     # Simulate startup with a command-line argument that changes shortcuts
     test_args = ["test", f"--JupyterQtConsoleApp.shortcut_{shortcut}=Ctrl+O"]
-    sys.argv = test_args
-    # Initialize the application with the simulated arguments
-    app = JupyterQtConsoleApp()
-    app.initialize()
-    # Check if the shortcut traitlet has the expected value
-    assert getattr(app, f"shortcut_{shortcut}") == "Ctrl+O"
+    with patch("sys.argv", test_args):    
+        # Initialize the application with the simulated arguments
+        app = JupyterQtConsoleApp()
+        app.initialize()
+        # Check if the shortcut traitlet has the expected value
+        assert getattr(app, f"shortcut_{shortcut}") == "Ctrl+O"
