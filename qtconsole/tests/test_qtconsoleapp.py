@@ -58,7 +58,7 @@ def test_shortcut_traitlets():
 
 @pytest.mark.parametrize(
     "shortcut", ["undo", "redo", "copy", "cut", "paste", "print", "clear",
-    "quit", "close", "select_all"])
+    "export", "close", "select_all"])
 def test_custom_shortcut_manager(shortcut):
     """ Verify that the shortcuts traitlets are set with a custom value.
     """
