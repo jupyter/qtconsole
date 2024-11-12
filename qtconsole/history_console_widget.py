@@ -36,7 +36,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         self._history_prefix = ''
         self.droplist_history = QtWidgets.QAction("Normal Font",
                 self,
-                shortcut="Ctrl+O",
+                shortcut="Ctrl+Shift+R",
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
                 statusTip="Restore the Normal font size",
                 triggered=self._show_history_droplist)
