@@ -185,6 +185,7 @@ class HistoryConsoleWidget(ConsoleWidget):
                 not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):
                 self._history_prefix = input_buffer[:pos]
         items = self._history
+        items.reverse()
         if (self._history_prefix):
             items = [item for item in items if item.startswith(self._history_prefix)]
 
@@ -204,13 +205,11 @@ class HistoryConsoleWidget(ConsoleWidget):
         if len(items) == 1:
             cursor.setPosition(self._control.textCursor().position(),
                               QtGui.QTextCursor.KeepAnchor)
-            cursor.insertText(items[0])
         elif len(items) > 1:
             current_pos = self._control.textCursor().position()
             prefix = os.path.commonprefix(items)
             if prefix:
                 cursor.setPosition(current_pos, QtGui.QTextCursor.KeepAnchor)
-                cursor.insertText(prefix)
                 current_pos = cursor.position()
             self._history_list_widget.show_items(cursor, items,
                                                prefix_length=len(prefix))
