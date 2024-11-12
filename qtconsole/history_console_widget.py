@@ -187,7 +187,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         items = self._history
         items.reverse()
         if (self._history_prefix):
-            items = [item for item in items if item.startswith(self._history_prefix)]
+            items = [item[len(self._history_prefix):] for item in items if item.startswith(self._history_prefix)]
 
         cursor = self._get_cursor()
         pos = len(self._history_prefix)
