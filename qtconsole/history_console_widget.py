@@ -237,9 +237,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         replace = False
         while index > 0:
             index -= 1
-            #self.log.debug(f"Historia 5 recientes{history[-5:]}")
             history = self._get_edited_history(index)
-            self.log.debug(f"Historia 5 recientes{history[-5:]}")
             if history == self.input_buffer:
                 continue
             if (as_prefix and history.startswith(substring)) \
@@ -313,7 +311,6 @@ class HistoryConsoleWidget(ConsoleWidget):
     def _get_edited_history(self, index):
         """ Retrieves a history item, possibly with temporary edits.
         """
-        self.log.debug(f"Historia 5 recientes{self._history[-5:]}")
         if index in self._history_edits:
             return self._history_edits[index]
         elif index == len(self._history):
@@ -324,7 +321,6 @@ class HistoryConsoleWidget(ConsoleWidget):
         """ Replace the current history with a sequence of history items.
         """
         self._history = list(history)
-        self.log.debug(f"Historia 5 recientes{history[-5:]}")
         self._history_edits = {}
         self._history_index = len(self._history)
 
