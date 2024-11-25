@@ -3,11 +3,16 @@
 import os
 import os.path
 
-from qtpy import QtCore, QtGui, QtPrintSupport, QtWidgets
+from qtpy import QtCore, QtGui, QtWidgets
 
 from traitlets import Bool
 from .console_widget import ConsoleWidget
-from .history_list_widget import HistoryListWidget
+from .completion_widget import CompletionWidget
+
+
+class HistoryListWidget(CompletionWidget):
+    """ A widget for GUI list history.
+    """
 
 
 class HistoryConsoleWidget(ConsoleWidget):
@@ -34,14 +39,14 @@ class HistoryConsoleWidget(ConsoleWidget):
         self._history_edits = {}
         self._history_index = 0
         self._history_prefix = ''
-        self.droplist_history = QtWidgets.QAction("Normal Font",
+        self.droplist_history = QtWidgets.QAction("Show related history execution entries",
                 self,
                 shortcut="Ctrl+Shift+R",
                 shortcutContext=QtCore.Qt.WidgetWithChildrenShortcut,
-                statusTip="Restore the Normal font size",
-                triggered=self._show_history_droplist)
+                triggered=self._show_history_droplist
+        )
         self.addAction(self.droplist_history)
-        self._history_list_widget = HistoryListWidget(self, super().gui_completion_height)
+        self._history_list_widget = HistoryListWidget(self, self.gui_completion_height)
 
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
