@@ -13,6 +13,16 @@ from .completion_widget import CompletionWidget
 class HistoryListWidget(CompletionWidget):
     """ A widget for GUI list history.
     """
+    complete_current = QtCore.Signal(str)
+
+    def _complete_current(self):
+        """ Perform the completion with the currently selected item.
+        """
+        text = self.currentItem().data(QtCore.Qt.UserRole)
+        self.parent()._store_edits()
+        self.parent().input_buffer = text
+        self.complete_current.emit(text)
+        self.hide()
 
 
 class HistoryConsoleWidget(ConsoleWidget):
@@ -47,6 +57,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         )
         self.addAction(self.droplist_history)
         self._history_list_widget = HistoryListWidget(self, self.gui_completion_height)
+        self._history_list_widget.complete_current.connect(self.change_input_buffer)
 
     #---------------------------------------------------------------------------
     # 'ConsoleWidget' public interface
@@ -162,7 +173,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         # Perform the search.
         prompt_cursor = self._get_prompt_cursor()
         if self._get_cursor().blockNumber() == prompt_cursor.blockNumber():
-            
+
             # Set a search prefix based on the cursor position.
             pos = self._get_input_buffer_cursor_pos()
             input_buffer = self.input_buffer
@@ -171,7 +182,7 @@ class HistoryConsoleWidget(ConsoleWidget):
             n = min(pos, len(self._history_prefix))
 
             # prefix changed, restart search from the beginning
-            if (self._history_prefix[:n] != input_buffer[:n]):
+            if self._history_prefix[:n] != input_buffer[:n]:
                 self._history_index = len(self._history)
 
             # the only time we shouldn't set the history prefix
@@ -183,42 +194,44 @@ class HistoryConsoleWidget(ConsoleWidget):
             c = self._get_cursor()
             current_pos = c.position()
             c.movePosition(QtGui.QTextCursor.EndOfBlock)
-            at_eol = (c.position() == current_pos)
+            at_eol = c.position() == current_pos
 
-            if self._history_index == len(self._history) or \
-                not (self._history_prefix == '' and at_eol) or \
-                not (self._get_edited_history(self._history_index)[:pos] == input_buffer[:pos]):
+            if (
+                self._history_index == len(self._history)
+                or not (self._history_prefix == "" and at_eol)
+                or not (
+                    self._get_edited_history(self._history_index)[:pos]
+                    == input_buffer[:pos]
+                )
+            ):
                 self._history_prefix = input_buffer[:pos]
         items = self._history
         items.reverse()
-        if (self._history_prefix):
-            items = [item[len(self._history_prefix):] for item in items if item.startswith(self._history_prefix)]
+        if self._history_prefix:
+            items = [
+                item
+                for item in items
+                if item.startswith(self._history_prefix)
+            ]
 
         cursor = self._get_cursor()
         pos = len(self._history_prefix)
         cursor_pos = self._get_input_buffer_cursor_pos()
-        cursor.movePosition(QtGui.QTextCursor.Left,
-                            n=(cursor_pos - pos))
+        cursor.movePosition(QtGui.QTextCursor.Left, n=(cursor_pos - pos))
         # This line actually applies the move to control's cursor
         self._control.setTextCursor(cursor)
 
-        offset = cursor_pos - pos
-        # Move the local cursor object to the start of the match and
-        # complete.
-        cursor.movePosition(QtGui.QTextCursor.Left, n=offset)
         self._history_list_widget.cancel_completion()
         if len(items) == 1:
-            cursor.setPosition(self._control.textCursor().position(),
-                              QtGui.QTextCursor.KeepAnchor)
+            self._history_list_widget.show_items(
+                cursor, items
+            )
         elif len(items) > 1:
             current_pos = self._control.textCursor().position()
             prefix = os.path.commonprefix(items)
-            if prefix:
-                cursor.setPosition(current_pos, QtGui.QTextCursor.KeepAnchor)
-                current_pos = cursor.position()
-            self._history_list_widget.show_items(cursor, items,
-                                               prefix_length=len(prefix))
-
+            self._history_list_widget.show_items(
+                cursor, items, prefix_length=len(prefix)
+            )
 
     #---------------------------------------------------------------------------
     # 'HistoryConsoleWidget' public interface
@@ -251,9 +264,7 @@ class HistoryConsoleWidget(ConsoleWidget):
                 break
 
         if replace:
-            self._store_edits()
-            self._history_index = index
-            self.input_buffer = history
+            self.change_input_buffer(history, index=index)
 
         return replace
 
@@ -284,9 +295,7 @@ class HistoryConsoleWidget(ConsoleWidget):
                 break
 
         if replace:
-            self._store_edits()
-            self._history_index = index
-            self.input_buffer = history
+            self.change_input_buffer(history, index=index)
 
         return replace
 
@@ -299,6 +308,21 @@ class HistoryConsoleWidget(ConsoleWidget):
             The (maximum) number of history items to get.
         """
         return self._history[-n:]
+
+    @QtCore.Slot(str)
+    def change_input_buffer(self, buffer, index=0):
+        """Change input_buffer value while storing edits and updating history index.
+
+        Parameters
+        ----------
+        buffer : str
+            New value for the inpur buffer.
+        index : int, optional
+            History index to set. The default is 0.
+        """
+        self._store_edits()
+        self._history_index = index
+        self.input_buffer = buffer
 
     #---------------------------------------------------------------------------
     # 'HistoryConsoleWidget' protected interface
