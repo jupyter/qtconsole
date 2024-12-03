@@ -19,8 +19,6 @@ class HistoryListWidget(CompletionWidget):
         """ Perform the completion with the currently selected item.
         """
         text = self.currentItem().data(QtCore.Qt.UserRole)
-        self.parent()._store_edits()
-        self.parent().input_buffer = text
         self.complete_current.emit(text)
         self.hide()
 
@@ -310,7 +308,7 @@ class HistoryConsoleWidget(ConsoleWidget):
         return self._history[-n:]
 
     @QtCore.Slot(str)
-    def change_input_buffer(self, buffer, index=0):
+    def change_input_buffer(self, buffer, index=None):
         """Change input_buffer value while storing edits and updating history index.
 
         Parameters
@@ -320,8 +318,9 @@ class HistoryConsoleWidget(ConsoleWidget):
         index : int, optional
             History index to set. The default is 0.
         """
-        self._store_edits()
-        self._history_index = index
+        if index:
+            self._store_edits()
+            self._history_index = index
         self.input_buffer = buffer
 
     #---------------------------------------------------------------------------
