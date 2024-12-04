@@ -56,7 +56,9 @@ def test_history_complete(qtconsole, qtbot):
         QtCore.Qt.Key_R,
         modifier=QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier,
     )
-    qtbot.waitUntil(lambda: shell._history_list_widget.isVisible())
+    qtbot.waitUntil(
+        lambda: shell._history_list_widget.isVisible(), timeout=SHELL_TIMEOUT
+    )
 
     qtbot.keyClick(shell._history_list_widget, QtCore.Qt.Key_Enter)
 
