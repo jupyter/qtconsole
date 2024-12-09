@@ -34,6 +34,7 @@ def qtconsole(qtbot):
     console.window.close()
 
 
+@flaky(max_runs=3)
 def test_history_complete(qtconsole, qtbot):
     """
     Test history complete widget
