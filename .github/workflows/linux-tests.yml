@@ -40,7 +40,7 @@ jobs:
       - name: Install System Packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libegl1 xterm
+          sudo apt-get install -y --no-install-recommends '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libegl1
       - name: Install Conda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -72,8 +72,9 @@ jobs:
           conda list
           pip list
       - name: Run tests
+        uses: aganders3/headless-gui@v2
         shell: bash -l {0}
-        run: xvfb-run --auto-servernum pytest -vv -s --full-trace --color=yes --cov=qtconsole qtconsole
+        run: pytest -vv -s --full-trace --color=yes --cov=qtconsole qtconsole
         env:
           QT_API: ${{ matrix.QT_LIB }}
           PYTEST_QT_API: ${{ matrix.QT_LIB }}
