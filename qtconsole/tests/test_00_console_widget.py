@@ -34,7 +34,6 @@ def qtconsole(qtbot):
     console.window.close()
 
 
-@flaky(max_runs=3)
 def test_history_complete(qtconsole, qtbot):
     """
     Test history complete widget
@@ -58,7 +57,7 @@ def test_history_complete(qtconsole, qtbot):
         modifier=QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier,
     )
     qtbot.waitUntil(
-        lambda: shell._history_list_widget.isVisible(), timeout=SHELL_TIMEOUT
+        lambda: shell._history_list_widget.isVisibleTo(control), timeout=SHELL_TIMEOUT
     )
 
     qtbot.keyClick(shell._history_list_widget, QtCore.Qt.Key_Enter)
