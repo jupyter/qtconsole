@@ -42,14 +42,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libegl1
       - name: Install Conda
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v3
         with:
            activate-environment: test
            auto-update-conda: false
            auto-activate-base: false
-           channels: conda-forge
-           channel-priority: strict
-           miniforge-variant: Mambaforge
+           miniforge-version: latest
            python-version: ${{ matrix.PYTHON_VERSION }}
       - name: Install dependencies with conda
         if: matrix.INSTALL_TYPE == 'conda'
