@@ -37,6 +37,8 @@ jobs:
            auto-activate-base: false
            miniforge-version: latest
            mamba-version: "*"
+           channels: conda-forge,defaults
+           channel-priority: true
            python-version: ${{ matrix.PYTHON_VERSION }}
       - name: Install package dependencies
         shell: bash -l {0}
