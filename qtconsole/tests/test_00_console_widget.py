@@ -56,10 +56,7 @@ def test_history_complete(qtconsole, qtbot):
         QtCore.Qt.Key_R,
         modifier=QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier,
     )
-    qtbot.waitUntil(
-        lambda: shell._history_list_widget.isVisibleTo(control), timeout=SHELL_TIMEOUT
-    )
-
+    qtbot.wait(1000)
     qtbot.keyClick(shell._history_list_widget, QtCore.Qt.Key_Enter)
 
     assert shell.input_buffer == "import time"
@@ -168,7 +165,9 @@ def test_scroll(qtconsole, qtbot, debug):
     prev_position = scroll_bar.maximum() - (scroll_bar.pageStep() * 8) // 10
     scroll_bar.setValue(prev_position)
 
-    qtbot.waitUntil(lambda: scroll_bar.value() > prev_position)
+    qtbot.wait(1000)
+
+    assert scroll_bar.value() > prev_position
 
 
 @flaky(max_runs=3)
