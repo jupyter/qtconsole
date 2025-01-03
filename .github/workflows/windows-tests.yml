@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: Checkout branch
         uses: actions/checkout@v3
-      - name: Install Conda
+      - name: Install Conda and install package dependencies
         uses: conda-incubator/setup-miniconda@v3
         with:
            activate-environment: test
@@ -40,9 +40,7 @@ jobs:
            channels: conda-forge
            channel-priority: true
            python-version: ${{ matrix.PYTHON_VERSION }}
-      - name: Install package dependencies
-        shell: bash -el {0}
-        run: mamba env update --file requirements/environment.yml
+           environment-file: requirements/environment.yml # Need to set up dependencies in the same step due to https://github.com/conda-incubator/setup-miniconda/issues/371
       - name: Show environment information
         shell: bash -el {0}
         run: |
