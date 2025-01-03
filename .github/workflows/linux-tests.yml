@@ -48,6 +48,7 @@ jobs:
            auto-update-conda: false
            auto-activate-base: false
            miniforge-version: latest
+           mamba-version: "*"
            python-version: ${{ matrix.PYTHON_VERSION }}
       - name: Install dependencies with conda
         if: matrix.INSTALL_TYPE == 'conda'
