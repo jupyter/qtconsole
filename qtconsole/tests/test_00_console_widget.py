@@ -34,7 +34,10 @@ def qtconsole(qtbot):
     console.window.close()
 
 
-@pytest.mark.skipif(no_display, reason="Doesn't work without a display")
+@pytest.mark.xfail(
+    sys.platform.startswith("linux"),
+    reason="Doesn't work without a window manager on Linux"
+)
 def test_history_complete(qtconsole, qtbot):
     """
     Test history complete widget
