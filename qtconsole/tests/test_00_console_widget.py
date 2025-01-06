@@ -173,7 +173,6 @@ def test_scroll(qtconsole, qtbot, debug):
     scroll_bar.setValue(prev_position)
 
     qtbot.wait(1000)
-
     assert scroll_bar.value() > prev_position
 
 
