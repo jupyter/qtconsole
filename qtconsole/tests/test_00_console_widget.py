@@ -34,6 +34,7 @@ def qtconsole(qtbot):
     console.window.close()
 
 
+@pytest.mark.skipif(no_display, reason="Doesn't work without a display")
 def test_history_complete(qtconsole, qtbot):
     """
     Test history complete widget
@@ -51,13 +52,16 @@ def test_history_complete(qtconsole, qtbot):
         shell.execute("import time")
 
     qtbot.keyClicks(control, "imp")
+
     qtbot.keyClick(
         control,
         QtCore.Qt.Key_R,
         modifier=QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier,
     )
-    qtbot.wait(1000)
+    qtbot.waitUntil(lambda: shell._history_list_widget.isVisible())
+
     qtbot.keyClick(shell._history_list_widget, QtCore.Qt.Key_Enter)
+    qtbot.waitUntil(lambda: not shell._history_list_widget.isVisible())
 
     assert shell.input_buffer == "import time"
 
