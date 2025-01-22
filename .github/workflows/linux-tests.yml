@@ -33,6 +33,8 @@ jobs:
         exclude:
           - INSTALL_TYPE: 'conda'
             QT_LIB: 'pyqt6'
+          - INSTALL_TYPE: 'conda'
+            PYTHON_VERSION: '3.8'
     timeout-minutes: 15
     steps:
       - name: Checkout branch
