@@ -1,23 +1,10 @@
-import os
-import unittest
 import sys
-
-from flaky import flaky
-import pytest
-
-from qtpy import QtCore, QtGui, QtWidgets
-from qtpy.QtTest import QTest
-
-from qtconsole.console_widget import ConsoleWidget
-from qtconsole.qtconsoleapp import JupyterQtConsoleApp
 from unittest.mock import patch
 
-from . import no_display
+import pytest
 
-from IPython.core.inputtransformer2 import TransformerManager
+from qtconsole.qtconsoleapp import JupyterQtConsoleApp
 
-
-SHELL_TIMEOUT = 20000
 
 def test_shortcut_traitlets():
     """ Verify that the traitlets are initialized correctly.
@@ -57,14 +44,15 @@ def test_shortcut_traitlets():
 
 
 @pytest.mark.parametrize(
-    "shortcut", ["undo", "redo", "copy", "cut", "paste", "print", "clear",
-    "close"])
+    "shortcut",
+    ["undo", "redo", "copy", "cut", "paste", "print", "clear", "close"]
+)
 def test_custom_shortcut_manager(shortcut):
     """ Verify that the shortcuts traitlets are set with a custom value.
     """
     # Simulate startup with a command-line argument that changes shortcuts
     test_args = ["test", f"--JupyterQtConsoleApp.shortcut_{shortcut}=Ctrl+O"]
-    with patch("sys.argv", test_args):    
+    with patch("sys.argv", test_args):
         # Initialize the application with the simulated arguments
         app = JupyterQtConsoleApp()
         app.initialize()

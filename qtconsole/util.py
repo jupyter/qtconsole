@@ -6,6 +6,7 @@ import inspect
 from qtpy import QtCore, QtGui
 
 from traitlets import HasTraits, TraitType
+
 #-----------------------------------------------------------------------------
 # Metaclasses
 #-----------------------------------------------------------------------------

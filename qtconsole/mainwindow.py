@@ -18,11 +18,7 @@ from qtpy import QtGui, QtCore, QtWidgets
 from qtconsole import styles
 from qtconsole.jupyter_widget import JupyterWidget
 from qtconsole.usage import gui_reference
-from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
 
-from traitlets.config.configurable import LoggingConfigurable
-from traitlets import Bool, Enum, Integer, Unicode
-from traitlets import default, HasTraits, observe
 
 def background(f):
     """call a function in a simple thread, to prevent blocking"""
@@ -393,7 +389,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def init_file_menu(self):
         self.file_menu = self.menuBar().addMenu("&File")
-        
+
         self.new_kernel_tab_act = QtWidgets.QAction("New Tab with &New kernel",
             self,
             shortcut=self._shortcuts['shortcut_new_kernel_tab'],
@@ -535,7 +531,6 @@ class MainWindow(QtWidgets.QMainWindow):
             shortcut=self._shortcuts['shortcut_full_screen'],
             statusTip="Toggle between Fullscreen and Normal Size",
             triggered=self.toggleFullScreen)
-        
         self.add_menu_action(self.view_menu, self.full_screen_act)
 
         self.view_menu.addSeparator()

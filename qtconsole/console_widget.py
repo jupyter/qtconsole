@@ -21,7 +21,6 @@ from qtconsole.util import MetaQObjectHasTraits, get_font, superQ
 
 from traitlets.config.configurable import LoggingConfigurable
 from traitlets import Bool, Enum, Integer, Unicode
-from traitlets import default, HasTraits, observe
 
 from .ansi_code_processor import QtAnsiCodeProcessor
 from .completion_widget import CompletionWidget
@@ -45,7 +44,6 @@ def is_whitespace(char):
 # Classes
 #-----------------------------------------------------------------------------
 
-
 class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ(QtWidgets.QWidget)), {})):
     """ An abstract base class for console-type widgets. This class has
         functionality for:
@@ -62,28 +60,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
 
     #------ Configuration ------------------------------------------------------
 
-    shortcut_print = Unicode('Ctrl+P').tag(config=True)
-    shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
-    shortcut_cut = Unicode().tag(config=True)
-    shortcut_copy = Unicode().tag(config=True)
-    shortcut_paste = Unicode().tag(config=True)
-    shortcut_save = Unicode().tag(config=True)
-    shortcut_zoom_in = Unicode().tag(config=True)
-    shortcut_zoom_out = Unicode().tag(config=True)
-    shortcut_reset_font_size = Unicode('Ctrl+0').tag(config=True)
-    shortcut_actions = {}
-    def _shortcut_save_default(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
-    def _shortcut_cut_default(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()
-    def _shortcut_copy_default(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
-    def _shortcut_paste_default(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
-    def _shortcut_zoom_in_default(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn).toString()
-    def _shortcut_zoom_out_default(self):
-        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomOut).toString()
     ansi_codes = Bool(True, config=True,
         help="Whether to process ANSI escape codes."
     )
@@ -195,6 +171,29 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     # priority (when it has focus) over, e.g., window-level menu shortcuts.
     override_shortcuts = Bool(False)
 
+    shortcut_actions = {}
+    shortcut_print = Unicode('Ctrl+P').tag(config=True)
+    shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
+    shortcut_cut = Unicode().tag(config=True)
+    def _shortcut_cut_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Cut).toString()
+    shortcut_copy = Unicode().tag(config=True)
+    def _shortcut_copy_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Copy).toString()
+    shortcut_paste = Unicode().tag(config=True)
+    def _shortcut_paste_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Paste).toString()
+    shortcut_save = Unicode().tag(config=True)
+    def _shortcut_save_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.Save).toString()
+    shortcut_zoom_in = Unicode().tag(config=True)
+    def _shortcut_zoom_in_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomIn).toString()
+    shortcut_zoom_out = Unicode().tag(config=True)
+    def _shortcut_zoom_out_default(self):
+        return QtGui.QKeySequence(QtGui.QKeySequence.ZoomOut).toString()
+    shortcut_reset_font_size = Unicode('Ctrl+0').tag(config=True)
+
     # ------ Custom Qt Widgets -------------------------------------------------
 
     # For other projects to easily override the Qt widgets used by the console
@@ -247,7 +246,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     # 'QObject' interface
     #---------------------------------------------------------------------------
 
-    
     def __init__(self, parent=None, **kw):
         """ Create a ConsoleWidget.
 
