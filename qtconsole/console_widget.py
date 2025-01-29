@@ -171,7 +171,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
     # priority (when it has focus) over, e.g., window-level menu shortcuts.
     override_shortcuts = Bool(False)
 
-    shortcut_actions = {}
     shortcut_print = Unicode('Ctrl+P').tag(config=True)
     shortcut_select_all = Unicode('Ctrl+A').tag(config=True)
     shortcut_cut = Unicode().tag(config=True)
@@ -355,7 +354,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         action.triggered.connect(self.print_)
         self.addAction(action)
         self.print_action = action
-        self.shortcut_actions['shortcut_print']=self.print_action
 
         action = QtWidgets.QAction('Save as HTML/XML', None)
         action.setShortcut(self.shortcut_save)
@@ -363,7 +361,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         action.triggered.connect(self.export_html)
         self.addAction(action)
         self.export_action = action
-        self.shortcut_actions['shortcut_save']=self.export_action
 
         action = QtWidgets.QAction('Select All', None)
         action.setEnabled(True)
@@ -377,7 +374,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         action.triggered.connect(self.select_all_smart)
         self.addAction(action)
         self.select_all_action = action
-        self.shortcut_actions['shortcut_select_all']=self.select_all_action
 
         self.increase_font_size = QtWidgets.QAction("Bigger Font",
                 self,
@@ -386,7 +382,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 statusTip="Increase the font size by one point",
                 triggered=self._increase_font_size)
         self.addAction(self.increase_font_size)
-        self.shortcut_actions['shortcut_zoom_in']=self.increase_font_size
 
         self.decrease_font_size = QtWidgets.QAction("Smaller Font",
                 self,
@@ -395,7 +390,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 statusTip="Decrease the font size by one point",
                 triggered=self._decrease_font_size)
         self.addAction(self.decrease_font_size)
-        self.shortcut_actions['shortcut_zoom_out']=self.decrease_font_size
 
         self.reset_font_size = QtWidgets.QAction("Normal Font",
                 self,
@@ -404,7 +398,6 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
                 statusTip="Restore the Normal font size",
                 triggered=self.reset_font)
         self.addAction(self.reset_font_size)
-        self.shortcut_actions['shortcut_reset_font_size']=self.reset_font_size
 
         # Accept drag and drop events here. Drops were already turned off
         # in self._control when that widget was created.
@@ -1176,17 +1169,14 @@ class ConsoleWidget(MetaQObjectHasTraits('NewBase', (LoggingConfigurable, superQ
         self.cut_action = menu.addAction('Cut', self.cut)
         self.cut_action.setEnabled(self.can_cut())
         self.cut_action.setShortcut(self.shortcut_cut)
-        self.shortcut_actions['shortcut_cut']=self.cut_action
 
         self.copy_action = menu.addAction('Copy', self.copy)
         self.copy_action.setEnabled(self.can_copy())
         self.copy_action.setShortcut(self.shortcut_copy)
-        self.shortcut_actions['shortcut_copy']=self.copy_action
 
         self.paste_action = menu.addAction('Paste', self.paste)
         self.paste_action.setEnabled(self.can_paste())
         self.paste_action.setShortcut(self.shortcut_paste)
-        self.shortcut_actions['shortcut_paste']=self.paste_action
 
         anchor = self._control.anchorAt(pos)
         if anchor:
