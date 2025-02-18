@@ -74,9 +74,9 @@ setup_args = dict(
         'qtpy>=2.4.0',
         'packaging'
     ],
-    extras_require = {
-        'test': ['flaky', 'pytest', 'pytest-qt'],
-        'doc': 'Sphinx>=1.3',
+    extras_require={
+        "test": ["flaky", "pytest", "pytest-qt", "pytest-asyncio"],
+        "doc": "Sphinx>=1.3",
     },
     entry_points = {
         'gui_scripts': [
